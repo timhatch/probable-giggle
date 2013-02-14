@@ -1,0 +1,105 @@
+/*
+ * Metro UI CSS v 0.1.4
+ * Copyright 2012 Sergey Pimenov
+ * Licensed under the MIT Lilcense
+ *
+ * Buttons.less
+ */
+
+
+button, .button {
+    #font > .control;
+    height: 32px;
+    background-color: #ccc;
+    border: 1px transparent solid;
+    color: #353535;
+	margin: 5px 5px 5px 5px;
+//    margin-right: 10px;
+//    margin-bottom: 10px;
+    border-radius: 0;
+    display: inline-block;
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+    padding: 4px 10px;
+
+    &.standart {
+        min-width: 90px;
+        min-height: 32px;
+    }
+
+    &:active, &.default:active {
+        background-color: #000 !important;
+        color: #fff;
+    }
+
+    &:disabled, &.disabled {
+        background-color: #eaeaea;
+        color: #bebebe;
+        cursor: not-allowed;
+    }
+
+    &.default {
+        background-color: #008287;
+        color: #fff;
+    }
+
+    &:focus {
+        outline: 0;
+        border: 1px #353535 dotted;
+    }
+
+    &:hover {
+    }
+
+}
+
+button, .button, .tool-button {
+    [class*=icon-] {
+        background-size: cover;
+        zoom: 1;
+    }
+
+    &.mini {
+        min-height: 24px;
+        height: 26px;
+        font-size: .8em;
+
+        [class*=icon-] {
+
+        }
+    }
+    &.big {
+        min-height: 48px;
+        height: 48px;
+        font-size: 1.2em;
+
+        [class*=icon-] {
+            margin-top: 6px;
+            zoom: 1;
+        }
+    }
+}
+
+.command-button {
+    width: 330px;
+    text-align: left;
+    padding: 10px 20px;
+    height: auto;
+    color: #000;
+    background-color: #ccc;
+    #font > .normal;
+
+    & > small {
+        display: block;
+        #font > .normal;
+        font-size: 10pt;
+        color: #505050;
+    }
+
+    &.default {
+        & > small {
+            color: #ccc;
+        }
+    }
+}

@@ -265,12 +265,3 @@ App.MainView = Backbone.View.extend({
 		this.$("#rslt").text(this.collection.score+' / '+this.collection.bonus)
 	}
 });
-
-
-/* **********************************************
-     Begin JSApp.js
-********************************************** */
-
-$(document).ready(function(){
-	new App.MainView()
-});

@@ -1,0 +1,30 @@
+body { margin: 0 auto 0 auto; }
+
+@baseWidth: @tileSmall + @tileMargin * 2;
+
+// Array widths
+@minwidth10: @baseWidth * 10;	// 10 cells
+@minwidth05: @baseWidth * 5;	//  5 cells
+@minwidth03: @baseWidth * 3;	//  3 cells
+@minwidth02: @baseWidth * 2;	//  2 cells
+
+@maxwidth05: @minwidth10 - 1;
+@maxwidth03: @minwidth05 - 1;
+@maxwidth02: @minwidth03 - 1;
+
+// 10 cells, e.g. 1366*768 monitors
+@media (min-width: @minwidth10) {
+	body { max-width: @minwidth10; }
+}
+// 5 cells, e.g. iPad in portrait mode
+@media (max-width: @maxwidth05) and (min-width: @minwidth05) {
+	body { max-width: @minwidth05; }
+}
+// 3 cells, e.g. 7" Android tablets in portrait mode
+@media (max-width: @maxwidth03) and (min-width: @minwidth03) {
+	body { max-width: @minwidth03; }
+}
+// 2 cells, e.g. iPhone/Android phones
+@media (max-width: @maxwidth02) {
+	body { max-width: @minwidth02; }
+}
