@@ -48,8 +48,8 @@ App.BlocView = Backbone.View.extend({
 	tmpl		: _.template($('#boulder_tmpl').html()),
 	model		: App.Bloc,
 	events		: {
-		"change		input[type=text]"	: "updateFromText", // simpler than checking for return and tab or '0' entries
-		"click 		input[type=radio]"	: "updateFromRdio"
+		"change input[type=text]"  : "updateFromText", // simpler than checking for return and tab or '0' entries
+		"click  input[type=radio]" : "updateFromRdio"
 	},
 
 	/*
@@ -57,6 +57,9 @@ App.BlocView = Backbone.View.extend({
 	*
 	*/
 	initialize: function(){
+		//	Disable highlighting of parent element to a clickable region in Android Mobile Webkit
+		this.$el.css('-webkit-tap-highlight-color','rgba(0,0,0,0)')
+
 		// Bind the change event of this.model to this.update()
 		this.listenTo(this.model, 'change', this.update, this)
 	},
@@ -87,7 +90,7 @@ App.BlocView = Backbone.View.extend({
 	*/
 	updateFromText: function(){
 		// Get the value of the textfield and set the model 'state'
-		var $el 		= this.$el.find(':text'),
+		var $el			= this.$el.find(':text'),
 			text		= $el.val(),
 			new_state	= (!text) ? 4 : _(this.model.resmx).indexOf(parseInt(text,10))
 
@@ -196,9 +199,9 @@ App.Result = Backbone.Collection.extend({
 App.MainView = Backbone.View.extend({
 	el			: $('#inner'),
 	events		: {
-		"blur 		#PerId"		: "tabResult",
-		"keypress 	#PerId"		: "loadResult",
-		"click		#submit"	: "postResult",
+		"blur     #PerId"  : "tabResult",
+		"keypress #PerId"  : "loadResult",
+		"click    #submit" : "postResult"
 	},
 	blocs		: 30,
 
