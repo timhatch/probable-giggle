@@ -1,8 +1,0 @@
-body{background:#1d1d1d;}
-.text-rest-state{color:#ffffff;}
-.text-rest2-state{color:rgba(255, 255, 255, 0.6);}
-.text-hover-state{color:rgba(255, 255, 255, 0.8);}
-.text-pressed-state{color:rgba(255, 255, 255, 0.4);}
-h1,h2,h3,h4,h5,h6,span{color:#ffffff;}h1:hover,h2:hover,h3:hover,h4:hover,h5:hover,h6:hover,span:hover{color:rgba(255, 255, 255, 0.8);}
-h1:active,h2:active,h3:active,h4:active,h5:active,h6:active,span:active{color:rgba(255, 255, 255, 0.4);}
-#PerId{color:#ffffff;}
