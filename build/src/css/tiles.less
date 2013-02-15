@@ -7,8 +7,8 @@
  *
  */
 
-@tileSmall:             125px;		
-@tileLarge:             260px;		
+@tileSmall:             125px;
+@tileLarge:             260px;
 // @tileSmall:             150px;
 // @tileLarge:             310px;
 @tileMargin:            5px;
@@ -16,6 +16,17 @@
 @tileTriple:            @tileSmall * 3 + @tileMargin * 4;
 @tileQuadro:            @tileSmall * 4 + @tileMargin * 6;
 
+.clearfix {
+    *zoom: 1;
+    &:before,
+    &:after {
+        display: table;
+        content: "";
+    }
+    &:after {
+        clear: both;
+    }
+}
 
 .tile {
     display: block;
@@ -29,9 +40,10 @@
     box-shadow: inset 0px 0px 1px @gtext;
     text-decoration: none;
     color: @white;
-    .no-overflow;
-    .pos-rel;
-    #font > .normal;
+    overflow: hidden;
+	position: relative;
+
+	#font > .normal;
 //    margin: 0 10px 10px 0;
     margin: 5px 5px 5px 5px;
 
@@ -127,52 +139,8 @@
         }
     }
 
-    &.double {
-        width: @tileDouble;
-
-        & .tile-content {
-            width: @tileDouble;
-        }
-    }
-    &.triple {
-        width: @tileTriple;
-
-        & .tile-content {
-            width: @tileTriple;
-        }
-    }
-    &.quadro {
-        width: @tileQuadro;
-
-        & .tile-content {
-            width: @tileQuadro;
-        }
-    }
-    &.double-vertical {
-        height: @tileDouble;
-
-        & .tile-content {
-            height: @tileDouble - 40;
-        }
-    }
-    &.triple-vertical {
-        height: @tileTriple;
-
-        & .tile-content {
-            height: @tileTriple - 40;
-        }
-    }
-    &.quadro-vertical {
-        height: @tileQuadro;
-
-        & .tile-content {
-            height: @tileQuadro - 40;
-        }
-    }
-
-
     .brand, .tile-status {
-        .pos-abs;
+		position: absolute;
         bottom: 0;
         left: 0;
         right: 0;
@@ -181,7 +149,10 @@
         .clearfix;
 
         & > .name {
-            .bottom-left;
+		    position: absolute;
+		    bottom: 0;
+		    left: 0;
+
             margin-bottom: 5px;
             margin-left: 15px;
             #font > .tertiary;
@@ -204,7 +175,7 @@
         }
 
         & > .text {
-            .pos-abs;
+			position: absolute;
             left: 60px;
             top: 5px;
             right: 50px;
