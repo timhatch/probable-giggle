@@ -1,3 +1,3 @@
 $(document).ready(function(){
-	new App.MainView()
+	new App.MainView({ 'blocs' : 30 })
 });

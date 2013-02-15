@@ -116,6 +116,7 @@ App.BlocView = Backbone.View.extend({
 	}
 });
 
+
 /* Model Collection */
 App.Result = Backbone.Collection.extend({
 	identity	: {
@@ -189,7 +190,6 @@ App.Result = Backbone.Collection.extend({
 });
 
 /* App container */
-// TODO: Figure out how to input the number of blocs required...
 App.MainView = Backbone.View.extend({
 	el			: $('#inner'),
 	events		: {
@@ -203,15 +203,15 @@ App.MainView = Backbone.View.extend({
 	* Initialize() : Init the view
 	*
 	*/
-	initialize: function(blocs){
-		// Bootstrap the collection's models & create the relevant views
+	initialize: function(options){
 		var view,
 			$el	= this.$el.find('#tiles'),
-			n	= blocs || this.blocs
+			n	= options.blocs || this.blocs
 
+		// Bootstrap the collection's models & create the relevant views
 		this.collection = new App.Result()
 		this.collection.populate(n).each(function(model){
-			view = new App.BlocView({"model": model})
+			view = new App.BlocView({ "model": model })
 			$el.prepend(view.render().el)
 		})
 
