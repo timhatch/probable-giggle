@@ -7,74 +7,47 @@
  *
  */
 
-// Cambria equals
-// font-family: 'PT Serif Caption', serif;
-// font-family: 'PT Serif Caption', serif;
 @font-face {
-    font-family: 'Open Sans';
-    font-style: normal;
-    font-weight: 700;
-    src: local('Open Sans Bold'), local('OpenSans-Bold'), url('./fonts/k3k702ZOKiLJc3WVjuplzJ1r3JsPcQLi8jytr04NNhU.woff') format('woff');
+	font-family	: 'OpenSansRegular';
+	font-style	: normal;
+	font-weight	: 400;
+	src: url('./fonts/OpenSans-Regular-webfont.eot');
+	src: local('?'),
+		url('./fonts/K88pR3goAWT7BTt32Z01mz8E0i7KZn-EPnyo3HZu7kw.woff') format('woff'),
+		url('./fonts/K88pR3goAWT7BTt32Z01mz8E0i7KZn-EPnyo3HZu7kw.ttf') format('truetype');
 }
 @font-face {
-    font-family: 'Open Sans';
-    font-style: normal;
-    font-weight: 300;
-    src: local('Open Sans Light'), local('OpenSans-Light'), url('./fonts/DXI1ORHCpsQm3Vp6mXoaTZ1r3JsPcQLi8jytr04NNhU.woff') format('woff');
-}
-@font-face {
-    font-family: 'Open Sans';
-    font-style: normal;
-    font-weight: 800;
-    src: local('Open Sans Extrabold'), local('OpenSans-Extrabold'), url('./fonts/EInbV5DfGHOiMmvb1Xr-hp1r3JsPcQLi8jytr04NNhU.woff') format('woff');
-}
-@font-face {
-    font-family: 'Open Sans';
-    font-style: normal;
-    font-weight: 400;
-    src: local('Open Sans'), local('OpenSans'), url('./fonts/K88pR3goAWT7BTt32Z01mz8E0i7KZn-EPnyo3HZu7kw.woff') format('woff');
+	font-family	: 'OpenSansLight';
+	font-style	: normal;
+	font-weight	: 300;
+	src: url('./fonts/OpenSans-Light-webfont.eot');
+	src: local('?'),
+		url('./fonts/DXI1ORHCpsQm3Vp6mXoaTZ1r3JsPcQLi8jytr04NNhU.woff') format('woff'),
+		url('./fonts/DXI1ORHCpsQm3Vp6mXoaTZ1r3JsPcQLi8jytr04NNhU.ttf') format('truetype');
 }
 
 
 #font {
-    .header {
-        font-family: 'Segoe UI Light', 'Open Sans', Verdana, Arial, Helvetica, sans-serif;
-        font-weight: 200;
-        font-size: 42pt;
-        letter-spacing: 0.00em;
-        line-height: 44pt;
-    }
-
-    .subheader, .subheader-secondary {
-        font-family: 'Segoe UI Light', 'Open Sans', Verdana, Arial, Helvetica, sans-serif;
-        font-weight: 200;
-        font-size: 20pt;
-        letter-spacing: 0.01em;
-        line-height: 24pt;
-    }
+	.subheader, .subheader-secondary {
+		font-family: OpenSansLight;
+		font-weight: 200;
+		font-size: 20pt;
+		letter-spacing: 0.01em;
+		line-height: 24pt;
+	}
 
     .body, .body-secondary, .normal {
-        font-family: 'Segoe UI Semilight', 'Open Sans', Verdana, Arial, Helvetica, sans-serif;
-        font-weight: 300;
-        font-size: 11pt;
-        letter-spacing: 0.02em;
-        line-height: 20px;
-    }
+		font		: OpenSansLight;
+		font-weight	: 200;
+		font-size	: 11pt;
+		letter-spacing: 0.02em;
+		line-height	: 20px;
+	}
 
-
-    .tertiary, .tertiary-secondary {
-        font-family: 'Open Sans', Verdana, Arial, Helvetica, sans-serif;
-        font-weight: 400;
-        font-size: 9pt;
-    }
-
-    .control {
-        font-family: 'Open Sans', Verdana, Arial, Helvetica, sans-serif;
-        font-weight: 400;
-        font-size: 9pt;
-    }
-
-
+	.tertiary, .tertiary-secondary,  .control {
+		font-family	: OpenSansRegular;
+		font-size	: 9pt;
+	}
 }
 
 #state {
@@ -90,17 +63,10 @@
     }
 }
 
-h1, h2, h3, h4, h5, h6 {
+h2 {
     margin: 10px 0;
     padding: 0;
-}
 
-h1 {
-    #font > .header;
-    #state > .header;
-}
-
-h2 {
     #font > .subheader;
     #state > .subheader;
 }
