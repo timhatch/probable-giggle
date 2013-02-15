@@ -182,7 +182,10 @@ App.Result = Backbone.Collection.extend({
 	*
 	*/
 	post: function(){
-		$.post("./scripts/post.php", { "PerId" : this.identity.PerId , "models": JSON.stringify(this) }, function(data){
+		$.post("./scripts/post.php", {
+				"PerId" : this.identity.PerId,
+				"models": JSON.stringify(this)
+			}, function(data){
 			/* as a test, write-back the data received at the server */
 			window.console.log(data)
 		})
