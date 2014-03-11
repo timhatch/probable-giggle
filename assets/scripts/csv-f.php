@@ -10,7 +10,7 @@
 
 	// Get the results data
 	$db		= new SQLite3('results.db');
-	$result = $db->query("select * from result1");
+	$result = $db->query("select * from result1 where category='f'");
 
 	// Echo each set of results data
 	while($res = $result->fetchArray(SQLITE3_ASSOC)){
