@@ -41,7 +41,7 @@ $(document).ready(function(){
 	_.extend(applicationObject, Backbone.Events)
 	applicationObject.init()
 
-	applicationObject.resultsView.loadResults()
+	applicationObject.resultsView.loadResults('m')
 //	setInterval(function(){ applicationObject.updateResultsView() }, 5000 );
 	setTimeout(function(){ applicationObject.updateResultsView() }, 5000 );
 
