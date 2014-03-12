@@ -1,0 +1,109 @@
+/*
+ * CSS for Application Dialog Panel
+ * Inspired by the CSS styling for the jQuery "Aspire v2" plugin
+ * http://thrivingkings.com/
+ *
+ */
+
+// Globals
+//
+@panel_width 		: 100%;
+@highlight_color	: #0066cc;
+
+.dialog_font {
+	font 		: 12px/32px OpenSansRegular, serif;
+	color 		: white;
+}
+
+// Define the top level view
+//
+.a_panel {
+	// Place the settings panel at a fixed position beneath the header and floating above other content
+	position 	: relative;
+	top			: 48px;
+	left 		: 42px;
+	width		: 180px;
+
+	background	: #444;
+
+	z-index		: 100;
+	overflow 	: hidden;
+	cursor 		: default;
+}
+
+.a_panel.show { display	: block }
+.a_panel.hide { display	: none }
+
+
+// Define the main content area
+//
+.a_panel .round-id {
+	padding 	: 0px 20px 10px 20px;
+	vertical-align: top;
+}
+
+
+.round-id span.grp {
+	position	: absolute;
+	display 	: inline-block;
+	left 		: 0;
+}
+
+// Hide the default radiobutton & checkbox elements
+// We could do this directly on the input elements, but for now operate on classes (this would in principle allow mixing default & custom element, though that's not needed here)
+.round-id .rdio { display: none; }
+
+// Custom checkbox definition
+//
+.round-id .rdio + label {
+	display 		: inline-block;
+	position 		: relative;
+	-webkit-appearance: none;
+
+	height 			: 28px;
+	width 			: 57px;
+	text-align		: center;
+	.dialog_font;
+}
+
+.round-id .rdio + label:active {
+	background-color	: #06c;
+}
+// Insert content (:after) into a label immediately following a 'checked' element of class .rdio
+.round-id .rdio:checked + label:after {
+	// @ position
+	position 		: absolute;
+	left			: 0;
+	// @ dimensions
+	width 			: 60px;
+	// content to insert
+	content 		: 'y';
+	color 			: rgba(0,0,0,0);
+	border-bottom	: 4px solid red;
+}
+
+
+// Styles for the competition list
+//
+.a_panel .comp-id {
+ 	padding 	: 24px 0 0 0;
+// 	text-align 	: right;
+}
+
+.comp-id li:nth-child(1){
+	border-top	: 1px inset #888;
+
+}
+.comp-id li {
+	text-align	: left;
+	height		: 32px;
+	padding 		: 0 0 0 17px;
+
+	border-bottom: 1px groove #888;
+//	border-bottom-style: groove;
+	.dialog_font
+}
+
+.comp-id li:active {
+	background-color : @highlight_color;
+}

@@ -5,8 +5,7 @@
 
 	$cat = (isset($_GET['cat'])) ? $_GET['cat'] : 'f';
 
-	$db		= new SQLite3('results.db');
-
+	$db    = new SQLite3('results.db');
 	$reslt = $db->query("select * from result1 where category = '$cat'");
 
 	// Echo each set of results data

@@ -1,235 +1,3 @@
-/* MVC style coding for a dynamic presentation of bouldering results
-* Copyright 2011, Tim Hatch
-* Dual licensed under the MIT or GPL Version 2 licenses.
-*/
-
-/***********************************
-*
-*	CODEKIT DECLARATIONS
-*
-***********************************/
-/*global _        */
-
-/***********************************
- *
- * UNDERSCORE UTILITIES
- *
- ***********************************/
-
-/*
- * Use Mustache-style for Underscore templates
- *
- */
-_.templateSettings = {
-	evaluate	: /\{\[([\s\S]+?)\]\}/g,
-	interpolate	: /\{\{([\s\S]+?)\}\}/g
-};
-
-/*
- * Underscore mixins for the results display classes
- *
- */
-_.mixin({
-	/*
-	* compareElements(arr, a, b)
-	*
-	* An underscore mixin function to perform a deep compare on two elements of an 2D numeric array.
-	* returns +1 if the first sub-array is 'greater'; -1 if the first sub-array is 'smaller'; and 0 if the two sub-arrays are identical
-	* the comparison is performed by comparing each element of the two sub-arrays in turn
-	*
-	*/
-	compareElements: function(arr, a, b){
-		var depth = 0
-		while (depth < arr[a].length && depth < arr[b].length) {
-			if (arr[a][depth] < arr[b][depth]) { return 1 }
-			if (arr[a][depth] > arr[b][depth]) { return -1 }
-			depth++
-		}
-		return 0
-	},
-
-	/*
-	* quicksort(arr, left, right)
-	*
-	* An underscore mixin function implementing a modified quicksort algorithm (the pivot is set as the first element of each comparison,
-	* rather than set randomly or mid-way)
-	* Based on the C++ implementation referenced at:
-	* http://www.algolist.net/Algorithms/Sorting/Quicksort
-	* and the javascript implementation at:
-	* http://www.webxpertz.net/forums/showthread.php/11030-Article-JavaScript-Sorting-a-Multidimensional-Array-—-quicksort
-	* The main change is to set the pivot as the left edge of the partition being tested (as opposed to the mid point or some random element)
-	*
-	*/
-	quicksort: function(arr, left, right){
-		var i = left, j = right, pivot = left, tmp
-		/* partition */
-		while (i <= j) {
-			while (_.compareElements(arr, i, pivot) > 0 ) i++  // Use a bespoke compare()
-			while (_.compareElements(arr, j, pivot) < 0 ) j--
-			if (i <= j) {
-				tmp    = arr[i]
-				arr[i] = arr[j]
-				arr[j] = tmp
-				i++
-				j--
-			}
-		}
-		/* recursion*/
-		if (left < j )	_.quicksort(arr, left, j )
-		if (i < right)	_.quicksort(arr, i, right)
-	},
-
-	/*
-	* titleize(str), strRight(str, sep)
-	*
-	* Underscore mixins to either 'titleize' a string or create a substring from the right hand part of an existing string
-	* Taken from the underscore string manipulation extensions at:
-	* https://github.com/epeli/underscore.string
-	*
-	*/
-	titleize: function(str){
-		if (str == null) return ''
-		return String(str).replace(/(?:^|\s)\S/g, function(c){ return c.toUpperCase() })
-	},
-	strRight: function(str, sep){
-		if (str == null) return ''
-		str = String(str); sep = sep != null ? String(sep) : sep
-		var pos = !sep ? -1 : str.indexOf(sep)
-		return ~pos ? str.slice(pos+sep.length, str.length) : str
-	}
-})
-
-/* **********************************************
-     Begin THClimber.js
-********************************************** */
-
-/* MVC style coding for a dynamic presentation of bouldering results
-* Copyright 2011, Tim Hatch
-* Dual licensed under the MIT or GPL Version 2 licenses.
-*/
-
-/***********************************
-*
-*	CODEKIT DECLARATIONS
-*
-***********************************/
-/*global Backbone */
-/*global _        */
-/*global App      */
-
-window.App = window.App || {}
-
-/***********************************
-*
-* MODELS
-*
-***********************************/
-
-/*
-*	Climber model extending Backbone.js 'Model' class
-*/
-App.Climber = Backbone.Model.extend({
-	/*
-	* Properties used from eGroupware JSON Interface
-	* (str)start_order, (str)PerId								-> init & set by collection::load()
-	* (str)lastname, (str)nation (str)rank_prev_heat			-> init & set by collection::load()
-	*
-	* Computed Properties
-	*/
-
-	/* getResults()
-	* Return the top/bonus data as an array for sorting
-	*/
-	getResults: function(){
-		var arr = [];
-		arr[0] = -this.attributes.points				// negative data gives a descending sort
-		arr[1] = -this.attributes.bonus					// positive data an ascending sort
-		arr[2] = -this.attributes.id
-		return arr;
-	}
-});
-
-/***********************************
-*
-*	VIEWS
-*
-***********************************/
-
-/*
-* Climber view extending Backbone.js 'View' class
-*/
-App.ClimberView = Backbone.View.extend({
-	tagName				: 'li',
-//	className			: 'not_list',
-	events				: {
-//		'click .cbox' : 'toggleFav'
-	},
-
-	/*
-	* initialize(): Trigger the view's update method if the associated model is changed
-	* NOTE: The association between model & view is made in the superview's initialize method
-	*
-	*/
-	initialize: function(){
-		// Bind the ::update function to any change in the related model.
-		this.listenTo(this.model, 'change', this.update, this)
-	},
-
-	/*
-	*	render(): Render a view with 5 results blocks when the associated model is first loaded.
-	*	The underscore _.template method is used to interpret the actual template (in the DOM) and will layout 5 sub-elements to show results on each bloc.
-	*
-	*	Pass in the EGW Category for the relevant model
-	*
-	*/
-	render: function(){
-
-		// Render the underscore template
-		var tmpl= $('#climber_template').text(),
-			str	= _.template(tmpl, {
-			rank	: this.model.get('rank') || 1,
-			name	: _.titleize(this.model.get('name')),
-			code	: this.model.get('category').toUpperCase(),
-			points	: this.model.get('points'),
-			bonus	: this.model.get('bonus')
-		});
-
-		this.$el.html(str);
-
-		// Add a class to denote the category (used by $.isotope for filtering)
-		this.$('.rank').addClass(this.model.get('category'))
-
-		// Set the data::rankorder property so that we can sort the superview when it is rendered
-		this.$el.data('rankorder', this.model.get('rankorder'))
-
-		// Return
-		return this;
-	},
-
-	/*
-	*	update(): Update the view when the associated model is updated
-	*
-	*/
-	update: function(){
-
-		// Update the displayed rank & the rankorder data element used by the isotope sort function
-		this.$('.rank').text(this.model.get('currentranking'))
-
-//		var syntheticRank = this.model.get('points')+(this.model.get('bonus')/100)
-		var syntheticRank = parseInt(100*this.model.get('points'), 10) + parseInt(this.model.get('bonus'),10)
-		this.$el.data('rankorder', -syntheticRank)
-
-		// Update the aggegrate results
-		this.$('.pts').text(this.model.get('points'))
-		this.$('.bns').text(this.model.get('bonus'))
-//		return this;
-	}
-});
-
-/* **********************************************
-     Begin THResultsList.js
-********************************************** */
-
 /*	MVC style coding for a dynamic presentation of bouldering results
 *	Copyright 2011, Tim Hatch
 *	Dual licensed under the MIT or GPL Version 2 licenses.
@@ -358,7 +126,7 @@ App.ResultsList = Backbone.Collection.extend({
 		// Push data into a temporary array that we can sort (sortingArray)
 		_(this.models).each(function(model){ sortingArray.push(model.getResults()) })
 
-		window.console.log(sortingArray)
+//		window.console.log(sortingArray)
 		// Sort by T/TA/B/BA/rank_prev_heat/PerID (this latter gives a 'stable sort' in the event of ==)
 		_(sortingArray).quicksort(0, s_len-1)
 		// sortingArray.js_quicksort(0, s_len-1)
@@ -450,7 +218,6 @@ App.ResultsListView = Backbone.View.extend({
 			// Initialise isotope for elements of kind 'li'
 			self.$resultsView.isotope({
 				itemSelector	: 'li',
-				animationEngine : 'best-available', /* 'best-available' defaults to 'css' where available and 'jquery' otherwise */
 				getSortData		: {
 					rankorder: function($el){ return parseInt( $el.data('rankorder'), 10) }
 				}
@@ -470,10 +237,10 @@ App.ResultsListView = Backbone.View.extend({
 		this.resultslists	= []
 
 		// Push two collections onto the array for the selected round, either M+F or both Starting Groups for the selected category in Q
-//		this.resultslists.push(new App.ResultsList({ 'cat' : 'm' }))
-		this.resultslists.push(new App.ResultsList({ 'cat' : 'f' }))
-//		this.resultslists.push(new App.ResultsList({ 'cat' : 'mj' }))
-		this.resultslists.push(new App.ResultsList({ 'cat' : 'fj' }))
+		this.resultslists.push(new App.ResultsList({ 'cat' : 'm' }))
+//		this.resultslists.push(new App.ResultsList({ 'cat' : 'f' }))
+		this.resultslists.push(new App.ResultsList({ 'cat' : 'mj' }))
+//		this.resultslists.push(new App.ResultsList({ 'cat' : 'fj' }))
 
 		// Pre-render the view container
 		this.render()
@@ -534,65 +301,11 @@ App.ResultsListView = Backbone.View.extend({
 
 			// Call the $.isotope updateSortDate() method on the li elements in the view
 			// We need to do this as the parameter 'rankorder' will have changed since $.isotope was initialized
-			self.$resultsView.isotope( 'updateSortData', self.$('li') )
+			self.$resultsView.isotope( 'updateSortData', self.$('li'))
 
 			// Call the $.isotope sortBy() method using rankorder as the sorting parameter and apply filters to show the top 'n' and to rotate through the remainder
 			self.$resultsView.isotope({ 'sortBy': 'rankorder' })
 			self.trigger('application_event:toggleajaxspinner')
 		})
 	}
-});
-
-
-/* **********************************************
-     Begin ResApp.js
-********************************************** */
-
-/* MVC style coding for a dynamic presentation of bouldering results
-* Copyright 2011, Tim Hatch
-* Dual licensed under the MIT or GPL Version 2 licenses.
-*/
-
-// Wrap eveything in a singleton object
-var applicationObject = {
-
-	/*
-	 * init() - Initialize the object
-	 *
-	 *
-	 */
-	init: function(){
-		// Initialise in order the settings model and then each of the application views:
-		// 1) settingsView, accessing the application settings and containing the settings model
-		// 2) headerView, controlling the application views/models -
-		// 3) resultsView, displaying the results
-		// Pass the settings model allowing them to (make and) respond to changes within without application level event mediation.
-		this.resultsView	= new App.ResultsListView()
-
-		// Deal with Android-specific problems...
-	},
-
-	/*
-	*	updateResultsView(): Refresh the ResultsListView,
-	*
-	*/
-	updateResultsView: function(){
-		window.console.log('update results called')
-		this.resultsView.updateView({ 'force_refresh' : true })
-	}
-}
-
-/*
- *	Initialise the object once the DOM has fully loaded
- *
- */
-$(document).ready(function(){
-	// Extend Backbone Events to the applicationObject and then initialize the object
-	_.extend(applicationObject, Backbone.Events)
-	applicationObject.init()
-
-	applicationObject.resultsView.loadResults()
-
-	setInterval(function(){ applicationObject.updateResultsView() }, 20000 );
-
 });

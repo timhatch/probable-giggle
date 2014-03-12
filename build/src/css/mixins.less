@@ -1,0 +1,46 @@
+/* COLOURS */
+@panel-grey		: #1e1e1e;
+@green			: #0f0;
+@amber			: #fa0;
+@red			: #f00;
+@white 		 	: #fff;
+@black			: #000;
+
+/* COMMON VARIABLE DEFINITIONS */
+.rounded-corners (@radius) {
+	-moz-border-radius		: @radius;
+	-webkit-border-radius	: @radius;
+	border-radius			: @radius;
+}
+
+.box-shadow (@shadow1, @shadow2: transparent 0 0 0 ) {
+    -moz-box-shadow: @shadow1, @shadow2;
+    -webkit-box-shadow: @shadow1, @shadow2;
+    box-shadow: @shadow1, @shadow2;
+}
+
+.center-element (@width) {
+	width		: @width;
+	margin-left : -@width/2;
+	left 		: 50%;
+}
+
+.border-box {
+	-moz-box-sizing 	: border-box;
+	-webkit-box-sizing	: border-box;
+	box-sizing 			: border-box;
+}
+
+// CSS ANIMATIONS
+
+.animation (@name, @duration: 300ms, @delay: 0, @ease: ease) {
+	-webkit-animation:	@name @duration @delay @ease;
+	-moz-animation:		@name @duration @delay @ease;
+	animation:			@name @duration @delay @ease;
+}
+
+.transform(@string){
+	-webkit-transform	: @string;
+	-moz-transform		: @string;
+	transform			: @string;
+}
