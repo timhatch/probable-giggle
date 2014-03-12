@@ -40,4 +40,8 @@
 	%script{ :src=>'./libs/backbone-0.9.9.min.js' }
 
 	/ Application Code
-	%script{ :src=>'./JSResultsF.min.js' }
+	%script{ :src=>'./JSResultsApp.min.js' }
+	:javascript
+		$(document).ready(function(){
+			new App.ResultsListView({ cat : 'f' })
+		});

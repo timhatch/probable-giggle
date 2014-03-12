@@ -55,10 +55,6 @@ App.Climber = Backbone.Model.extend({
 */
 App.ClimberView = Backbone.View.extend({
 	tagName				: 'li',
-//	className			: 'not_list',
-	events				: {
-//		'click .cbox' : 'toggleFav'
-	},
 
 	/*
 	* initialize(): Trigger the view's update method if the associated model is changed
@@ -71,7 +67,7 @@ App.ClimberView = Backbone.View.extend({
 	},
 
 	/*
-	*	render(): Render a view with 5 results blocks when the associated model is first loaded.
+	*	render(): Render a view when the associated model is first loaded.
 	*	The underscore _.template method is used to interpret the actual template (in the DOM) and will layout 5 sub-elements to show results on each bloc.
 	*
 	*	Pass in the EGW Category for the relevant model
@@ -92,9 +88,8 @@ App.ClimberView = Backbone.View.extend({
 		this.$el.html(str);
 
 		// Add a class to denote the category (used by $.isotope for filtering)
-		this.$('.rank').addClass(this.model.get('category'))
-
 		// Set the data::rankorder property so that we can sort the superview when it is rendered
+		this.$('.rank').addClass(this.model.get('category'))
 		this.$el.data('rankorder', this.model.get('rankorder'))
 
 		// Return
@@ -107,8 +102,6 @@ App.ClimberView = Backbone.View.extend({
 	*/
 	update: function(){
 
-
-//		var syntheticRank = this.model.get('points')+(this.model.get('bonus')/100)
 		var syntheticRank = parseInt(100*this.model.get('points'), 10) + parseInt(this.model.get('bonus'),10)
 		this.$el.data('rankorder', -syntheticRank)
 
@@ -118,6 +111,5 @@ App.ClimberView = Backbone.View.extend({
 		// Update the aggegrate results
 		this.$('.pts').text(this.model.get('points'))
 		this.$('.bns').text(this.model.get('bonus'))
-//		return this;
 	}
 });

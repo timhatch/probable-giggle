@@ -126,16 +126,13 @@ App.ResultsList = Backbone.Collection.extend({
 		// Push data into a temporary array that we can sort (sortingArray)
 		_(this.models).each(function(model){ sortingArray.push(model.getResults()) })
 
-//		window.console.log(sortingArray)
 		// Sort by T/TA/B/BA/rank_prev_heat/PerID (this latter gives a 'stable sort' in the event of ==)
 		_(sortingArray).quicksort(0, s_len-1)
-		// sortingArray.js_quicksort(0, s_len-1)
 		// Make a new array containing the 'id' of the climbers in post-sort order
 		rankArray = _(sortingArray).map(function(arr){ return -_(arr).last() })
 		// Find the climber (model) who is ranked first i.e. the first 'id' contained within rankArray and set their currentranking == 1, and rankorder == 1
 		// rankorder is needed for positioning the model view in the DOM and is unique, whereas currentranking may not be unique (if the climber is ex-aequo)
 		// This updates the model's currentranking & rankorder attributes
-		// NOTE: This structure may be inefficient, as in certain cases a model view will be updated twice - once when the setResults function is called and a second time here if their ranking has also changed. But the problem is that the two are independent...
 		this.get(rankArray[0]).set({ 'currentranking' : 1 , 'rankorder' : 1})
 
 		// Now update the ranking and order information for the other climbers...
@@ -144,7 +141,6 @@ App.ResultsList = Backbone.Collection.extend({
 		_(sortingArray).each(function(arr){ arr.pop() })
 		for(k = 1; k < s_len; k++){
 			cr = (_(sortingArray).compareElements(k-1, k) === 0) ? this.get(rankArray[k-1]).get('currentranking') : (k+1)
-//			this.get(rankArray[k]).set({ 'currentranking' : cr, 'rankorder' : cr })
 			this.get(rankArray[k]).set({ 'currentranking' : cr, 'rankorder' : k+1 })
 		}
 	}
@@ -174,10 +170,13 @@ App.ResultsListView = Backbone.View.extend({
 	*
 	*/
 	initialize: function(options){
+		var self = this
 
-		// Update the view if the favourites button is toggled
-//		this.listenTo(this.settings, 'change:ShowFavorites', this.updateView, this)
-//		this.listenTo(this.settings, 'change:ShowCategory', this.toggleCategory, this)
+		self.loadResults(options.cat)
+		setInterval(function(){
+			self.updateView({ 'force_refresh' : true })
+		}, 5000)
+
 	},
 
 	/*
@@ -238,9 +237,7 @@ App.ResultsListView = Backbone.View.extend({
 
 		// Push two collections onto the array for the selected round, either M+F or both Starting Groups for the selected category in Q
 		this.resultslists.push(new App.ResultsList({ 'cat' : cat }))
-//		this.resultslists.push(new App.ResultsList({ 'cat' : 'f' }))
 		this.resultslists.push(new App.ResultsList({ 'cat' : cat+'j' }))
-//		this.resultslists.push(new App.ResultsList({ 'cat' : 'fj' }))
 
 		// Pre-render the view container
 		this.render()
@@ -295,17 +292,12 @@ App.ResultsListView = Backbone.View.extend({
 			// Set the default css properties & set the $.isotope filter based on the current application settings
 			var cssProperty = 'visible'
 
-			// If 'ShowFavourites' is tagged, then set the visibility property of any other elements to 'hidden' and then filter
-			// This avoids a double paint of the viewport.
-//			self.$('.not_list').css('visibility', cssProperty)
-
 			// Call the $.isotope updateSortDate() method on the li elements in the view
 			// We need to do this as the parameter 'rankorder' will have changed since $.isotope was initialized
 			self.$resultsView.isotope( 'updateSortData', self.$('li'))
 
 			// Call the $.isotope sortBy() method using rankorder as the sorting parameter and apply filters to show the top 'n' and to rotate through the remainder
 			self.$resultsView.isotope({ 'sortBy': 'rankorder' })
-			self.trigger('application_event:toggleajaxspinner')
 		})
 	}
 });
