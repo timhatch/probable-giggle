@@ -9,8 +9,8 @@
 	echo "Points,Bonuses";
 
 	// Get the results data
-	$db		= new SQLite3('results.db');
-	$result = $db->query("select * from result1 where category='f'");
+	$db		= new SQLite3('../scripts/results.db');
+	$result = $db->query("select * from result1 where category='mj' order by comp1 DESC, comp2 DESC");
 
 	// Echo each set of results data
 	while($res = $result->fetchArray(SQLITE3_ASSOC)){
