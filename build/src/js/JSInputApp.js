@@ -271,3 +271,7 @@ App.MainView = Backbone.View.extend({
 		this.$("#rslt").text(this.collection.score+' / '+this.collection.bonus)
 	}
 });
+
+$(document).ready(function(){
+	new App.MainView({ 'blocs' : 30 })
+});
