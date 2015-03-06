@@ -50,19 +50,6 @@
 	}
 }
 
-#state {
-    .header, .subheader, .body, .tertiary {
-        .text-rest-state();
-
-        &:hover {
-            .text-hover-state();
-        }
-        &:active {
-            .text-pressed-state();
-        }
-    }
-}
-
 h2 {
     margin: 10px 0;
     padding: 0;
@@ -79,6 +66,18 @@ p {
     margin: 0 0 10px;
 }
 
+#state {
+    .header, .subheader, .body, .tertiary {
+        .text-rest-state();
+
+        &:hover {
+            .text-hover-state();
+        }
+        &:active {
+            .text-pressed-state();
+        }
+    }
+}
 .tertiary-text {
     #font > .tertiary;
     #state > .tertiary;
