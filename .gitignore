@@ -8,3 +8,4 @@ CVS
 
 # database changes
 *.db
+assets/scripts/results.db
