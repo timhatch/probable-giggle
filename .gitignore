@@ -5,3 +5,6 @@ profile
 # svn & cvs
 .svn
 CVS
+
+# database changes
+.db
