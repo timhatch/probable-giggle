@@ -11,10 +11,10 @@
 SELECT *
 FROM result1
 WHERE
-    category IS "m"
-    OR category IS "mj"
-#    category IS "f"
-#    OR category IS "fj"
+  category IS "m"
+  OR category IS "mj"
+# category IS "f"
+# OR category IS "fj"
 ORDER BY comp1 DESC, comp1 DESC
 #LIMIT 0,50;
 
@@ -22,9 +22,9 @@ ORDER BY comp1 DESC, comp1 DESC
 # Team Results
 #
 SELECT
-    team                        AS "Team",
-    sum(comp1)                  AS "Points",
-    group_concat(data.name)     AS "Members"
+  team                    AS "Team",
+  sum(comp1)              AS "Points",
+  group_concat(data.name) AS "Members"
 FROM result1
 JOIN data USING (PerId)
 WHERE team IS NOT null
