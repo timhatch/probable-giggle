@@ -16,7 +16,7 @@ WHERE
 #    category IS "f"
 #    OR category IS "fj"
 ORDER BY comp1 DESC, comp1 DESC
-LIMIT 0,50;
+#LIMIT 0,50;
 
 #
 # Team Results

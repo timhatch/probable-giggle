@@ -1,4 +1,6 @@
 <?php
+    chdir("/users/timhatch/sites/flashresults/assets/scripts");
+
 	/* Configuration - Allowed filetype, size and upload location 		*/
 	$allowed_filetypes = array('.csv','.txt');
 	$max_filesize = 524288;
@@ -27,7 +29,8 @@
 			$name 	= trim($RW[1]);						// name
 			$cat 	= trim($RW[2]);						// category
 			$code 	= trim($RW[3]);						// code
-			$theResult = $db->exec("INSERT INTO data (PerId, name, category, code) VALUES ('$PerId', '$name', '$cat', '$code')");
+			$team 	= trim($RW[4]);						// team
+			$theResult = $db->exec("INSERT INTO data (PerId, name, category, code, team) VALUES ('$PerId', '$name', '$cat', '$code', '$team')");
 		}
 		/* Close the file and exit */
 		fclose($handle);
