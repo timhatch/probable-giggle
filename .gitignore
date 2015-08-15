@@ -3,9 +3,12 @@
 profile
 
 # svn & cvs
+.gitignore
+.gitignore.swp
 .svn
 CVS
 
 # database changes
+*.codekit
 *.db
 assets/scripts/results.db
