@@ -30,7 +30,8 @@
   // Echo each set of results data
   $result = array(); $i = 0;
   while($res = $reslt->fetchArray(SQLITE3_ASSOC)){
-    $result[$i] = array("startnumber"=>$res['PerId'],
+    $result[$i] = array(
+      "id"=>$res['PerId'],
       "name"=>$res['name'],
       "countrycode"=>$res['code'],
       "category"=>$res['category'],
