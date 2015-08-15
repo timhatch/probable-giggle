@@ -3,8 +3,7 @@
 * Dual licensed under the MIT or GPL Version 2 licenses.
 */
 
-/***********************************
-*
+/**********************************************************
 * CODEKIT DECLARATIONS
 *
 ***********************************/
@@ -14,16 +13,10 @@
 
 window.App = window.App || {}
 
-/***********************************
-*
-* MODELS / COLLECTIONS
-*
-***********************************/
-
-/*
+/**********************************************************
 * ResultsList extending Backbone.js 'Collection' class
-*
-*/
+**********************************************************/
+
 App.ResultsList = Backbone.Collection.extend({
   url       : './scripts/getJSON.php',
   model     : App.Climber,
@@ -36,10 +29,7 @@ App.ResultsList = Backbone.Collection.extend({
   *
   */
   initialize: function(options){
-
-    // Use the options data to set the round/category if provided, and set the comp & numberofblocs based on the application settings
     this.cat      = options.cat || 'm'
-
   },
 
   /*
@@ -56,9 +46,7 @@ App.ResultsList = Backbone.Collection.extend({
       self = this
 
     $xhr.success(function(data){
-      self.parseJSONData(data)        // Tidy up the retrieved eGroupware JSON object
       self.reset(data)            // Create a set of models from the edited 'participants' object
-//      window.console.log(data)
       $rsp.resolve(true)            // Resolve the Deferred and pass true for a successful query
     })
     $xhr.error(function(){
@@ -90,40 +78,20 @@ App.ResultsList = Backbone.Collection.extend({
     return $rsp
   },
 
-  /*
-  * parseJSONData(participants): Parse the JSON data returned in loadResults()
-  *
-  */
-  parseJSONData: function(data) {
-    // For each entry in the .participants object
-    _(data).each(function(person){
-      person.id     = parseInt(person.startnumber, 10)
-      person.rankorder  = person.id
-    }, this)
-  },
-
   setResults: function(data) {
     var model
     _(data).each(function(person){
-//      window.console.log(person.startnumber)
-      model = this.get(person.startnumber)
+      model = this.get(person.id)
       model.set({ 'points': person.points, 'bonus': person.bonus, 'rank': person.rank })
     }, this)
   }
   
 })
 
-
-
-/***********************************
-*
-* VIEWS
-*
-***********************************/
-
-/*!
+/**********************************************************
  * ResultsList view extending Backbone.js 'View' class
- */
+**********************************************************/
+
 App.ResultsListView = Backbone.View.extend({
   $resultsView  : null,
   currentView   : null,
@@ -147,8 +115,8 @@ App.ResultsListView = Backbone.View.extend({
   },
 
   /*
-  * loadResults(): Populate the results collections and render the related subviews into the main view
-  *
+  * loadResults(): Populate the results collections and render the related subviews into 
+  * the main view
   */
   loadResults: function(cat){
     var subview,
@@ -194,10 +162,8 @@ App.ResultsListView = Backbone.View.extend({
 
   /*
   * initViewContainer(): Create the results collections & call the main view render function
-  *
   */
   initViewContainer: function(cat){
-
 
     // Create an array of ResultsLists objects (collections) & set up the variables for the first object to be fetched
     this.resultslists = []
@@ -212,7 +178,6 @@ App.ResultsListView = Backbone.View.extend({
 
   /*
   * render(): Render the view container
-  *
   */
   render: function(){
     var str = '<ul></ul>'
@@ -267,4 +232,4 @@ App.ResultsListView = Backbone.View.extend({
       self.$resultsView.isotope({ 'sortBy': 'rankorder' })
     })
   }
-});
+})
