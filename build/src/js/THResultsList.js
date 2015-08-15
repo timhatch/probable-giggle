@@ -82,7 +82,6 @@ App.ResultsList = Backbone.Collection.extend({
     $xhr.success(function(data){
 //      window.console.log(data)
       self.setResults(data)         // Calculate and set the results data for each climber (model)
-      self.sort()               // Calculate the resulting rank
       $rsp.resolve(true)
     })
     $xhr.error(function(){
@@ -108,43 +107,11 @@ App.ResultsList = Backbone.Collection.extend({
     _(data).each(function(person){
 //      window.console.log(person.startnumber)
       model = this.get(person.startnumber)
-      model.set({ 'points' : person.points, 'bonus' : person.bonus })
+      model.set({ 'points': person.points, 'bonus': person.bonus, 'rank': person.rank })
     }, this)
-  },
-  /*
-  * sort(): Extract a numeric result from the string provided by eGroupware
-  *
-  */
-  sort: function(){
-//    window.console.log('ResultsList::sort fired')
-    var rankArray   = [],
-      sortingArray  = [],
-      s_len     = this.models.length,
-      cr,
-      k
-
-    // Push data into a temporary array that we can sort (sortingArray)
-    _(this.models).each(function(model){ sortingArray.push(model.getResults()) })
-
-    // Sort by T/TA/B/BA/rank_prev_heat/PerID (this latter gives a 'stable sort' in the event of ==)
-    _(sortingArray).quicksort(0, s_len-1)
-    // Make a new array containing the 'id' of the climbers in post-sort order
-    rankArray = _(sortingArray).map(function(arr){ return -_(arr).last() })
-    // Find the climber (model) who is ranked first i.e. the first 'id' contained within rankArray and set their currentranking == 1, and rankorder == 1
-    // rankorder is needed for positioning the model view in the DOM and is unique, whereas currentranking may not be unique (if the climber is ex-aequo)
-    // This updates the model's currentranking & rankorder attributes
-    this.get(rankArray[0]).set({ 'currentranking' : 1 , 'rankorder' : 1})
-
-    // Now update the ranking and order information for the other climbers...
-    // first we need to pop the start_order off the array so that we can correctly test for ex-aequo n T/TA/B/BA/rank_prev_heat
-    // Then iterate through the sortingArray... If the result of the climber in rows i and i-1 are the same, make the climber rankings equal. If the two sets of results are different then make the ranking of the climber in row i equal to i+1 (+1 because row indices start at 0 in javascript). The rankorder is however always set at i+1 (this enables a stable visual sort)
-    _(sortingArray).each(function(arr){ arr.pop() })
-    for(k = 1; k < s_len; k++){
-      cr = (_(sortingArray).compareElements(k-1, k) === 0) ? this.get(rankArray[k-1]).get('currentranking') : (k+1)
-      this.get(rankArray[k]).set({ 'currentranking' : cr, 'rankorder' : k+1 })
-    }
   }
-});
+  
+})
 
 
 
