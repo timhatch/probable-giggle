@@ -78,7 +78,7 @@ App.ClimberView = Backbone.View.extend({
     // Render the underscore template
     var tmpl= $('#climber_template').text(),
       str = _.template(tmpl, {
-      rank  : this.model.get('currentranking') || 1,
+      rank  : this.model.get('rank') || 1,
       name  : _.titleize(this.model.get('name')),
       code  : this.model.get('category').toUpperCase(),
       points  : this.model.get('points'),
@@ -90,7 +90,7 @@ App.ClimberView = Backbone.View.extend({
     // Add a class to denote the category (used by $.isotope for filtering)
     // Set the data::rankorder property so that we can sort the superview when it is rendered
     this.$('.rank').addClass(this.model.get('category'))
-    this.$el.data('rankorder', this.model.get('rankorder'))
+    this.$el.data('rankorder', this.model.get('rank'))
 
     // Return
     return this;
@@ -106,7 +106,7 @@ App.ClimberView = Backbone.View.extend({
     this.$el.data('rankorder', -syntheticRank)
 
     // Update the displayed rank & the rankorder data element used by the isotope sort function
-    this.$('.rank').text(this.model.get('currentranking'))
+    this.$('.rank').text(this.model.get('rank'))
 
     // Update the aggegrate results
     this.$('.pts').text(this.model.get('points'))
