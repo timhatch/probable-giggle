@@ -44,9 +44,9 @@ App.ClimberView = Backbone.View.extend({
   * render(): Render a view when the associated model is first loaded.
   */
   render: function(){
-
     // Render the underscore template
-    this.el.innerHTML = _.template(document.getElementById('climber_template').textContent, {
+    var templateFunc  = _.template(document.getElementById('climber_template').textContent)
+    this.el.innerHTML = templateFunc({
       name   : this.model.get('name'),
       code   : this.model.get('category').toUpperCase(),
       points : this.model.get('points'),
@@ -56,7 +56,9 @@ App.ClimberView = Backbone.View.extend({
 
     // Add a class to denote the category (used by $.isotope for filtering)
     // Set the data::rankorder property so that we can sort the superview when it is rendered
-    this.el.getElementsByClassName('rank')[0].classList.add(this.model.get('category'))
+    //this.$el.find('rank').addClass(this.model.get('category'))
+    //var t = this.model.get('category')
+    this.el.querySelector('.rank').classList.add(this.model.get('category'))
     this.$el.data('rankorder', this.model.get('rank'))
     return this;
   },
@@ -67,9 +69,12 @@ App.ClimberView = Backbone.View.extend({
   update: function(){
 
     // Update the aggegrate results
-    this.el.getElementsByClassName('pts')[0].textContent  = this.model.get('points')
-    this.el.getElementsByClassName('bns')[0].textContent  = this.model.get('bonus')
-    this.el.getElementsByClassName('rank')[0].textContent = this.model.get('rank')
+    //this.$el.find('pts').text( this.model.get('points'))
+    //this.$el.find('bns').text( this.model.get('bonus'))
+    //this.$el.find('rank').text(this.model.get('rank'))
+    this.el.querySelector('.pts').textContent  = this.model.get('points')
+    this.el.querySelector('.bns').textContent  = this.model.get('bonus')
+    this.el.querySelector('.rank').textContent = this.model.get('rank')
 
     // Update the view's data properties
     this.$el.data('rankorder', this.model.get('rank'))
