@@ -55,9 +55,7 @@ App.BlocView = Backbone.View.extend({
   /*
   * initialize(): Bind the change event of this.model to this.update()
   */  
-  initialize: function(){
-    this.listenTo(this.model, 'change', this.update, this)
-  },
+  initialize: function(){ this.listenTo(this.model, 'change', this.update, this) },
 
   /*
   * Render the view from its template
@@ -79,14 +77,15 @@ App.BlocView = Backbone.View.extend({
   */
   updateFromText: function(){
     // Get the value of the textfield and set the model 'state'
-    var $el     = this.$el.find(':text'),
-      text      = $el.val(),
+    var el = this.textCell,
+      text = el.value,
       new_state = (!text) ? 4 : _(this.model.resmx).indexOf(parseInt(text,10))
 
-    // Strip out any '0's & flag invalid inputs & set the state so that they're ignored for the 
+    // Strip out any '0's,  flag invalid inputs & set the state so that they're ignored for the 
     // purposes of calculating the score
-    if (text == '0') $el.val('')
-    if (new_state > -1) { $el.removeClass('error') } else { $el.addClass('error'); new_state = 4 }
+    if (text == '0') el.value = ''
+    if (new_state > -1) { el.classList.remove('error') } 
+    else { el.classList.add('error'); new_state = 4 }
 
     // Update the model
     this.model.setResult(new_state)
@@ -97,15 +96,12 @@ App.BlocView = Backbone.View.extend({
   */
   update: function(){
     var i = this.model.get("state"),
-        j = (i < 4) ? this.model.resmx[i] : null
+      j = (i < 4) ? this.model.resmx[i] : null
 
     // sync the text and radio states
      this.textCell.value = j
     
-    _(this.nodeList).each(function(el){
-      el.classList.remove('noerror')
-      el.classList.remove('error')
-    })
+    _(this.nodeList).each(function(el){ el.classList.remove('noerror', 'error') })
     switch (i) {
     case 4:
       window.console.log('do nothing')
@@ -137,11 +133,9 @@ App.Result = Backbone.Collection.extend({
 
   /*
   * Instantiate a collection of models
+  * Bind change events (bubbled up from any change to a model) to this.setResult()
   */
-  initialize: function(){
-    // Bind change events (bubbled up from any change to a model) to this.setResult()
-    this.on('change', this.setResult, this)
-  },
+  initialize: function(){ this.on('change', this.setResult, this) },
 
   /*
   * Populate the collection
