@@ -10,6 +10,14 @@
 /*global _        */
 /*global App      */
 
+/*
+* Use Mustache-style for Underscore templates
+*/
+_.templateSettings = {
+  evaluate  : /\{\[([\s\S]+?)\]\}/g,
+  interpolate : /\{\{([\s\S]+?)\}\}/g
+};
+
 window.App = window.App || {}
 
 /**********************************************************
@@ -34,31 +42,22 @@ App.ClimberView = Backbone.View.extend({
 
   /*
   * render(): Render a view when the associated model is first loaded.
-  * The underscore _.template method is used to interpret the actual template (in the DOM) 
-  * and will layout 5 sub-elements to show results on each bloc.
-  *
-  * Pass in the EGW Category for the relevant model
   */
   render: function(){
 
     // Render the underscore template
-    var tmpl = $('#climber_template').text(),
-      str = _.template(tmpl, {
-        name   : _.titleize(this.model.get('name')),
-        code   : this.model.get('category').toUpperCase(),
-        points : this.model.get('points'),
-        bonus  : this.model.get('bonus'),
-        rank   : this.model.get('rank') || this.model.get('perid')
-      })
-
-    this.$el.html(str);
+    this.el.innerHTML = _.template(document.getElementById('climber_template').textContent, {
+      name   : this.model.get('name'),
+      code   : this.model.get('category').toUpperCase(),
+      points : this.model.get('points'),
+      bonus  : this.model.get('bonus'),
+      rank   : this.model.get('rank') || this.model.get('perid')
+    })
 
     // Add a class to denote the category (used by $.isotope for filtering)
     // Set the data::rankorder property so that we can sort the superview when it is rendered
-    this.$('.rank').addClass(this.model.get('category'))
+    this.el.getElementsByClassName('rank')[0].classList.add(this.model.get('category'))
     this.$el.data('rankorder', this.model.get('rank'))
-
-    // Return
     return this;
   },
 
@@ -68,9 +67,9 @@ App.ClimberView = Backbone.View.extend({
   update: function(){
 
     // Update the aggegrate results
-    this.$('.pts').text(this.model.get('points'))
-    this.$('.bns').text(this.model.get('bonus'))
-    this.$('.rank').text(this.model.get('rank'))
+    this.el.getElementsByClassName('pts')[0].textContent  = this.model.get('points')
+    this.el.getElementsByClassName('bns')[0].textContent  = this.model.get('bonus')
+    this.el.getElementsByClassName('rank')[0].textContent = this.model.get('rank')
 
     // Update the view's data properties
     this.$el.data('rankorder', this.model.get('rank'))
