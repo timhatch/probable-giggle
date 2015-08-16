@@ -1,0 +1,53 @@
+!!! 5
+%html
+  %head
+    %title  Data Entry
+
+    / Meta Tags
+    %meta{ :charset=>'UTF-8'}
+    %meta{ :name=>'viewport', :content=>'width=device-width, initial-scale=1.0' }
+
+    / Stylesheets
+    %link{ :rel=>'stylesheet', :href=>'./admin.input.css' }
+
+  %body
+    / Structural Content
+    #inner
+      %h3.title Title TBD
+
+      %div.header 
+        %span.bloc PerId: 
+        %input.textbox{ :id=>'PerId', :type=>'text', :pattern=>'[0-9]*' }
+        %span{ :id=>'name' }
+        %span{ :id=>'ctgy' }
+        %span{ :id=>'rslt' } 0.0
+        %br
+      %div{ :id=>'tiles' }
+      / %div.row
+      %button{ :id=>'submit'} Submit
+      
+    / Backbone View Templates
+
+    / View template
+    %script{ :type=>'text/html', :id=>'boulder_tmpl', }
+      %span.bloc {{id}}
+      %input.textbox{ :type=>'text', :pattern=>'[0-9]' }
+      %span.flag.0 &nbsp;
+      %span.flag.1 &nbsp;
+      %span.flag.2 &nbsp;
+      %span.flag.3 &nbsp;
+
+    / Modernizr library module (touch detection)
+    %script{ :src=>'./libs/modernizr-2.6.2.min.js' }
+
+    / jQuery & Backbone/Underscore library modules
+    %script{ :src=>'./libs/jquery-1.7.1.min.js' }
+    %script{ :src=>'./libs/underscore-1.4.3.min.js' }
+    %script{ :src=>'./libs/backbone-0.9.9.min.js' }
+
+    / Application Code
+    %script{ :src=>'./admin.input.min.js' }
+    :javascript
+      $(document).ready(function(){
+        new App.MainView({ 'blocs' : 30 })
+      })
