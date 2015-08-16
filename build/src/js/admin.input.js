@@ -46,7 +46,6 @@ App.Bloc = Backbone.Model.extend({
 App.BlocView = Backbone.View.extend({
   tagName   : "div",
   className : "tile",
-  tmpl      : _.template($('#boulder_tmpl').html()),
   model     : App.Bloc,
   events    : {
     // "click  input[type=radio]" : "updateFromRdio",
@@ -54,13 +53,9 @@ App.BlocView = Backbone.View.extend({
   },
 
   /*
-  * Initialise the view and its related model
-  *
-  *  Disable highlighting of parent element to a clickable region in Android Mobile Webkit 
-  *  Bind the change event of this.model to this.update()
+  * initialize(): Bind the change event of this.model to this.update()
   */  
   initialize: function(){
-    this.$el.css('-webkit-tap-highlight-color','rgba(0,0,0,0)')
     this.listenTo(this.model, 'change', this.update, this)
   },
 
@@ -68,7 +63,13 @@ App.BlocView = Backbone.View.extend({
   * Render the view from its template
   */
   render: function(){
-    this.$el.html(this.tmpl({ id : this.model.get('id') }))
+    this.el.innerHTML = _.template(document.getElementById('boulder_tmpl').textContent, 
+    { id : this.model.get('id') })
+    
+    // Create a reference to the data entry and status indicator elements
+    this.textCell = this.el.querySelector('input[type="text"]')
+    this.nodeList = this.el.getElementsByClassName('flag')
+    
     this.update()
     return this
   },
@@ -96,13 +97,12 @@ App.BlocView = Backbone.View.extend({
   */
   update: function(){
     var i = this.model.get("state"),
-        j = (i < 4) ? this.model.resmx[i] : null,
-        n = this.el.getElementsByClassName('flag')
+        j = (i < 4) ? this.model.resmx[i] : null
 
     // sync the text and radio states
-    this.$el.find(':text').val(j)
+     this.textCell.value = j
     
-    _(n).each(function(el){
+    _(this.nodeList).each(function(el){
       el.classList.remove('noerror')
       el.classList.remove('error')
     })
@@ -111,10 +111,10 @@ App.BlocView = Backbone.View.extend({
       window.console.log('do nothing')
       break;
     case 3:
-      n[i].classList.add('error')
+      this.nodeList[i].classList.add('error')
       break;
     default:
-      n[i].classList.add('noerror')
+      this.nodeList[i].classList.add('noerror')
     }
   }
 })
@@ -201,8 +201,8 @@ App.Result = Backbone.Collection.extend({
 App.MainView = Backbone.View.extend({
   el      : $('#inner'),
   events    : {
-    "blur     #PerId"  : "tabResult",
-    "keypress #PerId"  : "loadResult",
+    "blur     #PerId"  : "handleTabEvent",
+    "keypress #PerId"  : "handleKeyPress",
     "click    #submit" : "postResult"
   },
   blocs   : 30,
@@ -211,58 +211,45 @@ App.MainView = Backbone.View.extend({
   * Initialize() : Init the view
   */
   initialize: function(options){
-    var view,
-      $el = this.$el.find('#tiles'),
-      n = options.blocs || this.blocs
+    var n = options.blocs || this.blocs,
+      el  = document.getElementById('tiles'), 
+      view
 
     // Bootstrap the collection's models & create the relevant views
     this.collection = new App.Result()
     this.collection.populate(n).each(function(model){
       view = new App.BlocView({ "model": model })
-      $el.prepend(view.render().el)
+      el.insertBefore(view.render().el, el.firstChild)
     })
-
+    
+    // Cache a reference to the PerId cell
+    this.PerId = document.getElementById('PerId')
+    
     // Bind the change and change:title event of this.collection to this.update()
     this.listenTo(this.collection, 'change', this.update, this)
     this.listenTo(this.collection, 'change:title', this.update, this)
   },
 
   /*
-  *
+  * handleKeyPress() & handleTabEvent()
+  * Respond only when the ENTER key is pressed or when the user tabs out of the cell
   */
-  tabResult: function(){
-    var text = $("#PerId").val()  //  OR: var text = this.$el.find("#PerId").val() || var text = this.$('#PerId').val()
-    if (!text) return
-    this.collection.load(text)
-  },
-
-  /*
-  * Load data for the identified climber
-  * Deal with keypress events in the input field
-  */
-  loadResult: function(e){
-    var text = $("#PerId").val()  
-    // Ignore (b) anything that is not a ENTER key (13); or (a) an ENTER key if there is no text
-    if (!text || e.keyCode != 13) return  
-    // Load collection data from the server
-    this.collection.load(text)
-  },
+  handleKeyPress: function(e){ if (e.keyCode === 13) this.handleTabEvent() },
+  handleTabEvent: function(){ if (!!this.PerId.value) this.collection.load(this.PerId.value) },
 
   /*
   * Respond to a submit event by calling the relevant collection function
   */
-  postResult: function(){
-    this.collection.post()
-  },
+  postResult: function(){ this.collection.post() },
 
   /*
   * Update the Identity display
   */
   update: function(){
     // Update the identity data - NOTE: May wish to separate this into a different function
-    this.$("#name").html(this.collection.identity.name)
-    this.$("#ctgy").html('('+(this.collection.identity.category).toUpperCase()+')')
+    document.getElementById("name").textContent = this.collection.identity.name
+    document.getElementById("ctgy").textContent = this.collection.identity.category.toUpperCase()
     // Update the results field
-    this.$("#rslt").text(this.collection.score+'.'+this.collection.bonus)
+    document.getElementById("rslt").textContent = this.collection.score+'.'+this.collection.bonus
   }
 })
