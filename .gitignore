@@ -12,3 +12,6 @@ CVS
 *.codekit
 *.db
 assets/scripts/results.db
+
+# VIM files
+# *.swp
