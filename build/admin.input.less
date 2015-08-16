@@ -14,8 +14,9 @@
 /**********************************************************/
 // General page style
 /**********************************************************/
-body {
-	font		: 16px/24px OpenSansRegular, sans-serif;
+* {
+	font  : 16px/24px OpenSansRegular, sans-serif;
+	-webkit-tap-highlight-color: rgba(255,255,255, 0);
 }  
 
 h3 {
@@ -23,7 +24,7 @@ h3 {
 }
 #inner {
 //  border: 1px solid #999;
-margin: 0 auto;
+margin  : 0 auto;
   width : 32rem;
 }
 
@@ -133,6 +134,7 @@ button, .button {
   padding-right: 0.5rem;
 
   text-align: center;
+	font  : 12px/12px OpenSansRegular, sans-serif;
   color: white;
 
   &:active, &.default:active {
