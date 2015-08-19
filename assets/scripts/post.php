@@ -1,7 +1,7 @@
 <?php
-	$PerId	= $_POST['PerId'];
-	$data	= $_POST['models'];
-	$data = json_decode($data, true);	// Read as an associative array rather than an object
+	$PerId = $_POST['PerId'];
+	$data	 = $_POST['models'];
+	$data  = json_decode($data, true);	// Read as an associative array rather than an object
 	
 	// Open the database
 	$db		= new SQLite3('results.db');
@@ -26,5 +26,6 @@
 	// Insert the total score / number of bonuses
 	$db->exec("UPDATE result1 SET comp1='$total', comp2='$bonus' WHERE PerId = '$PerId';");
 		
-	echo ($PerId)."\n".(json_encode($data));
+	// ALWAYS return a JSON Object
+  echo (json_encode($data));
 ?>
