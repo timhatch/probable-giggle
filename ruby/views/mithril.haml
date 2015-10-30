@@ -1,0 +1,18 @@
+!!! 5
+%html
+  %head
+    %title  Mithril Example
+    
+    %link{ rel: 'stylesheet', href: './admin.css' }
+
+    
+  %body
+    #inner
+
+  %script{ :src=>'./mithril.js' }
+  %script{ :src=>'./test.js' }
+  :javascript
+    document.addEventListener('DOMContentLoaded', function(){
+      window.console.log('DOMContentLoaded')
+      //m.mount(document.getElementById('inner'), bloc.view())
+    })      
