@@ -4,23 +4,97 @@
 
 /* global m        */
 
-/**********************************************************
-* Boulder View-Model 
-**********************************************************/
+var app = app || {}
+ 
+app.competition_vc = {
+  
+  controller: function(params){
+    this.wetid    = params.wetid
+    this.title    = params.title
+    this.climber  = new app.climber_m()
+    this.bloclist = []
+    for (var i = 1; i <= 30; i++) { this.bloclist.push(new app.result_m(i)) } 
+  },
+  
+  // Note that we bidn this to the controller when it is called...
+  // Should properly move this into the controller...
+  postResults: function(){
+    window.console.log(this.climber.name())
+  },
+  
+  view: function(ctrl){
+    return [
+      m('h3.title', ctrl.title),
+      m.component(app.climber_vc, ctrl.climber),
+      m.component(app.results_vc, ctrl.bloclist ),
+      m('button', { onclick : this.postResults.bind(ctrl) }, 'Submit')
+    ]
+  }
+}
 
-var toggles = {
-  ong : { view: function(){ return  m("span.flag.noerror", m.trust('&nbsp;'))}}, 
-  onr : { view: function(){ return  m("span.flag.error", m.trust('&nbsp;'))}}, 
-  off : { view: function(){ return  m("span.flag", m.trust('&nbsp;'))}}
-} 
+app.climber_m = function(){
+  this.perid    = m.prop(null) 
+  this.name     = m.prop(null) 
+  this.category = m.prop(null) 
+  this.results  = m.prop(null)
+}
 
+app.climber_vc = {
+  controller: function(model){ return model },
+  
+  // NOTE: There is some question over the relative efficiency of usign bind()
+  fetch: function(val){
+    var success = function(v){ 
+          try {
+            this.perid(v.PerId); this.name(v.Lastname+', '+v.Firstname[0])
+            this.category(v.Category); this.results(JSON.parse(v.ResString))
+          } catch (err) { 
+            this.perid(null); this.name(null)
+            this.category(null); this.results(null)
+          }
+        }.bind(this)
+      , error   = function(err){ window.console.log(err) }
 
-var bloc = {
-  id     : 'p1',
-  result : m.prop(null),
-  score  : m.prop(0),
-  bonus  : m.prop(0),
-      
+    m.request({ method: 'GET', url: '/climber?PerId='+val })
+    .then(success, error)
+  },
+     
+  view: function(ctrl){
+    return m('.header', [
+      m('span.bloc', 'PerId'),
+      m('input[type=text].textbox', {
+        pattern : '[0-9]*',
+        value   : ctrl.perid(), 
+        onchange: m.withAttr('value', this.fetch.bind(ctrl))
+      }),
+      m('span#grpid', ctrl.category()),
+      m('span#name',  ctrl.name()),
+      m('span#result', 'todo'),
+    ])
+  }
+}
+// m.mount(document.querySelector('.header'), app.climber)
+
+app.results_vc = {
+  view: function(ctrl, models) {
+    return m('#tiles', [
+      models.map(function(model) { return m.component(app.result_vc, model) })
+    ])
+  }
+}
+
+app.result_m = function(id){
+  this.id     = id
+  this.result = m.prop(null)
+  this.score  = m.prop(0)
+  this.bonus  = m.prop(0)
+}
+
+app.result_vc = {
+  
+  controller: function(model){ return model },
+
+  // Model -- Parse data ...    
   parse: function(val){
     var t = val.match("t[0-9]{1,}") || null
       , b = val.match("b[0-9]{1,}") || null
@@ -33,7 +107,7 @@ var bloc = {
     this.result = val
   },
   
-  // Update the model parameters from a text input
+  // Model -- Update the model parameters from a text input
   update: function(val){
     var n = parseInt(val, 10)
       , t = ([10,7,4].indexOf(n) > -1) ? n : 0
@@ -44,22 +118,50 @@ var bloc = {
     this.bonus(b)
   },
   
-  // Mithril view declaration  
-  view: function(){
+  // View declaration  
+  view: function(ctrl){
+    var toggles = {
+      ong : { view: function(){ return  m("span.flag.noerror", m.trust('&nbsp;'))}}, 
+      onr : { view: function(){ return  m("span.flag.error", m.trust('&nbsp;'))}}, 
+      off : { view: function(){ return  m("span.flag", m.trust('&nbsp;'))}}
+    }
+    
     return m('.tile', [
-      m('span.bloc', this.id), 
-      m('input[type=text].textbox', {
+      m('span.bloc', ctrl.id), 
+      m('input[type=querySelector].textbox', {
         //class   : !this.result() ? 'textred' : 'textbox',
         pattern : '[0-9]*', 
-        value   : this.score() || this.bonus() || '',
-        onchange: m.withAttr('value', this.update.bind(this))
+        value   : ctrl.score() || ctrl.bonus() || '',
+        onchange: m.withAttr('value', this.update.bind(ctrl))
       }),
-      m.component(this.score() === 10 ? toggles.ong : toggles.off),
-      m.component(this.score() ===  7 ? toggles.ong : toggles.off),
-      m.component(this.score() ===  4 ? toggles.ong : toggles.off),
-      m.component(this.bonus() ===  1 ? toggles.ong : toggles.off) 
+      m.component(ctrl.score() === 10 ? toggles.ong : toggles.off),
+      m.component(ctrl.score() ===  7 ? toggles.ong : toggles.off),
+      m.component(ctrl.score() ===  4 ? toggles.ong : toggles.off),
+      m.component(ctrl.bonus() ===  1 ? toggles.ong : toggles.off) 
     ])
-  } 
+  }  
 }
+//m.mount(document.querySelector('#tiles'), app.bloc)
 
-m.mount(document.getElementById('inner'), bloc)
+var c = m.component(app.competition_vc, { wetid: 1030, title: 'CWIF 2015' })
+m.mount(document.querySelector('#inner'), c)
+
+/* Alternative controller form...   
+  controller: function(params){
+    return {
+      wetid   : params.wetid,
+      title   : params.title,
+      // Could make this a separate model...
+      climber : new app.climberM(),
+      bloclist: function(){
+        var list = []
+        for (var i = 0; i < 30; i++) { list.push({ 'id' : 'p'+(i+1) }) }
+        return list
+      }(),
+      
+      postResults: function(){
+        window.console.log(this)
+      }      
+    }
+  },
+*/  

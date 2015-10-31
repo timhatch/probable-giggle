@@ -8,11 +8,16 @@
     
   %body
     #inner
+      %h3.title
+        = "#{@name}"
+      
+      %div.header
+      %div#tiles
 
-  %script{ :src=>'./mithril.js' }
+  %script{ :src=>'./mithril.min.js' }
   %script{ :src=>'./test.js' }
   :javascript
     document.addEventListener('DOMContentLoaded', function(){
-      window.console.log('DOMContentLoaded')
+      window.console.log("#{@wetid}")
       //m.mount(document.getElementById('inner'), bloc.view())
     })      
