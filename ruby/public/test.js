@@ -13,21 +13,20 @@ app.competition_vc = {
     this.title    = params.title
     this.climber  = new app.climber_m()
     this.bloclist = []
-    for (var i = 1; i <= 30; i++) { this.bloclist.push(new app.result_m(i)) } 
+    for (var i = 1; i <= 30; i++) { this.bloclist.push(new app.result_m(i)) }
+    
+    // Controller Actions
+    this.postResults = function(){
+      window.console.log(this.bloclist)
+    } 
   },
-  
-  // Note that we bidn this to the controller when it is called...
-  // Should properly move this into the controller...
-  postResults: function(){
-    window.console.log(this.climber.name())
-  },
-  
+    
   view: function(ctrl){
     return [
       m('h3.title', ctrl.title),
       m.component(app.climber_vc, ctrl.climber),
       m.component(app.results_vc, ctrl.bloclist ),
-      m('button', { onclick : this.postResults.bind(ctrl) }, 'Submit')
+      m('button', { onclick : ctrl.postResults.bind(ctrl) }, 'Submit')
     ]
   }
 }
@@ -61,7 +60,7 @@ app.climber_vc = {
      
   view: function(ctrl){
     return m('.header', [
-      m('span.bloc', 'PerId'),
+      m('span.bloc', 'PerId:'),
       m('input[type=text].textbox', {
         pattern : '[0-9]*',
         value   : ctrl.perid(), 
@@ -84,10 +83,11 @@ app.results_vc = {
 }
 
 app.result_m = function(id){
-  this.id     = id
+  this.id     = 'p'+id
   this.result = m.prop(null)
   this.score  = m.prop(0)
   this.bonus  = m.prop(0)
+  this.temp   = null
 }
 
 app.result_vc = {
@@ -116,22 +116,22 @@ app.result_vc = {
     this.result(t ? 't'+t : ( b ? 'b1' : null))
     this.score(t)
     this.bonus(b)
+    this.temp = t
   },
   
   // View declaration  
   view: function(ctrl){
     var toggles = {
-      ong : { view: function(){ return  m("span.flag.noerror", m.trust('&nbsp;'))}}, 
-      onr : { view: function(){ return  m("span.flag.error", m.trust('&nbsp;'))}}, 
-      off : { view: function(){ return  m("span.flag", m.trust('&nbsp;'))}}
-    }
+          ong : { view: function(){ return  m("span.flag.noerror", m.trust('&nbsp;'))}}, 
+          onr : { view: function(){ return  m("span.flag.error", m.trust('&nbsp;'))}}, 
+          off : { view: function(){ return  m("span.flag", m.trust('&nbsp;'))}}
+        }
     
     return m('.tile', [
       m('span.bloc', ctrl.id), 
-      m('input[type=querySelector].textbox', {
-        //class   : !this.result() ? 'textred' : 'textbox',
+      m('input[type=text].textbox', {
         pattern : '[0-9]*', 
-        value   : ctrl.score() || ctrl.bonus() || '',
+        value   : ctrl.score() || ctrl.bonus() || null,
         onchange: m.withAttr('value', this.update.bind(ctrl))
       }),
       m.component(ctrl.score() === 10 ? toggles.ong : toggles.off),
@@ -145,23 +145,3 @@ app.result_vc = {
 
 var c = m.component(app.competition_vc, { wetid: 1030, title: 'CWIF 2015' })
 m.mount(document.querySelector('#inner'), c)
-
-/* Alternative controller form...   
-  controller: function(params){
-    return {
-      wetid   : params.wetid,
-      title   : params.title,
-      // Could make this a separate model...
-      climber : new app.climberM(),
-      bloclist: function(){
-        var list = []
-        for (var i = 0; i < 30; i++) { list.push({ 'id' : 'p'+(i+1) }) }
-        return list
-      }(),
-      
-      postResults: function(){
-        window.console.log(this)
-      }      
-    }
-  },
-*/  
