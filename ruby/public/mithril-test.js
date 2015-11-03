@@ -10,14 +10,11 @@ App.CompetitionVC = {
   controller: function(params){
     this.wetid   = params.wetid
     this.title   = params.title
-    this.climber = new App.ClimberM()  
-    this.resArr  = []
-    for (var i = 1; i <= 30; i++) { this.resArr.push(new App.ResultM(i)) }
+    this.climber = new App.ClimberM()
     
     // Controller Action: GET climber data (inc. results) from server
     this.fetch = function(val){
       var _this = this.climber
-        , _rArr = this.resArr
 
       m.request({ method: 'GET', url: '/climber?PerId='+val })
       .then(function(v){
@@ -28,7 +25,7 @@ App.CompetitionVC = {
           _this.ResString(JSON.parse(v.ResString))
           _this.ResSummary(v.ResSummary)
         
-          _rArr.forEach(function(res){
+          _this.ResArray.forEach(function(res){
            var r = _this.ResString()[res.id]
            res.parse(r ? r : '')
           })
@@ -41,7 +38,7 @@ App.CompetitionVC = {
     // Controller Action: POST results to server
     this.save = function(){
       var tmp = {}
-      this.resArr
+      this.climber.ResArray
       .filter(function(res){ return res.result })
       .forEach(function(res){ tmp[res.id] = res.result })
         
@@ -58,15 +55,6 @@ App.CompetitionVC = {
       })
       .then(function(response){ window.console.log(response) })
     }.bind(this)    
-
-    // Controller Action: Sum results
-    this.sumResults = function(){
-      var x = 0, y = 0
-      this.resArr.forEach(function(model){  
-        x += model.score(); y += model.bonus()
-      })
-      this.climber.ResSummary(x+' / '+y)  // window.console.log(x+' / '+y)
-    }.bind(this)
   },
     
   // View declaration  
@@ -83,11 +71,23 @@ App.CompetitionVC = {
 // General purpose Climber model
 //
 App.ClimberM = function(){
-  this.PerId     = m.prop(null) 
-  this.Name      = m.prop(null) 
-  this.Category  = m.prop(null) 
-  this.ResString = m.prop(null)
-  this.ResSummary= m.prop(null)
+  this.PerId      = m.prop(null) 
+  this.Name       = m.prop(null) 
+  this.Category   = m.prop(null) 
+  this.ResString  = m.prop(null)
+  this.ResSummary = m.prop(null)           
+  this.ResArray   = (function(){
+    for (var i = 1, a = []; i <= 30; i++) { a.push(new App.ResultM(i)) }
+    return a
+  })()
+  
+  this.sumResults = function(){
+    var x = 0, y = 0
+    this.ResArray.forEach(function(model){  
+      x += model.score(); y += model.bonus()
+    })
+    this.ResSummary(x+' / '+y)  // window.console.log(x+' / '+y)
+  }.bind(this)
 }
 
 // Compose a view from for a Climber
@@ -114,7 +114,8 @@ App.ClimberV = {
 //
 App.ResultArrayV = {
   view: function(ctrl, params) {
-    var models = params.resArr, addFn = params.sumResults
+    var models = params.climber.ResArray
+      , addFn  = params.climber.sumResults
     return m('#tiles', [
       models.map(function(bloc) { 
         return m.component(App.ResultVC, { model: bloc, addFn: addFn }) 
@@ -129,7 +130,6 @@ App.ResultM = function(id){
   this.id    = 'p'+id
   this.score = m.prop(0)
   this.bonus = m.prop(0)
-  
   // Set the model parameters from a results string
   this.parse = function(str){
     var t = str.match("t[0-9]{1,}") || null
