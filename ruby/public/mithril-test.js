@@ -10,59 +10,15 @@ App.CompetitionVC = {
   controller: function(params){
     this.wetid   = params.wetid
     this.title   = params.title
-    this.climber = new App.ClimberM()
-    
-    // Controller Action: GET climber data (inc. results) from server
-    this.fetch = function(val){
-      var _this = this.climber, _wetid = this.wetid
-
-      m.request({ method: 'GET', url: '/climber', data: { 'PerId': val, 'WetId': _wetid } })
-      .then(function(v){
-        try {
-          _this.PerId(v.PerId)
-          _this.Name(v.Lastname+', '+v.Firstname[0])
-          _this.Category(v.Category)
-          _this.ResString(JSON.parse(v.ResString))
-          _this.ResSummary(v.ResSummary)
-        
-          _this.ResArray.forEach(function(res){
-           var r = _this.ResString()[res.id]
-           res.parse(r ? r : '')
-          })
-        } 
-        catch (err) { window.console.log(err) }      
-      })
-      .then(null, function(err){ window.console.log(err) })
-    }.bind(this)
-    
-    // Controller Action: POST results to server
-    this.save = function(){
-      var tmp = {}
-      this.climber.ResArray
-      .filter(function(res){ return res.result })
-      .forEach(function(res){ tmp[res.id] = res.result })
-        
-      m.request({
-        method: 'POST', 
-        url   : './test', 
-        data  : { 
-          "PerId"     : this.climber.PerId(), 
-          "WetId"     : parseInt(this.wetid,10),
-          "route"     : 0,
-          "ResString" : JSON.stringify(tmp),
-          "ResSummary": this.climber.ResSummary()
-        }
-      })
-      .then(function(response){ window.console.log(response) })
-    }.bind(this)    
+    this.climber = new App.ClimberM(this.wetid)
   },
     
   // View declaration  
   view: function(ctrl){
     return [
       m('h3.title', ctrl.title),
-      m.component(App.ClimberV, ctrl),
-      m.component(App.ResultArrayV, ctrl),
+      m.component(App.ClimberV, ctrl.climber),
+      m.component(App.ResultArrayV, ctrl.climber),
       m('button', { onclick : ctrl.save }, 'Submit')
     ]
   }
@@ -70,7 +26,8 @@ App.CompetitionVC = {
 
 // General purpose Climber model
 //
-App.ClimberM = function(){
+App.ClimberM = function(wetid){
+  this.WetId      = wetid
   this.PerId      = m.prop(null) 
   this.Name       = m.prop(null) 
   this.Category   = m.prop(null) 
@@ -88,20 +45,59 @@ App.ClimberM = function(){
     })
     this.ResSummary(x+' / '+y)  // window.console.log(x+' / '+y)
   }.bind(this)
+  
+  this.fetch = function(val){
+    var _this = this
+    m.request({ method: 'GET', url: '/climber', data: { 'PerId': val, 'WetId': this.WetId } })
+    .then(function(v){
+      try {
+        _this.PerId(v.PerId)
+        _this.Name(v.Lastname+', '+v.Firstname[0])
+        _this.Category(v.Category)
+        _this.ResString(JSON.parse(v.ResString))
+        _this.ResSummary(v.ResSummary)
+      
+        _this.ResArray.forEach(function(res){
+         var r = _this.ResString()[res.id]
+         res.parse(r ? r : '')
+        })
+      } 
+      catch (err) { window.console.log(err) }      
+    })
+    .then(null, function(err){ window.console.log(err) })
+  }.bind(this)
+  
+  this.save = function(){
+    var tmp = {}
+    this.ResArray
+    .filter(function(res){ return res.result })
+    .forEach(function(res){ tmp[res.id] = res.result })
+      
+    m.request({
+      method: 'POST', 
+      url   : './test', 
+      data  : { 
+        "WetId"     : this.WetId,
+        "PerId"     : this.PerId(), 
+        "ResString" : JSON.stringify(tmp),
+        "ResSummary": this.ResSummary()
+      }
+    })
+    .then(function(response){ window.console.log(response) })
+  }.bind(this)
 }
 
 // Compose a view from for a Climber
 //
 App.ClimberV = {
   // View declaration  
-  view: function(ctrl, params){
-    var model = params.climber, fetch = params.fetch
+  view: function(ctrl, model){
     return m('.header', [
       m('span.bloc', 'PerId:'),
       m('input[type=text].textbox', {
         pattern : '[0-9]*',
         value   : model.PerId(), 
-        onchange: m.withAttr('value', fetch)
+        onchange: m.withAttr('value', model.fetch)
       }),
       m('span#grpid', model.Category()),
       m('span#name',  model.Name()),
@@ -113,9 +109,9 @@ App.ClimberV = {
 // Compose a view from a Results Array
 //
 App.ResultArrayV = {
-  view: function(ctrl, params) {
-    var models = params.climber.ResArray
-      , addFn  = params.climber.sumResults
+  view: function(ctrl, climber) {
+    var models = climber.ResArray
+      , addFn  = climber.sumResults
     return m('#tiles', [
       models.map(function(bloc) { 
         return m.component(App.ResultVC, { model: bloc, addFn: addFn }) 
@@ -141,7 +137,6 @@ App.ResultM = function(id){
     this.score(t ? [10,7,4][t-1] : 0)
     this.bonus((t || b) ? 1 : 0) 
   }
-  
   // Set the model parameters from a passed value
   this.set = function(val){
     var n = parseInt(val, 10)
