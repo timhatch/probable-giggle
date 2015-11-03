@@ -14,9 +14,9 @@ App.CompetitionVC = {
     
     // Controller Action: GET climber data (inc. results) from server
     this.fetch = function(val){
-      var _this = this.climber
+      var _this = this.climber, _wetid = this.wetid
 
-      m.request({ method: 'GET', url: '/climber?PerId='+val })
+      m.request({ method: 'GET', url: '/climber', data: { 'PerId': val, 'WetId': _wetid } })
       .then(function(v){
         try {
           _this.PerId(v.PerId)
