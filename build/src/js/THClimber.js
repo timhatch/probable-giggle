@@ -56,8 +56,6 @@ App.ClimberView = Backbone.View.extend({
 
     // Add a class to denote the category (used by $.isotope for filtering)
     // Set the data::rankorder property so that we can sort the superview when it is rendered
-    //this.$el.find('rank').addClass(this.model.get('category'))
-    //var t = this.model.get('category')
     this.el.querySelector('.rank').classList.add(this.model.get('category'))
     this.$el.data('rankorder', this.model.get('rank'))
     return this;
@@ -69,9 +67,6 @@ App.ClimberView = Backbone.View.extend({
   update: function(){
 
     // Update the aggegrate results
-    //this.$el.find('pts').text( this.model.get('points'))
-    //this.$el.find('bns').text( this.model.get('bonus'))
-    //this.$el.find('rank').text(this.model.get('rank'))
     this.el.querySelector('.pts').textContent  = this.model.get('points')
     this.el.querySelector('.bns').textContent  = this.model.get('bonus')
     this.el.querySelector('.rank').textContent = this.model.get('rank')

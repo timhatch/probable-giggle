@@ -23,21 +23,16 @@ App.ResultsList = Backbone.Collection.extend({
 
   /*
   * initialize()
-  *
-  * NOTE: Mandatory input parameter is a reference to the application settings model (options.settings)
-  * NOTE: Optional input parameters are the round and category for display
-  *
+  * NOTE: A reference to the application settings model is a MANDATORY options input
+  * NOTE: THe round and category for display are OPTIONAL input parameters
   */
-  initialize: function(options){
-    this.cat      = options.cat || 'm'
-  },
+  initialize: function(options){ this.cat = options.cat || 'm' },
 
   /*
   * loadResults(): Get startlist data from the server
-  *
-  * Return a bespoke $.deferred instead of simply passing through the $.deferred returned by the $.getJSON call.
-  * This allows us to work around the possibility that $.getJSON may return a 404 if (for example) one of the specified Starting Groups does not exist.
-  *
+  * Return a bespoke $.deferred instead of simply passing through the $.deferred returned by the
+  * $.getJSON call.  This allows us to work around the possibility that $.getJSON may return 
+  * a 404 if (for example) one of the specified Starting Groups does not exist.
   */
   loadResults: function() {
     var url  = this.url+'?cat='+this.cat,
@@ -46,32 +41,29 @@ App.ResultsList = Backbone.Collection.extend({
       self = this
 
     $xhr.success(function(data){
-      self.reset(data)            // Create a set of models from the edited 'participants' object
-      $rsp.resolve(true)            // Resolve the Deferred and pass true for a successful query
+      self.reset(data)      // Create a set of models from the edited 'participants' object
+      $rsp.resolve(true)    // Resolve the Deferred and pass true for a successful query
     })
     $xhr.error(function(){
-      $rsp.resolve(false)           // Resolve the Deferred and pass false for an unsuccessful query
+      $rsp.resolve(false)   // Resolve the Deferred and pass false for an unsuccessful query
     })
     return $rsp
   },
 
   /*
   * update(): Get startlist data from the server
-  *
-  * Uses the same methodology as loadResults() to get around $.getJSON returning a $.deferred with fail status
-  *
+  * Uses the same methodology as loadResults() to get around $.getJSON returning a $.deferred 
+  * with fail status
   */
   update: function(){
     var url  = this.url+'?cat='+this.cat,
       $rsp = $.Deferred(),
-      $xhr = $.getJSON(url),
-      self = this
+      $xhr = $.getJSON(url)
 
     $xhr.success(function(data){
-//      window.console.log(data)
-      self.setResults(data)         // Calculate and set the results data for each climber (model)
+      this.setResults(data)         // Calculate and set the results data for each climber (model)
       $rsp.resolve(true)
-    })
+    }.bind(this))
     $xhr.error(function(){
       $rsp.resolve(false)
     })
@@ -100,14 +92,13 @@ App.ResultsListView = Backbone.View.extend({
   /*
   * initialize() : Create the containing view for the collection of individual model views
   * The view is initialized by passing the following options:
-  *
-  * !Important - The backbone options parameter is used to allow the view to reference the application settings
-  *
+  * !Important - The backbone options parameter is used to allow the view to reference 
+  * the application settings
   */
   initialize: function(options){
     var self = this
-
-    self.loadResults(options.cat)
+    
+    this.loadResults(options.cat)
     setInterval(function(){
       self.updateView({ 'force_refresh' : true })
     }, 5000)
@@ -127,6 +118,7 @@ App.ResultsListView = Backbone.View.extend({
     // Pre-render the view container & initialise the collections containing the results
     this.initViewContainer(cat)
 
+    this.$resultsView = this.$('ul')  // Cache the resultslist view
     // Fetch results from the server for each collection
     // We return a bespoke $.deferred object from the $.ajax call and create views if that $.deferred returns true
     _(this.resultslists).each(function(collection){
@@ -180,18 +172,13 @@ App.ResultsListView = Backbone.View.extend({
   * render(): Render the view container
   */
   render: function(){
-    var str = '<ul></ul>'
-
     // Clean up any existing views if render is being called other than the first time
     if (this.currentView) { this.close() }
     this.climberviews = []
 
     // Create the shell of the view.
-    this.$el.html(str)
-    this.$resultsView = this.$('ul')  // Cache the resultslist view
-
-    // Append the view to the DOM
-    $('#wrapper').prepend(this.el)
+    this.el.innerHTML = '<ul></ul>'
+    document.getElementById('wrapper').appendChild(this.el)
 
     // Create a reference to the current view
     this.currentView = this
