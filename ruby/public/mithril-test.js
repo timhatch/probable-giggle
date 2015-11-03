@@ -1,8 +1,8 @@
 /***********************************
 * CODEKIT DECLARATIONS
 ***********************************/
+/* global m                       */
 
-/* global m        */
 var App = App || {}
  
 App.CompetitionVC = {
@@ -10,14 +10,36 @@ App.CompetitionVC = {
   controller: function(params){
     this.wetid   = params.wetid
     this.title   = params.title
-    this.climber = new App.ClimberModel()
-    
+    this.climber = new App.ClimberM()  
     this.resArr  = []
     for (var i = 1; i <= 30; i++) { this.resArr.push(new App.ResultM(i)) }
     
-    window.console.log(this.wetid)
+    // Controller Action: GET climber data (inc. results) from server
+    this.fetch = function(val){
+      var _this = this.climber
+        , _rArr = this.resArr
+
+      m.request({ method: 'GET', url: '/climber?PerId='+val })
+      .then(function(v){
+        try {
+          _this.PerId(v.PerId)
+          _this.Name(v.Lastname+', '+v.Firstname[0])
+          _this.Category(v.Category)
+          _this.ResString(JSON.parse(v.ResString))
+          _this.ResSummary(v.ResSummary)
+        
+          _rArr.forEach(function(res){
+           var r = _this.ResString()[res.id]
+           res.parse(r ? r : '')
+          })
+        } 
+        catch (err) { window.console.log(err) }      
+      })
+      .then(null, function(err){ window.console.log(err) })
+    }.bind(this)
+    
     // Controller Action: POST results to server
-    this.postResults = function(){
+    this.save = function(){
       var tmp = {}
       this.resArr
       .filter(function(res){ return res.result })
@@ -35,7 +57,7 @@ App.CompetitionVC = {
         }
       })
       .then(function(response){ window.console.log(response) })
-    }    
+    }.bind(this)    
 
     // Controller Action: Sum results
     this.sumResults = function(){
@@ -51,16 +73,16 @@ App.CompetitionVC = {
   view: function(ctrl){
     return [
       m('h3.title', ctrl.title),
-      m.component(App.ClimberVC, { climber: ctrl.climber, results: ctrl.resArr }),
-      m.component(App.ResultArrayVC, { resArray: ctrl.resArr, adder: ctrl.sumResults }),
-      m('button', { onclick : ctrl.postResults.bind(ctrl) }, 'Submit')
+      m.component(App.ClimberV, ctrl),
+      m.component(App.ResultArrayV, ctrl),
+      m('button', { onclick : ctrl.save }, 'Submit')
     ]
   }
 }
 
 // General purpose Climber model
 //
-App.ClimberModel = function(){
+App.ClimberM = function(){
   this.PerId     = m.prop(null) 
   this.Name      = m.prop(null) 
   this.Category  = m.prop(null) 
@@ -70,46 +92,16 @@ App.ClimberModel = function(){
 
 // Compose a view from for a Climber
 //
-App.ClimberVC = {
-  // Controller, calling and super's model and results aggregation function
-  controller: function(params){ 
-    this.climber = params.climber
-    this.results = params.results 
-  },
-  
-  // Controller Function to fetch data from server
-  fetch: function(val){
-    var _this = this.climber
-      , rArr  = this.results
-
-    m.request({ method: 'GET', url: '/climber?PerId='+val })
-    .then(function(v){
-      try {
-        _this.PerId(v.PerId)
-        _this.Name(v.Lastname+', '+v.Firstname[0])
-        _this.Category(v.Category)
-        _this.ResString(JSON.parse(v.ResString))
-        _this.ResSummary(v.ResSummary)
-        
-        rArr.forEach(function(res){
-         var r = _this.ResString()[res.id]
-         res.parse(r ? r : '')
-        })
-      } 
-      catch (err) { window.console.log(err) }      
-    })
-    .then(null, function(err){ window.console.log(err) })
-  },
-  
+App.ClimberV = {
   // View declaration  
-  view: function(ctrl){
-    var model = ctrl.climber
+  view: function(ctrl, params){
+    var model = params.climber, fetch = params.fetch
     return m('.header', [
       m('span.bloc', 'PerId:'),
       m('input[type=text].textbox', {
         pattern : '[0-9]*',
         value   : model.PerId(), 
-        onchange: m.withAttr('value', this.fetch.bind(ctrl))
+        onchange: m.withAttr('value', fetch)
       }),
       m('span#grpid', model.Category()),
       m('span#name',  model.Name()),
@@ -118,20 +110,20 @@ App.ClimberVC = {
   }
 }
 
-// Compose a view from an array of individual models
+// Compose a view from a Results Array
 //
-App.ResultArrayVC = {
+App.ResultArrayV = {
   view: function(ctrl, params) {
-    var models = params.resArray, result = params.adder
+    var models = params.resArr, addFn = params.sumResults
     return m('#tiles', [
       models.map(function(bloc) { 
-        return m.component(App.ResultVC, { model: bloc, adder: result }) 
+        return m.component(App.ResultVC, { model: bloc, addFn: addFn }) 
       })
     ])
   }
 }
 
-// Result Model
+// SIngle Boulder Result Model
 //
 App.ResultM = function(id){
   this.id    = 'p'+id
@@ -164,6 +156,7 @@ App.ResultM = function(id){
   }    
 }
 
+// SIngle Boulder Result View
 App.ResultVC = {
   // Controller, calling model and super's results aggregation function
   controller: function(params){
@@ -171,7 +164,7 @@ App.ResultVC = {
     
     this.set = function(val){
       this.model.set(val)
-      params.adder()
+      params.addFn()
     }
   },
   
@@ -196,4 +189,3 @@ App.ResultVC = {
     ])
   }  
 }
-//m.mount(document.querySelector('#tiles'), App.bloc)
