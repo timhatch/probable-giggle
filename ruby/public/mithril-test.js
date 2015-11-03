@@ -11,8 +11,7 @@ App.CompetitionVC = {
     this.wetid   = params.wetid
     this.title   = params.title
     this.climber = new App.ClimberM(this.wetid)
-  },
-    
+  },   
   // View declaration  
   view: function(ctrl){
     return [
@@ -90,18 +89,17 @@ App.ClimberM = function(wetid){
 // Compose a view from for a Climber
 //
 App.ClimberV = {
-  // View declaration  
-  view: function(ctrl, model){
+  view: function(ctrl, climber){
     return m('.header', [
       m('span.bloc', 'PerId:'),
       m('input[type=text].textbox', {
         pattern : '[0-9]*',
-        value   : model.PerId(), 
-        onchange: m.withAttr('value', model.fetch)
+        value   : climber.PerId(), 
+        onchange: m.withAttr('value', climber.fetch)
       }),
-      m('span#grpid', model.Category()),
-      m('span#name',  model.Name()),
-      m('span#result', model.ResSummary()),
+      m('span#grpid', climber.Category()),
+      m('span#name',  climber.Name()),
+      m('span#result', climber.ResSummary()),
     ])
   }
 }
@@ -110,11 +108,9 @@ App.ClimberV = {
 //
 App.ResultArrayV = {
   view: function(ctrl, climber) {
-    var models = climber.ResArray
-      , addFn  = climber.sumResults
     return m('#tiles', [
-      models.map(function(bloc) { 
-        return m.component(App.ResultVC, { model: bloc, addFn: addFn }) 
+      climber.ResArray.map(function(bloc) { 
+        return m.component(App.ResultVC, { model: bloc, addFn: climber.sumResults }) 
       })
     ])
   }
@@ -158,11 +154,10 @@ App.ResultVC = {
     this.model = params.model
     
     this.set = function(val){
-      this.model.set(val)
+      params.model.set(val)
       params.addFn()
     }
-  },
-  
+  },  
   // View declaration  
   view: function(ctrl){
     var toggles = {
