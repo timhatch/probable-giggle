@@ -3,20 +3,20 @@
 ***********************************/
 
 /* global m        */
-var app = app || {}
+var App = App || {}
  
-app.competition_vc = {
-  
+App.CompetitionVC = {
+  // Application controller  
   controller: function(params){
     this.wetid   = params.wetid
     this.title   = params.title
-    this.climber = new app.climber_m()
-    this.func    = m.prop({})
+    this.climber = new App.ClimberModel()
     
     this.resArr  = []
-    for (var i = 1; i <= 30; i++) { this.resArr.push(new app.result_m(i)) }
-    //
-    /// Controller Actions
+    for (var i = 1; i <= 30; i++) { this.resArr.push(new App.ResultM(i)) }
+    
+    window.console.log(this.wetid)
+    // Controller Action: POST results to server
     this.postResults = function(){
       var tmp = {}
       this.resArr
@@ -27,27 +27,40 @@ app.competition_vc = {
         method: 'POST', 
         url   : './test', 
         data  : { 
-          "PerId"    : this.climber.PerId(), 
-          "WetId"    : this.wetid,
-          "route"    : 0,
-          "ResString": JSON.stringify(tmp)
+          "PerId"     : this.climber.PerId(), 
+          "WetId"     : parseInt(this.wetid,10),
+          "route"     : 0,
+          "ResString" : JSON.stringify(tmp),
+          "ResSummary": this.climber.ResSummary()
         }
       })
       .then(function(response){ window.console.log(response) })
     }    
+
+    // Controller Action: Sum results
+    this.sumResults = function(){
+      var x = 0, y = 0
+      this.resArr.forEach(function(model){  
+        x += model.score(); y += model.bonus()
+      })
+      this.climber.ResSummary(x+' / '+y)  // window.console.log(x+' / '+y)
+    }.bind(this)
   },
     
+  // View declaration  
   view: function(ctrl){
     return [
       m('h3.title', ctrl.title),
-      m.component(app.climber_vc, { climber: ctrl.climber, results: ctrl.resArr }),
-      m.component(app.results_vc, { resArray: ctrl.resArr, aggregator: ctrl.func }),
+      m.component(App.ClimberVC, { climber: ctrl.climber, results: ctrl.resArr }),
+      m.component(App.ResultArrayVC, { resArray: ctrl.resArr, adder: ctrl.sumResults }),
       m('button', { onclick : ctrl.postResults.bind(ctrl) }, 'Submit')
     ]
   }
 }
 
-app.climber_m = function(){
+// General purpose Climber model
+//
+App.ClimberModel = function(){
   this.PerId     = m.prop(null) 
   this.Name      = m.prop(null) 
   this.Category  = m.prop(null) 
@@ -55,12 +68,16 @@ app.climber_m = function(){
   this.ResSummary= m.prop(null)
 }
 
-app.climber_vc = {
+// Compose a view from for a Climber
+//
+App.ClimberVC = {
+  // Controller, calling and super's model and results aggregation function
   controller: function(params){ 
     this.climber = params.climber
     this.results = params.results 
   },
   
+  // Controller Function to fetch data from server
   fetch: function(val){
     var _this = this.climber
       , rArr  = this.results
@@ -72,7 +89,8 @@ app.climber_vc = {
         _this.Name(v.Lastname+', '+v.Firstname[0])
         _this.Category(v.Category)
         _this.ResString(JSON.parse(v.ResString))
-        //_this.ResSummary(v.ResSummary)
+        _this.ResSummary(v.ResSummary)
+        
         rArr.forEach(function(res){
          var r = _this.ResString()[res.id]
          res.parse(r ? r : '')
@@ -82,7 +100,8 @@ app.climber_vc = {
     })
     .then(null, function(err){ window.console.log(err) })
   },
-     
+  
+  // View declaration  
   view: function(ctrl){
     var model = ctrl.climber
     return m('.header', [
@@ -98,20 +117,23 @@ app.climber_vc = {
     ])
   }
 }
-// m.mount(document.querySelector('.header'), app.climber)
 
-app.results_vc = {
+// Compose a view from an array of individual models
+//
+App.ResultArrayVC = {
   view: function(ctrl, params) {
-    var models = params.resArray, result = params.aggregator
+    var models = params.resArray, result = params.adder
     return m('#tiles', [
       models.map(function(bloc) { 
-        return m.component(app.result_vc, { model: bloc, aggregator: result }) 
+        return m.component(App.ResultVC, { model: bloc, adder: result }) 
       })
     ])
   }
 }
 
-app.result_m = function(id){
+// Result Model
+//
+App.ResultM = function(id){
   this.id    = 'p'+id
   this.score = m.prop(0)
   this.bonus = m.prop(0)
@@ -125,8 +147,7 @@ app.result_m = function(id){
 
     this.result = str
     this.score(t ? [10,7,4][t-1] : 0)
-    this.bonus((t || b) ? 1 : 0)
-    window.console.log(this.score()+'.'+this.bonus())  
+    this.bonus((t || b) ? 1 : 0) 
   }
   
   // Set the model parameters from a passed value
@@ -138,44 +159,41 @@ app.result_m = function(id){
       , b = (y > -1) ? 1 : 0
   
     this.result = t ? 't'+(x+1) : (b ? 'b1' : null)
-    this.score(t) ;window.console.log(this.score()) 
-    this.bonus(b) ;window.console.log(this.bonus())
+    this.score(t)
+    this.bonus(b)
   }    
 }
 
-app.result_vc = {
+App.ResultVC = {
+  // Controller, calling model and super's results aggregation function
   controller: function(params){
     this.model = params.model
     
     this.set = function(val){
-      // params.aggregator()
       this.model.set(val)
+      params.adder()
     }
   },
+  
   // View declaration  
   view: function(ctrl){
-    var model = ctrl.model    
     var toggles = {
           ong : { view: function(){ return  m("span.flag.noerror", m.trust('&nbsp;'))}}, 
           onr : { view: function(){ return  m("span.flag.error", m.trust('&nbsp;'))}}, 
           off : { view: function(){ return  m("span.flag", m.trust('&nbsp;'))}}
         }
-        
     return m('.tile', [
-      m('span.bloc', model.id), 
+      m('span.bloc', ctrl.model.id), 
       m('input[type=text].textbox', {
         pattern : '[0-9]*', 
-        value   : model.score() || model.bonus() || null,
+        value   : ctrl.model.score() || ctrl.model.bonus() || null,
         onchange: m.withAttr('value', ctrl.set.bind(ctrl))
       }),
-      m.component(model.score() === 10 ? toggles.ong : toggles.off),
-      m.component(model.score() ===  7 ? toggles.ong : toggles.off),
-      m.component(model.score() ===  4 ? toggles.ong : toggles.off),
-      m.component(model.bonus() ===  1 ? toggles.ong : toggles.off) 
+      m.component(ctrl.model.score() === 10 ? toggles.ong : toggles.off),
+      m.component(ctrl.model.score() ===  7 ? toggles.ong : toggles.off),
+      m.component(ctrl.model.score() ===  4 ? toggles.ong : toggles.off),
+      m.component(ctrl.model.bonus() ===  1 ? toggles.ong : toggles.off) 
     ])
   }  
 }
-//m.mount(document.querySelector('#tiles'), app.bloc)
-
-var c = m.component(app.competition_vc, { wetid: 1, title: 'CWIF 2015' })
-m.mount(document.querySelector('#inner'), c)
+//m.mount(document.querySelector('#tiles'), App.bloc)

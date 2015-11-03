@@ -2,22 +2,14 @@
 %html
   %head
     %title  Mithril Example
-    
     %link{ rel: 'stylesheet', href: './admin.css' }
-
     
-  %body
-    #inner
-      %h3.title
-        = "#{@name}"
-      
-      %div.header
-      %div#tiles
+  %body#inner      
 
   %script{ :src=>'./mithril.min.js' }
-  %script{ :src=>'./test.js' }
+  %script{ :src=>'./mithril-test.js' }
   :javascript
     document.addEventListener('DOMContentLoaded', function(){
-      window.console.log("#{@wetid}")
-      //m.mount(document.getElementById('inner'), bloc.view())
+      var c = m.component(App.CompetitionVC, { wetid: "#{@wetid}", title: "#{@title}" })
+      m.mount(document.querySelector('#inner'), c)
     })      
