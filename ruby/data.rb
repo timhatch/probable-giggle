@@ -2,7 +2,7 @@ require 'sequel'
 require 'json'
 
 # Set the working directory for testing in Textmate
-#Dir.chdir("/users/timhatch/sites/flashresults/ruby")
+# Dir.chdir("/users/timhatch/sites/flashresults/ruby")
 
 module Resultlist 
 
@@ -13,13 +13,9 @@ module Resultlist
   # Required params WetId, GrpId. Returns n results
   def get_result params
     DB[:Results]
-      .where(WetId: params[:WetId])
-      .where(GrpId: params[:GrpId])
-      .join(:Climbers, :PerId => :PerId)
-  end
-  
-  def set_result params
-    
+      .where(params)
+      .join(:Climbers, :PerId => :Results__PerId)
+      .all
   end
 end
 
@@ -27,20 +23,15 @@ module Climber
   DB = Sequel.sqlite('./data/results.db')
 
   module_function
-  
+
   # Public: Fetch climber data from the database
   # 
-  # perid -   The unique reference number for the climber
+  # params -  A Hash containing (optionally)
+  #           :PerId -  The unique reference number for the climber   (default: 1030)
+  #           :WetId -  The unique reference id for the competitions  (default: 1)
+  #           :route -  The unique reference for the route/round      (default: 0)
   #
-  # Returns a JSON object
-  def get_data perid
-    DB[:Climbers]
-      .where(PerId: perid)
-      .first
-      .to_json
-  end
-  
-  # Required params: PerId, WetId, GrpId. Returns 1 result as JSON
+  # Returns a Hash object
   def get_result params
     id = create_uuid params
     DB[:Results]
@@ -48,15 +39,17 @@ module Climber
       .join(:Climbers, :PerId => :Results__PerId)
       .join(:Params,   :GrpId => :Results__GrpId)
       .first
-      .to_json
   end
-  
+
+  # Public: Update the results database
+  # 
+  # params -  A Hash containing (optionally)
+  #           :PerId -  The unique reference number for the climber   (default: 1030)
+  #           :WetId -  The unique reference id for the competitions  (default: 1)
+  #           :route -  The unique reference for the route/round      (default: 0)
   #
   def set_result params
-    p "called set_result with params = "
-    p params  
     id = create_uuid params
-    p id
     DB[:Results]
       .where(resid: id)
       .update(ResString: params[:ResString], ResSummary: params[:ResSummary])
@@ -64,7 +57,7 @@ module Climber
   
   # Internal
   #
-  # params -  A Hash containing
+  # params -  A Hash containing (optionally)
   #           :PerId -  The unique reference number for the climber   (default: 1030)
   #           :WetId -  The unique reference id for the competitions  (default: 1)
   #           :route -  The unique reference for the route/round      (default: 0)
