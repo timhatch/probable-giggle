@@ -8,43 +8,45 @@ var App = App || {}
 App.CompetitionVC = {
   // Application controller  
   controller: function(params){
-    this.wetid   = params.wetid
-    this.title   = params.title
-    this.climber = new App.ClimberM(this.wetid)
+    this.wetid  = params.wetid
+    this.title  = params.title
+    this.person = new App.MPerson(this.wetid)
   },   
   // View declaration  
   view: function(ctrl){
+    var person = ctrl.person
     return [
       m('h3.title', ctrl.title),
-      m.component(App.ClimberV, ctrl.climber),
-      m.component(App.ResultArrayV, ctrl.climber),
-      m('button', { onclick : ctrl.save }, 'Submit')
+      m.component(App.VPerson, person),
+      m.component(App.VResultList, person),
+      m('button', { onclick : person.save.bind(person) }, 'Submit')
     ]
   }
 }
 
 // General purpose Climber model
 //
-App.ClimberM = function(wetid){
-  this.WetId      = wetid
+App.MPerson = function(wetid){
+  // TODO: In principle we also need the route parameter... 
+  this.WetId      = wetid || 1
   this.PerId      = m.prop(null) 
   this.Name       = m.prop(null) 
   this.Category   = m.prop(null) 
   this.ResString  = m.prop(null)
-  this.ResSummary = m.prop(null)           
+  this.ResSummary = m.prop(null)          
   this.ResArray   = (function(){
-    for (var i = 1, a = []; i <= 30; i++) { a.push(new App.ResultM(i)) }
+    for (var i = 1, a = []; i <= 30; i++) { a.push(new App.MResult(i)) }
     return a
   })()
-  
+
   this.sumResults = function(){
     var x = 0, y = 0
     this.ResArray.forEach(function(model){  
       x += model.score(); y += model.bonus()
     })
     this.ResSummary(x+' / '+y)  // window.console.log(x+' / '+y)
-  }.bind(this)
-  
+  }
+
   this.fetch = function(val){
     var _this = this
     m.request({ method: 'GET', url: '/climber', data: { 'PerId': val, 'WetId': this.WetId } })
@@ -55,26 +57,26 @@ App.ClimberM = function(wetid){
         _this.Category(v.Category)
         _this.ResString(JSON.parse(v.ResString))
         _this.ResSummary(v.ResSummary)
-      
+        
         _this.ResArray.forEach(function(res){
-         var r = _this.ResString()[res.id]
-         res.parse(r ? r : '')
+          var r = _this.ResString()[res.id]
+          res.parse(r ? r : '')
         })
       } 
       catch (err) { window.console.log(err) }      
     })
     .then(null, function(err){ window.console.log(err) })
-  }.bind(this)
-  
+  }
+
   this.save = function(){
     var tmp = {}
     this.ResArray
     .filter(function(res){ return res.result })
     .forEach(function(res){ tmp[res.id] = res.result })
-      
+    
     m.request({
-      method: 'POST', 
-      url   : './test', 
+      method: 'PUT', 
+      url   : './climber', 
       data  : { 
         "WetId"     : this.WetId,
         "PerId"     : this.PerId(), 
@@ -83,78 +85,61 @@ App.ClimberM = function(wetid){
       }
     })
     .then(function(response){ window.console.log(response) })
-  }.bind(this)
+  }
 }
-
-// Compose a view from for a Climber
-//
-App.ClimberV = {
-  view: function(ctrl, climber){
+App.VPerson = {
+  view: function(ctrl, person){
     return m('.header', [
       m('span.bloc', 'PerId:'),
       m('input[type=text].textbox', {
         pattern : '[0-9]*',
-        value   : climber.PerId(), 
-        onchange: m.withAttr('value', climber.fetch)
+        value   : person.PerId(), 
+        onchange: m.withAttr('value', person.fetch.bind(person))
       }),
-      m('span#grpid', climber.Category()),
-      m('span#name',  climber.Name()),
-      m('span#result', climber.ResSummary()),
+      m('span#grpid', person.Category()),
+      m('span#name',  person.Name()),
+      m('span#result', person.ResSummary()),
     ])
   }
 }
 
-// Compose a view from a Results Array
+// Single Result Model / View
 //
-App.ResultArrayV = {
-  view: function(ctrl, climber) {
-    return m('#tiles', [
-      climber.ResArray.map(function(bloc) { 
-        return m.component(App.ResultVC, { model: bloc, addFn: climber.sumResults }) 
-      })
-    ])
-  }
-}
-
-// SIngle Boulder Result Model
-//
-App.ResultM = function(id){
+App.MResult = function(id){
   this.id    = 'p'+id
   this.score = m.prop(0)
   this.bonus = m.prop(0)
-  // Set the model parameters from a results string
-  this.parse = function(str){
+}
+App.MResult.prototype = {
+ // Set the model parameters from a results string
+  parse: function(str){
     var t = str.match("t[0-9]{1,}") || null
-    var b = str.match("b[0-9]{1,}") || null
+      , b = str.match("b[0-9]{1,}") || null
     t = t ? parseInt(t[0].slice(1),10) : null
     b = b ? parseInt(b[0].slice(1),10) : null
-
     this.result = str
     this.score(t ? [10,7,4][t-1] : 0)
     this.bonus((t || b) ? 1 : 0) 
-  }
+  },
   // Set the model parameters from a passed value
-  this.set = function(val){
+  update: function(val){
     var n = parseInt(val, 10)
       , x = [10,7,4].indexOf(n)
       , y = [10,7,4,1].indexOf(n)
       , t = (x > -1) ? n : 0
       , b = (y > -1) ? 1 : 0
-  
     this.result = t ? 't'+(x+1) : (b ? 'b1' : null)
     this.score(t)
     this.bonus(b)
-  }    
+  }
 }
-
-// SIngle Boulder Result View
-App.ResultVC = {
+App.VResult = {
   // Controller, calling model and super's results aggregation function
   controller: function(params){
     this.model = params.model
     
     this.set = function(val){
-      params.model.set(val)
+      params.model.update(val)
       params.addFn()
     }
   },  
@@ -178,4 +163,16 @@ App.ResultVC = {
       m.component(ctrl.model.bonus() ===  1 ? toggles.ong : toggles.off) 
     ])
   }  
+}
+
+// Compose a view from a Results Array
+//
+App.VResultList = {
+  view: function(ctrl, person) {
+    return m('#tiles', [
+      person.ResArray.map(function(bloc) { 
+        return m.component(App.VResult, { model: bloc, addFn: person.sumResults.bind(person) }) 
+      })
+    ])
+  }
 }
