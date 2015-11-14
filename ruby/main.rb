@@ -10,36 +10,39 @@ require_relative './data'
 # application/x-www-form-urlencoded and application/json encoded data
 use Rack::PostBodyContentTypeParser 
 
+# Allow access from the local network
 set :bind, '0.0.0.0'
 set :port, 4567
 
-get '/' do
-  @title = 'Test Comp'
-  @wetid = 1 
-
-  haml :admin
-end
+#get '/' do
+#  @title = 'Test Comp'
+#  @wetid = 1 
+#
+#  haml :admin
+#end
 
 get '/mithril' do
+  # TODO Set these parameters based on earlier input. e.g. get values from a database 
   @title = 'Test Comp'
   @wetid = 1
+  # e.g. re-route to /mithril/params
   haml :mithril
 end
 
+#before do |params|
+#  temp = Hash[params]
+#  data = Hash[temp.map{|(k,v)| [k.to_sym,v]}]
+#end
+
 get '/climber' do
-  #content_type :json
-  # Convert the passed parameters into a Hash object
-  #data = Climber.get_result PerId: Hash[params].
-  data = Hash[params]['PerId']
-  #data.to_json
-  res  = Climber.get_result PerId: data  
+  temp = Hash[params]
+  data = Hash[temp.map{|(k,v)| [k.to_sym,v]}]
+  
+  resp = Climber.get_result data 
+  resp.to_json
 end 
 
-put '/:name' do |n|
-  "hello #{name}"
-end
-
-post '/test' do
+put '/climber' do
   temp = Hash[params]
   data = Hash[temp.map{|(k,v)| [k.to_sym,v]}]
 
