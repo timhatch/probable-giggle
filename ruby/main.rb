@@ -3,6 +3,7 @@
 require 'sinatra'
 require 'tilt/haml'
 require 'rack/contrib'
+require 'csv'
 
 require_relative './data'
 
@@ -12,40 +13,118 @@ use Rack::PostBodyContentTypeParser
 
 # Allow access from the local network
 set :bind, '0.0.0.0'
-set :port, 4567
+#set :port, 4567
 
-#get '/' do
-#  @title = 'Test Comp'
-#  @wetid = 1 
+### Tests
+### Test Mithril routes
+##get '/test/routes' do
+##  haml :routes
+##end
+##
+### Route handling to get basic competition data
+##get '/test' do
+##  haml :conditional_views 
+##end
+##
+##get '/competition' do
+##  { title: "CWIF" }.to_json
+##end
+
+
+# Public: Route handling for the admin/registration page
 #
-#  haml :admin
-#end
+# params - TODO: Add WetId and CompName as params
+#
+get '/registration' do
+  # TODO Set these parameters based on earlier input. e.g. get values from a database 
+  @title = 'Test Comp'
+  @wetid = 1
+  haml :registration, :layout => :mithril
+end
 
-get '/mithril' do
+post '/registration' do
+  if params[:file]
+    file     = params[:file][:tempfile]
+    data     = []
+    # NOTE: header_converters downcases all headers...
+#    csv_opts = { headers: true, converters: :numeric, header_converters: :symbol }
+#    CSV.foreach(file, csv_opts) { |row| resp.push row.to_hash }
+    csv_opts = { headers: true, converters: :numeric }
+#    CSV.foreach(file, csv_opts) { |row| data.push Hash[row.to_hash.map{|(k,v)| [k.to_sym,v]}] }
+#    Startlist.set_starters({ starters: data })
+    
+    CSV.foreach(file, csv_opts) do |row|
+      person = Hash[row.to_hash.map{|(k,v)| [k.to_sym,v]}]
+      Startlist.set_starter person
+    end
+  else
+    p 'No file provided'
+  end
+end
+
+
+# Test
+# Public: Interface to the eGroupware-format results display
+# 
+# params -  A Hash containing
+#           :WetId -  The unique reference id for the competition
+#           :GrpId -  The unique reference number for the category 
+#           :route -  The unique reference for the route/round    
+#
+get '/egw' do
+  redirect '/d.assets/index.boulder.html'
+end
+
+# Update results
+#
+get '/egw/ranking' do
+  resp = {}
+  temp = Hash[params]
+  data = Hash[temp.map{|(k,v)| [k.to_sym,v]}]
+  
+  resp[:participants] = Resultlist.get_results data
+  resp.to_json
+end
+
+
+# Route handling for the qualification round results page
+#
+get '/results' do
   # TODO Set these parameters based on earlier input. e.g. get values from a database 
   @title = 'Test Comp'
   @wetid = 1
   # e.g. re-route to /mithril/params
-  haml :mithril
+  haml :results, :layout => :mithril
 end
 
-#before do |params|
-#  temp = Hash[params]
-#  data = Hash[temp.map{|(k,v)| [k.to_sym,v]}]
-#end
 
+# CRUD handling for the results for an individual climber
+#
 get '/climber' do
   temp = Hash[params]
-  data = Hash[temp.map{|(k,v)| [k.to_sym,v]}]
-  
-  resp = Climber.get_result data 
-  resp.to_json
+  data = Hash[temp.map{ |(k,v)| [k.to_sym,v.to_i] }]
+  resp = Resultlist.get_results data 
+  resp.first.to_json
 end 
 
 put '/climber' do
   temp = Hash[params]
-  data = Hash[temp.map{|(k,v)| [k.to_sym,v]}]
+  data = Hash[temp.map{|(k,v)| [k.to_sym,v.to_i]}]
 
-  Climber.set_result data
-  data[:ResString]
+  Resultlist.set_result_single data
+  data[:result_json]
 end
+
+__END__
+
+@@results
+%script{ src: './m-results.js' }
+:javascript
+  var c = m.component(App.CompetitionVC, { wetid: "#{@wetid}", title: "#{@title}" })
+  m.mount(document.body, c)
+  
+@@registration
+%script{ src: './m-registration.js' }
+:javascript
+  var c = m.component(App.RegistrationVC, { wetid: "#{@wetid}", title: "#{@title}" })
+  m.mount(document.body, c)

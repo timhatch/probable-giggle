@@ -1,15 +1,14 @@
 !!! 5
 %html
   %head
-    %title  Mithril Example
+    %title  Data Entry
+    / Meta Tags
+    %meta{ :charset=>'UTF-8'}
+    %meta{ :name=>'viewport', :content=>'width=device-width, initial-scale=1.0' }
+    /  CSS
     %link{ rel: 'stylesheet', href: './admin.css' }
-    
-  %body#inner      
 
-  %script{ :src=>'./mithril.min.js' }
-  %script{ :src=>'./mithril-test.js' }
-  :javascript
-    document.addEventListener('DOMContentLoaded', function(){
-      var c = m.component(App.CompetitionVC, { wetid: "#{@wetid}", title: "#{@title}" })
-      m.mount(document.querySelector('#inner'), c)
-    })      
+  %body#inner
+
+  %script{ src: './mithril.min.js' }
+  =yield

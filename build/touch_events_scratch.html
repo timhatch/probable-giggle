@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Touch Events Test</title>
+    <!-- Meta Tags -->
+    <meta charset='UTF-8'>
+    <!-- %meta{ :name=>"viewport", :content=>"width=device-width, initial-scale=1.0" } -->
+    <meta content='width=600, user-scalable=0' name='viewport'>
+    <!-- CSS -->
+    <link href='./css/header.css' rel='stylesheet'>
+    <body>
+      <header>
+        <div>
+          <button square>&#9776;</button>
+          <span>Title</span>
+        </div>
+      </header>
+      <div>
+        <br>
+        <h3>Small Buttons</h3>
+        <button outline='true' round='true' small='true' type='primary'>+</button>
+        <button small='true' type='primary'>Save</button>
+        <button outline='true' small='true'>Cancel</button>
+        <button outline='true' small='true' type='primary' upper='true'>Cancel</button>
+        <button round='true' small='true' type='primary'>+</button>
+      </div>
+      <div>
+        <br>
+        <h3>Regular Buttons</h3>
+        <button outline='true' round='true' type='primary'>+</button>
+        <button type='primary'>Save</button>
+        <button outline='true'>Cancel</button>
+        <button outline='true' type='primary' upper='true'>Cancel</button>
+        <button class='right' round='true' type='primary'>+</button>
+      </div>
+      <br>
+      <ul>
+        <li rows='4'>
+          <span class='test' rows='4'>a</span>
+        </li>
+      </ul>
+      <script src='./js/mithril.min.js'></script>
+      <script src='./js/mithril-touch.js'></script>
+      <script src='./boulder_results.js'></script>
+      <script>
+        var c = m.component(App.SwipeView)
+        m.mount(document.body, c)
+      </script>
+      <!-- :javascript -->
+      <!-- window.console.log('executing mithril') -->
+      <!-- var d = m('div', { -->
+      <!-- rows: 4, -->
+      <!-- config: m.touchHelper({ -->
+      <!-- 'swipeleft': window.console.log('left'), -->
+      <!-- 'swiperight': window.console.log('left') -->
+      <!-- } -->
+      <!-- }) -->
+      <!-- m.render(document.body, d) -->
+      <!-- :javascript -->
+      <!-- window.console.log('here') -->
+      <!-- var c = m('button', { -->
+      <!-- outline     : true, -->
+      <!-- upper       : true, -->
+      <!-- small       : true -->
+      <!-- }, 'submit') -->
+      <!-- var h = m('header', { -->
+      <!-- rows: 2 -->
+      <!-- }) -->
+      <!-- m.render(document.body, h) -->
+    </body>
+  </head>
+</html>

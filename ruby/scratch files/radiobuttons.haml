@@ -1,0 +1,44 @@
+!!! 5
+%html
+  %head
+    %title  Mithril Example
+    %link{ rel: 'stylesheet', href: './admin.css' }
+    
+  %body#inner      
+    %input{ type: 'radio', name: 'result' }
+    %input{ type: 'radio', name: 'result' }
+    %input{ type: 'radio', name: 'result' }
+
+  %script{ :src=>'./mithril.min.js' }
+  :javascript
+    (function() {
+      var app = {
+        controller: function() {
+          var initial_value = 7
+          this.val = m.prop(initial_value)
+        },
+        
+        view: function(ctrl) {
+          var update = function(val) {
+                return function() { return ctrl.val(val) }
+              }
+          	, rdio_attr = function(val) {
+            	  return {
+                  onchange: m.withAttr('checked', update(val)),
+                  checked : ctrl.val() == val
+                }
+              }
+          return m('.radio_buttons', 
+            m("input[type=text]", { 
+              value   : ctrl.val(), 
+              onchange: m.withAttr('value', ctrl.val)
+            }), 
+            m("input[type=radio]", rdio_attr(10)), 
+            m("input[type=radio]", rdio_attr(7)), 
+            m("input[type=radio]", rdio_attr(4)), 
+            m("input[type=radio]", rdio_attr(1)) 
+          )
+        }
+      }
+      m.mount(document.body, app);
+    }).call(this);
