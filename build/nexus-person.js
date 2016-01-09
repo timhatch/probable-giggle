@@ -37,9 +37,9 @@ App.Person = {
       , groups = {"M":6,"F":5,"MJ":84,"FJ":81,"MA":82,"FA":79,"MB":83,"FB":80}
     
       return {
-      "wet_id"     : parseInt(App.vm.WetId,10),
-      "route"      : rounds[App.vm.Route],
-      "grp_id"     : groups[App.vm.GrpId],
+      "wet_id"     : parseInt(App.viewModel.WetId,10),
+      "route"      : rounds[App.viewModel.Route],
+      "grp_id"     : groups[App.viewModel.GrpId],
       "start_order": parseInt(val,10)
     }
   },
@@ -57,7 +57,7 @@ App.Person = {
     })
     .then(function(resp){
       try {
-        var problem = 'p' + String(parseInt(App.vm.BlcNr, 10))
+        var problem = 'p' + String(parseInt(App.viewModel.BlcNr, 10))
           , result  = JSON.parse(resp.result_json)[problem] || ''
 
         for (var prop in self.result) {
@@ -73,7 +73,7 @@ App.Person = {
       }
       App.connectionStatus(true)
     })
-    .then(null, function(err){
+    .then(null, function(){
       App.connectionStatus(false)
     })
   },
@@ -81,7 +81,7 @@ App.Person = {
   save: function(){
     var params = this.composeURI(this.start_order)
       , obj    = {}
-      , key    = 'p' + String(parseInt(App.vm.BlcNr, 10))
+      , key    = 'p' + String(parseInt(App.viewModel.BlcNr, 10))
       , str    = ''
     
     for (var prop in this.result) {
@@ -99,7 +99,7 @@ App.Person = {
       window.console.log(resp)
       App.connectionStatus(true)
     })
-    .then(null, function(err){
+    .then(null, function(){
       App.connectionStatus(false)      
     })
   },

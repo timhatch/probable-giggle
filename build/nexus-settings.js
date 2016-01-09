@@ -12,22 +12,22 @@ App.settingsVC = {
     this.fetch = function(){
       // Break if a required value has not been provided...
       // Note that we're not validating date here...
-      for (var prop in App.vm) { if (App.vm[prop] === null) return }
+      for (var prop in App.viewModel) { if (App.viewModel[prop] === null) return }
       
       // If all values have been provided, then fetch the competition ID from the server
       m.request({ 
         method: 'GET', 
         url   : '/competition',
-        data  : { wet_id: App.vm.WetId }
+        data  : { wet_id: App.viewModel.WetId }
       })
       .then(function(resp){
         try {
           var title = resp.title || '-'
-          title +=  ' / '+ App.vm.Route + ' / ' + App.vm.GrpId + ' / ' + App.vm.BlcNr 
+          title +=  ' / '+App.viewModel.Route+' / '+App.viewModel.GrpId+' / '+App.viewModel.BlcNr 
           
-          App.vm.WetNm = title
-          App.vm.State = true
-          App.sessionStorage.set('AppState', App.vm)
+          App.viewModel.WetNm = title
+          App.viewModel.State = true
+          App.sessionStorage.set('AppState', App.viewModel)
         }
         catch (err) {
           window.console.log('invalid response : '+err) 
@@ -35,7 +35,7 @@ App.settingsVC = {
         App.Person.reset()
         App.connectionStatus(true)
       })
-      .then(null, function(err){
+      .then(null, function(){
         App.connectionStatus(false)
       })
     }
@@ -61,7 +61,7 @@ App.parametersSubview = {
   controller: function(params){
     // Note that this stores all keys as strings...
     this.set = function(val){
-      App.vm[params.key] = val.toUpperCase() || null
+      App.viewModel[params.key] = val.toUpperCase() || null
     }
   },
   
@@ -71,8 +71,8 @@ App.parametersSubview = {
       m("input[type=text]", {
         onchange: m.withAttr("value", ctrl.set.bind(ctrl)),
         pattern : params.pattern || null,
-        value   : App.vm[params.key]//,
-        //style   : (App.vm[params.key] === null) ? 'background-color:yellow' : 'none'
+        value   : App.viewModel[params.key]//,
+        //style   : (App.viewModel[params.key] === null) ? 'background-color:yellow' : 'none'
       })
     ])
   }

@@ -10,10 +10,10 @@ App.headerVC = {
   controller: function(){    
     this.toggleSettings = function(){      
       // Disable toggling if a required value has not been provided...
-      for (var prop in App.vm) { if (App.vm[prop] === null) return }
+      for (var prop in App.viewModel) { if (App.viewModel[prop] === null) return }
       
-      var state = App.vm.State
-      App.vm.State = (!!state) ? false : true
+      var state = App.viewModel.State
+      App.viewModel.State = (!!state) ? false : true
     }
   },
   
@@ -25,7 +25,7 @@ App.headerVC = {
         onclick: ctrl.toggleSettings,
         square: true
       }, m.trust('&#9776;')),
-      m("span.details", App.vm.WetNm || m.trust('&nbsp;'))
+      m("span.details", App.viewModel.WetNm || m.trust('&nbsp;'))
     ])
   }
 }
