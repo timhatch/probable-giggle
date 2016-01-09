@@ -9,8 +9,9 @@ window.App = window.App || {}
 App.Person = { 
   start_order : null,
   fullname    : null,
-  result      : {a:null,b:null,c:null},
+  result      : {a:null,b:null,t:null},
   
+  // Increment the attempts count on the current boulder
   incrementAttempts: function(val){
     var atts = this.result.a + val
     
@@ -18,7 +19,7 @@ App.Person = {
     this.save()
   },
   
-  // Not Used/Tested yet
+  // set the bonus/top values for the current boulder
   setResult: function(attr){
     var res = this.result
     if (!res[attr]) {
@@ -27,7 +28,7 @@ App.Person = {
     }
   },
 
-  // Not Used/Tested yet
+  // Reset results for the current boulder
   resetResult: function(attr){
     if (!!this.result[attr]) this.result[attr] = 0
   },
@@ -48,7 +49,7 @@ App.Person = {
     // Deal with the case where no value is provided
     if (!val) return
     
-    window.console.log(this.composeURI(val))
+    //window.console.log(this.composeURI(val))
     var self = this
     m.request({
       method: 'GET',
@@ -80,15 +81,15 @@ App.Person = {
   
   save: function(){
     var params = this.composeURI(this.start_order)
-      , obj    = {}
-      , key    = 'p' + String(parseInt(App.viewModel.BlcNr, 10))
-      , str    = ''
-    
-    for (var prop in this.result) {
-      if (!!this.result[prop]) str += (prop+this.result[prop])
-    }
-    obj[key] = str
-    params.result_json = JSON.stringify(obj)
+//      , obj    = {}
+//      , key    = 'p' + String(parseInt(App.viewModel.BlcNr, 10))
+//      , str    = ''//  
+//    for (var prop in this.result) {
+//      if (!!this.result[prop]) str += (prop+this.result[prop])
+//    }
+//    obj[key] = str
+//    params.result_json = JSON.stringify(obj)
+    params.result_json = this.stringifyResult()
 
     m.request({
       method: 'PUT',
@@ -104,6 +105,18 @@ App.Person = {
     })
   },
   
+  stringifyResult: function(){
+    var key = 'p' + String(parseInt(App.viewModel.BlcNr, 10))
+      , obj = {} , str = ''
+
+    for (var prop in this.result) {
+      if (!!this.result[prop]) str += (prop+this.result[prop])
+    }
+    obj[key] = str
+    return JSON.stringify(obj)
+  },
+  
+  // Reset the climber data
   reset: function(){
     this.start_order = null
     this.fullname    = null
