@@ -92,7 +92,7 @@ App.Person = {
 
     m.request({
       method: 'PUT',
-      url   : '/climber',
+      url   : '/climber/bloc',
       data  : params
     })
     .then(function(resp){
