@@ -4,6 +4,20 @@ require 'json'
 
 # Set the working directory for testing in Textmate
 # Dir.chdir("/users/timhatch/sites/flashresults/ruby")
+module Competition
+  DB = Sequel.connect(ENV['DATABASE_URL'] || "postgres://timhatch@localhost:5432/test")
+
+  module_function
+
+  def get_competition params
+    DB[:Competitions]
+    .where(params)
+    .all
+  end
+end
+
+# params = { wet_id:  2 }
+# p Competition.get_competition params
 
 module Startlist
   #DB = Sequel.sqlite('./data/results.db')
@@ -35,8 +49,10 @@ module Resultlist
   # params -  A Hash containing
   #           :wet_id -  The unique reference id for the competition
   #           :route -  The unique reference for the route/round
-  #           and for a single result
+  #           and for a single result 
   #           :per_id -  The unique reference number for the climber
+  #           or
+  #           :grp_id and :start_order - Defining the climber by their group and startnumber
   #
   # Returns an array of Hash objects
   #
@@ -45,6 +61,13 @@ module Resultlist
       .where(params)
       .all
   end
+  
+  def set_result_multi params, result
+    # TODO: Need also to calculate the overall result
+    DB[:Results]
+      .where(params)
+      .update(result_json: result)    
+  end
 
   # Public: Update the results database
   #
@@ -52,17 +75,27 @@ module Resultlist
   #           :wet_id -  The unique reference id for the competitions
   #           :route  -  The unique reference for the route/round
   #           :per_id -  The unique reference number for the climber
+  #           or
+  #           :grp_id and :start_order - Defining the climber by their group and startnumber
   #
-  def set_result_single params
-    DB[:Results]
-      .where(params)
-      .update(result_json: params[:result_json], result: params[:result])
+  def set_result_single params, result
+    # TODO: Need also to calculate the overall result
+    dataset = DB[:Results].where(params)
+      
+    string     = dataset.first[:result_json]
+    old_result = JSON.parse(string)
+    inp_result = JSON.parse(result) 
+    new_result = old_result.merge(inp_result)
+
+    dataset.update(result_json: new_result.to_json)
   end
 end
 
-#params = { per_id: 1030, wet_id: 1, route: 0 }
-#p Climber.get_result(params)
-#p Climber.get_result(params).to_json
+#params = { wet_id: 2, route: 2, per_id: 1030 }
+#result = '{"p2":"t2b2"}'
+#p Resultlist.set_result_single params, result
+#p Resultlist.get_results(params).to_json
+
 #require 'test/unit'
 #
 #class TestClimber < Test::Unit::TestCase
