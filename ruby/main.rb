@@ -26,9 +26,6 @@ set :bind, '0.0.0.0'
 ##  haml :conditional_views 
 ##end
 ##
-##get '/competition' do
-##  { title: "CWIF" }.to_json
-##end
 
 
 # Public: Route handling for the admin/registration page
@@ -80,9 +77,9 @@ end
 get '/egw/ranking' do
   resp = {}
   temp = Hash[params]
-  data = Hash[temp.map{|(k,v)| [k.to_sym,v]}]
+  prms = Hash[temp.map{|(k,v)| [k.to_sym,v]}]
   
-  resp[:participants] = Resultlist.get_results data
+  resp[:participants] = Resultlist.get_results prms
   resp.to_json
 end
 
@@ -102,18 +99,41 @@ end
 #
 get '/climber' do
   temp = Hash[params]
-  data = Hash[temp.map{ |(k,v)| [k.to_sym,v.to_i] }]
-  resp = Resultlist.get_results data 
+  prms = Hash[temp.map{ |(k,v)| [k.to_sym,v] }]
+  resp = Resultlist.get_results prms 
   resp.first.to_json
 end 
 
-put '/climber' do
+put '/climber/round' do
   temp = Hash[params]
-  data = Hash[temp.map{|(k,v)| [k.to_sym,v.to_i]}]
+  rslt = temp.delete("result_json")
+  prms = Hash[temp.map{|(k,v)| [k.to_sym,v.to_i]}]
 
-  Resultlist.set_result_single data
-  data[:result_json]
+  Resultlist.set_result_multi prms, rslt
+  rslt
 end
+
+put '/climber/bloc' do
+  temp = Hash[params]
+  rslt = temp.delete("result_json")
+  prms = Hash[temp.map{|(k,v)| [k.to_sym,v.to_i]}]
+
+  Resultlist.set_result_single prms, rslt
+  rslt
+end
+
+# 
+get '/nexus' do
+  haml :nexus
+end
+
+get '/competition' do
+  temp = Hash[params]
+  prms = Hash[temp.map{|(k,v)| [k.to_sym,v.to_i]}]
+  resp = Competition.get_competition prms
+  resp.first.to_json
+end
+
 
 __END__
 
