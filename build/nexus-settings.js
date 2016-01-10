@@ -6,6 +6,9 @@
 
 window.App = window.App || {}
 
+// TODO (1) Fix touch event recognition in start_order field
+// TODO (2) Load complete startlist and store results locally.
+
 App.settingsVC = {
   controller: function(){
 
