@@ -125,7 +125,7 @@ put '/climber/bloc' do
 #  p rslt
 #  p prms
 
-#  Resultlist.set_result_single prms, rslt
+  Resultlist.set_result_single prms, rslt
   rslt
 end
 
