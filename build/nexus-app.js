@@ -8,6 +8,7 @@
 // @codekit-prepend "./nexus-header.js"
 // @codekit-prepend "./nexus-results.js"
 // @codekit-prepend "./nexus-person.js"
+// @codekit-prepend "./nexus-vm.js"
 
 window.App = window.App || {}
 
@@ -15,29 +16,34 @@ window.App = window.App || {}
 App.connectionStatus = m.prop(true)
 // Use session storage to contain view model parameters
 App.sessionStorage   = mx.storage( 'session' , mx.SESSION_STORAGE )
-// Declare a view-model to store session variable (in-memory)
-App.viewModel = {
-  State: false,
-  WetId: null,
-  Route: null,
-  GrpId: null,
-  BlcNr: null,
-  WetNm: false
-}
-
 
 App.SuperVC = {
   controller: function(){
-    // Symchronise memory and session storage on-load
-    var store = App.sessionStorage.get('AppState')
-    if (!store) { App.sessionStorage.set('AppState', App.viewModel) } 
-    else { App.viewModel = store }
+    var defaults = {
+      WetId : null, Route : null, GrpId : null,
+      BlcNr : null,
+
+      State : false, WetNm : false
+    }
     
+    // Symchronise memory and session storage on-load
+    this.ss     = App.sessionStorage.get('AppState')
+    if (!this.ss) { 
+      this.ss = defaults
+      App.sessionStorage.set('AppState', defaults) 
+    } 
+
+    this.person = App.Person
+    this.vm     = App.VM(this.person)
   },
+  
   view: function(ctrl){
+    var vm = ctrl.vm
+      , ss = ctrl.ss
+
     return [
-      App.headerVC,
-      (!!App.viewModel.State) ? m.component(App.ResultsVC, App.Person) : App.settingsVC
+      m.component(App.headerVC, ss),
+      (!!ss.State) ? m.component(App.ResultsVC, vm) : m.component(App.settingsVC, ss)
     ]
   }
 }

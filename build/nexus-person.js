@@ -12,13 +12,14 @@ App.Person = {
   resultJSON  : {},
     
   composeURI: function(val){
-    var rounds = {"Q":0,"S":2,"F":3}
+    var vm  =  App.sessionStorage.get('AppState')
+      , rounds = {"Q":0,"S":2,"F":3}
       , groups = {"M":6,"F":5,"MJ":84,"FJ":81,"MA":82,"FA":79,"MB":83,"FB":80}
     
       return {
-      "wet_id"     : parseInt(App.viewModel.WetId,10),
-      "route"      : rounds[App.viewModel.Route],
-      "grp_id"     : groups[App.viewModel.GrpId],
+      "wet_id"     : parseInt(vm.WetId,10),
+      "route"      : rounds[vm.Route],
+      "grp_id"     : groups[vm.GrpId],
       "start_order": parseInt(val,10)
     }
   },
@@ -51,14 +52,14 @@ App.Person = {
   save: function(jsonString){
     var params = this.composeURI(this.start_order)
     params.result_json = jsonString
-
+    window.console.log('params are: ')
+    window.console.log(params)
     m.request({
       method: 'PUT',
       url   : '/climber/bloc',
       data  : params
     })
-    .then(function(resp){
-      window.console.log(resp)
+    .then(function(){
       App.connectionStatus(true)
     })
     .then(null, function(){
