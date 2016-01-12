@@ -24,26 +24,25 @@ App.Person = {
   },
     
   fetch: function(val){
-    var self = this
     // Deal with the case where no value is provided
     if (!val) return
     // Otherwise fetch the climber's start_order, name and results...
     return m.request({
       method: 'GET',
       url   : '/climber',
-      data  : self.composeURI(val)
-    })
+      data  : this.composeURI(val)
+    }, this)
     .then(function(resp){
       try {
-        self.resultJSON  = JSON.parse(resp.result_json)
-        self.fullname    = resp.lastname + ', ' + resp.firstname
-        self.start_order = parseInt(val, 10) || null
+        this.resultJSON  = JSON.parse(resp.result_json)
+        this.fullname    = resp.lastname + ', ' + resp.firstname
+        this.start_order = parseInt(val, 10) || null
       }
       catch (err) { 
         window.console.log('invalid response : '+err) 
       }
       App.connectionStatus(true)
-    })
+    }.bind(this))
     .then(null, function(){
       App.connectionStatus(false)
     })

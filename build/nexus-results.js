@@ -37,19 +37,19 @@ App.ResultsVC = {
       },
       
       fetch: function(val){
-        var self = this
-          , resp = model.fetch(val)
+        var resp = model.fetch(val)
+        
         resp.then(function(){
           var obj = model.resultJSON
             , key = 'p' + String(parseInt(App.viewModel.BlcNr, 10))
-          for (var prop in self.result) {
+          for (var prop in this.result) {
 	          var str = prop + "[0-9]{1,}"
 	            , v   = obj[key].match(str) || null
-	          self.result[prop] = v ? parseInt(v[0].slice(1),10) : null
+	          this.result[prop] = v ? parseInt(v[0].slice(1),10) : null
 	        }
-          self.fullname    = model.fullname
-          self.start_order = model.start_order
-        })
+          this.fullname    = model.fullname
+          this.start_order = model.start_order
+        }.bind(this))
       },
       
       save: function(){
