@@ -98,8 +98,8 @@ end
 # CRUD handling for the results for an individual climber
 #
 get '/climber' do
-  temp = Hash[params]
-  prms = Hash[temp.map{ |(k,v)| [k.to_sym,v] }]
+#  temp = Hash[params]
+  prms = Hash[params.map{ |(k,v)| [k.to_sym,v] }]
   resp = Resultlist.get_results prms 
   resp.first.to_json
 end 
@@ -114,11 +114,18 @@ put '/climber/round' do
 end
 
 put '/climber/bloc' do
-  temp = Hash[params]
-  rslt = temp.delete("result_json")
-  prms = Hash[temp.map{|(k,v)| [k.to_sym,v.to_i]}]
+#  p params
+  rslt = params.delete("result_json")
+  prms = Hash[params.map{|(k,v)| [k.to_sym,v.to_i]}]
+#  temp = Hash[params]
+#  prms = Hash[temp.map{|(k,v)| [k.to_sym,v.to_i]}]
 
-  Resultlist.set_result_single prms, rslt
+#  p params
+#  p temp
+#  p rslt
+#  p prms
+
+#  Resultlist.set_result_single prms, rslt
   rslt
 end
 
