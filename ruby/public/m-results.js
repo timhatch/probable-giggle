@@ -50,10 +50,16 @@ App.MPerson = function(wetid){
 
   this.fetch = function(val){
     var _this = this
-    m.request({ method: 'GET', url: '/climber', 
-      data: { 'wet_id': this.WetId, 'route': this.Route, 'per_id': val } 
+    m.request({ 
+      method: 'GET', 
+      url: '/climber', 
+      data: { 
+        'wet_id': this.WetId, 
+        'route' : this.Route, 
+        'per_id': val } 
     })
     .then(function(v){
+      window.console.log(v)
       try {
         _this.perId(v.per_id)
         _this.name(v.lastname+', '+v.firstname[0])
@@ -79,12 +85,12 @@ App.MPerson = function(wetid){
     
     m.request({
       method: 'PUT', 
-      url   : './climber', 
+      url   : '/climber', 
       data  : { 
         "wet_id"      : this.WetId,
+        "route"       : this.Route,
         "per_id"      : this.perId(), 
-        "result_json" : JSON.stringify(tmp),
-        "result"      : this.result()
+        "result_json" : JSON.stringify(tmp)
       }
     })
     .then(function(response){ window.console.log(response) })

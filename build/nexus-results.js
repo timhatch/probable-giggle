@@ -88,7 +88,7 @@ App.ResultsVC = {
 App.searchSV = {
   controller: function(vm){        
     this.incrementStarter = function(){
-      var val = vm.start_order() + 1
+      var val = vm.start_order + 1
       vm.fetch(val)
     }
   },
