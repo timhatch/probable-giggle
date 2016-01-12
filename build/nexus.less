@@ -2,7 +2,7 @@
 @import './less/variables.less';
 
 // Base
-@import './less/reset.less';
+//@import './less/reset.less';
 @import './less/typography.less';
 
 @import './less/buttons.less';
@@ -10,6 +10,7 @@
 @row-height               : 4.8rem;
 
 body {
+  margin : 0;
   width: 360px
 }
 
@@ -21,7 +22,11 @@ header, .modal {
   &[rows="4"] { height: @row-height * 4 }
 }
 
-header { padding: 0.4rem }
+header > button {
+  margin: 4px 0 0 4px;
+}
+
+// header { padding: 0.4rem }
 .connected { background-color: cornflowerblue }
 .disconnected { background-color: darkorange }
 
@@ -39,17 +44,21 @@ header { padding: 0.4rem }
 }
 
 .search > input[type="text"] {
-  margin    : 8px 12px;
+  float     : left;
+
+  margin    : 6px 12px;
   width     : 72px;
   background-color: white;
   
   font    : 16px/32px OpenSansRegular, sans-serif;
   text-align: center;  
+  // background-color: red;
 }
 
 header > .details, 
 .search > .details {
   display: inline-block;
+  margin-top: 4px;
   margin-left: 8px;
   // margin  : 8px 0;
   height  : 40px;
@@ -60,7 +69,6 @@ header > .details,
 	overflow: hidden;
   -webkit-text-overflow: ellipsis;
 	text-overflow 		: ellipsis;
-  
   //background-color: blue;
 }
 
