@@ -81,11 +81,25 @@ App.VM = function(model, sessiondata){
 
     save: function(){
       var json    = this.serialiseResults()
-        , promise = model.save(json)
+        , promise
+
+      // Prevent a save occuring if no viewmodel has been instantiated
+      if (!this.start_order) return
       
+      // Otherwise save any results data
+      promise = model.save(json)
       promise
       .then(function(){ App.connectionStatus(true) })
       .then(null, function(){ App.connectionStatus(false) })
+    },
+    
+    // TODO Figure out when and where to call this...
+    reset: function(){
+      this.start_order = null
+      this.fullname    = null 
+      this.result      = {a: null,b: null,t: null}
+      
+      model.data = {}
     }
   }
 }
