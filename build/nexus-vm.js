@@ -8,7 +8,6 @@ window.App = window.App || {}
 
 App.VM = function(model){  
   return {
-    model       : model,
     // View-Model parameters and functions to link the App.Person model
     start_order : null,
     fullname    : null, 
@@ -27,7 +26,50 @@ App.VM = function(model){
       if (!!this.result[attr]) this.result[attr] = 0
     },
   
-    serialise: function(){
+    parseModelData: function(model){
+      var vm  =  App.sessionStorage.get('AppState')
+        , key = 'p' + String(parseInt(vm.BlcNr, 10))
+        , obj = JSON.parse(model.data.result_json)
+
+      for (var prop in this.result) {
+        var str = prop + "[0-9]{1,}"          
+          , v   = (!!obj[key]) ? obj[key].match(str) : null
+        this.result[prop] = v ? parseInt(v[0].slice(1),10) : null
+      }
+      this.start_order = model.data.start_order
+      this.fullname    = model.data.lastname+', '+model.data.firstname      
+    },
+        
+    composeURLParams: function(val){
+      var vm = App.sessionStorage.get('AppState')
+        , rounds = {"Q":0,"S":2,"F":3}
+        , groups = {"M":6,"F":5,"MJ":84,"FJ":81,"MA":82,"FA":79,"MB":83,"FB":80}
+
+      return {
+        wet_id     : parseInt(vm.WetId, 10),
+        route      : rounds[vm.Route],
+        grp_id     : groups[vm.GrpId],
+        start_order: parseInt(val, 10) || 1          
+      }
+    },
+    
+    fetch: function(val){
+      var params = this.composeURLParams(val)
+        , resp   = model.fetch(params)
+    
+      resp.then(function(){
+        try {
+          this.parseModelData(model)
+        }
+        catch (err) {
+          window.console.log(err)
+        }
+      }.bind(this))
+      .then(function(){ App.connectionStatus(true) })
+      .then(null, function(){ App.connectionStatus(false) })
+    },
+  
+    serialiseResults: function(){
       var vm  =  App.sessionStorage.get('AppState')
         , key = 'p' + String(parseInt(vm.BlcNr, 10))
         , obj = {}, str = ''
@@ -38,42 +80,14 @@ App.VM = function(model){
       obj[key] = str
       return JSON.stringify(obj)
     },
-    
-    fetch: function(val){
-      var resp = model.fetch(val)
-    
-      resp.then(function(){
-        var vm  =  App.sessionStorage.get('AppState')
-          , obj = model.resultJSON
-          , key = 'p' + String(parseInt(vm.BlcNr, 10))
-        
-        this.start_order = model.start_order
-        this.fullname    = model.fullname
-        
-        for (var prop in this.result) {
-          var str = prop + "[0-9]{1,}"          
-            , v   = (!!obj[key]) ? obj[key].match(str) : null
-          this.result[prop] = v ? parseInt(v[0].slice(1),10) : null
-        }
-      }.bind(this))
-      .then(function(){
-        App.connectionStatus(true)
-      })
-      .then(null, function(){
-        App.connectionStatus(false)      
-      })
-    },
-  
+
     save: function(){
-      var resp = model.save(this.serialise())
+      var json = this.serialiseResults()
+        , resp = model.save(json)
       
       resp
-      .then(function(){
-        App.connectionStatus(true)
-      })
-      .then(null, function(){
-        App.connectionStatus(false)      
-      })
+      .then(function(){ App.connectionStatus(true) })
+      .then(null, function(){ App.connectionStatus(false) })
     }
   }
 }
