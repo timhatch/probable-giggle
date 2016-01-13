@@ -34,36 +34,26 @@ App.Person = {
       data  : this.composeURI(val)
     }, this)
     .then(function(resp){
+      window.console.log(resp)
       try {
         this.resultJSON  = JSON.parse(resp.result_json)
         this.fullname    = resp.lastname + ', ' + resp.firstname
-        this.start_order = parseInt(val, 10) || null
+        this.start_order = resp.start_order
       }
       catch (err) { 
-        window.console.log('invalid response : '+err) 
+        window.console.log('in model.fetch, invalid response : '+err)
       }
-      App.connectionStatus(true)
     }.bind(this))
-    .then(null, function(){
-      App.connectionStatus(false)
-    })
   },
   
   save: function(jsonString){
     var params = this.composeURI(this.start_order)
     params.result_json = jsonString
-    window.console.log('params are: ')
-    window.console.log(params)
-    m.request({
+
+    return m.request({
       method: 'PUT',
       url   : '/climber/bloc',
       data  : params
-    })
-    .then(function(){
-      App.connectionStatus(true)
-    })
-    .then(null, function(){
-      App.connectionStatus(false)      
     })
   },
   

@@ -8,11 +8,12 @@ window.App = window.App || {}
 
 App.VM = function(model){  
   return {
+    model       : model,
     // View-Model parameters and functions to link the App.Person model
     start_order : null,
     fullname    : null, 
     result      : {a: null,b: null,t: null},
-
+    
     setResult: function(attr){
       if (!this.result[attr]) {
         this.result[attr] = this.result.a
@@ -37,7 +38,7 @@ App.VM = function(model){
       obj[key] = str
       return JSON.stringify(obj)
     },
-  
+    
     fetch: function(val){
       var resp = model.fetch(val)
     
@@ -45,18 +46,34 @@ App.VM = function(model){
         var vm  =  App.sessionStorage.get('AppState')
           , obj = model.resultJSON
           , key = 'p' + String(parseInt(vm.BlcNr, 10))
-        for (var prop in this.result) {
-          var str = prop + "[0-9]{1,}"
-            , v   = obj[key].match(str) || null
-          this.result[prop] = v ? parseInt(v[0].slice(1),10) : null
-        }
+        
         this.start_order = model.start_order
         this.fullname    = model.fullname
+        
+        for (var prop in this.result) {
+          var str = prop + "[0-9]{1,}"          
+            , v   = (!!obj[key]) ? obj[key].match(str) : null
+          this.result[prop] = v ? parseInt(v[0].slice(1),10) : null
+        }
       }.bind(this))
+      .then(function(){
+        App.connectionStatus(true)
+      })
+      .then(null, function(){
+        App.connectionStatus(false)      
+      })
     },
   
     save: function(){
-      model.save(this.serialise())
+      var resp = model.save(this.serialise())
+      
+      resp
+      .then(function(){
+        App.connectionStatus(true)
+      })
+      .then(null, function(){
+        App.connectionStatus(false)      
+      })
     }
   }
 }
