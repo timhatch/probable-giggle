@@ -7,28 +7,28 @@
 window.App = window.App || {}
 
 App.settingsVC = {
-  controller: function(sessionState){
-    this.ss = sessionState
+  controller: function(sessiondata){
+    this.ss = sessiondata
     
     this.fetch = function(){
       // Break if a required value has not been provided...
       // Note that we're not validating date here...
-      for (var prop in sessionState) { if (sessionState[prop] === null) return }
+      for (var prop in sessiondata) { if (sessiondata[prop] === null) return }
       
       // If all values have been provided, then fetch the competition ID from the server
       m.request({ 
         method: 'GET', 
         url   : '/competition',
-        data  : { wet_id: sessionState.WetId }
+        data  : { wet_id: sessiondata.WetId }
       })
       .then(function(resp){
         try {
           var title = resp.title || '-'
-          title +=  ' / '+sessionState.Route+' / '+sessionState.GrpId+' / '+sessionState.BlcNr 
+          title +=  ' / '+sessiondata.Route+' / '+sessiondata.GrpId+' / '+sessiondata.BlcNr 
           
-          sessionState.WetNm = title
-          sessionState.State = true
-          App.sessionStorage.set('AppState', sessionState)
+          sessiondata.WetNm = title
+          sessiondata.State = true
+          App.sessionStorage.set('AppState', sessiondata)
         }
         catch (err) {
           window.console.log('invalid response : '+err) 
@@ -61,21 +61,22 @@ App.settingsVC = {
 }
 
 App.ParamSV = {
-  controller: function(sessionState, params){
+  controller: function(sessiondata, params){
+    this.ss     = sessiondata
+    this.params = params
     // Note that this stores all keys as strings...
     this.set = function(val){
-      sessionState[params.key] = val.toUpperCase() || null
+      sessiondata[params.key] = val.toUpperCase() || null
     }
   },
   
-  view: function(ctrl, sessionState, params){
+  view: function(ctrl){
     return m("div.modal", [
-      m("label", params.text),
+      m("label", ctrl.params.text),
       m("input[type=text]", {
         onchange: m.withAttr("value", ctrl.set.bind(ctrl)),
-        pattern : params.pattern || null,
-        value   : sessionState[params.key]
-        //style   : (ss[params.key] === null) ? 'background-color:yellow' : 'none'
+        pattern : ctrl.params.pattern || null,
+        value   : ctrl.ss[ctrl.params.key]
       })
     ])
   }

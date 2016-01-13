@@ -8,7 +8,8 @@ window.App = window.App || {}
 
 App.VM = function(model, sessiondata){  
   return {
-    // View-Model parameters and functions to link the App.Person model
+    // View-Model parameters and functions derived from the model
+    //
     start_order : null,
     fullname    : null, 
     result      : {a: null,b: null,t: null},
@@ -21,8 +22,8 @@ App.VM = function(model, sessiondata){
     },
   
     resetValues: function(attr){
-      // Not sure the if test is needed?
       if (attr === 'a') return
+      // Not sure the if test is needed?
       if (!!this.result[attr]) this.result[attr] = 0
     },
   
@@ -52,10 +53,10 @@ App.VM = function(model, sessiondata){
     },
     
     fetch: function(val){
-      var params = this.composeURLParams(val)
-        , resp   = model.fetch(params)
+      var params  = this.composeURLParams(val)
+        , promise = model.fetch(params)
     
-      resp.then(function(){
+      promise.then(function(){
         try {
           this.parseModelData(model)
         }
@@ -79,10 +80,10 @@ App.VM = function(model, sessiondata){
     },
 
     save: function(){
-      var json = this.serialiseResults()
-        , resp = model.save(json)
+      var json    = this.serialiseResults()
+        , promise = model.save(json)
       
-      resp
+      promise
       .then(function(){ App.connectionStatus(true) })
       .then(null, function(){ App.connectionStatus(false) })
     }

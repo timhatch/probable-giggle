@@ -65,7 +65,9 @@ App.searchSV = {
 
 App.attemptsSV = {
   controller: function(vm, params){
-    this.prop = params.text[0].toLowerCase()
+    this.prop   = params.text[0].toLowerCase()
+    this.vm     = vm
+    this.params = params
     
     this.changeValue = function(e){
       // TODO: Disable swipefleft on attepts field...
@@ -77,8 +79,8 @@ App.attemptsSV = {
     }
   },
   
-  view: function(ctrl, vm, params){
-    var val = vm.result[ctrl.prop]
+  view: function(ctrl){
+    var val = ctrl.vm.result[ctrl.prop]
 
     return m("div.row", {
       config: m.touchHelper({
@@ -86,7 +88,7 @@ App.attemptsSV = {
         'swipeleft'  : ctrl.changeValue.bind(ctrl)
       })
     }, [
-      m("div.list", params.text),
+      m("div.list", ctrl.params.text),
       m("div.round", (!val) ? "-" : val)
     ])
   }

@@ -7,21 +7,20 @@
 window.App = window.App || {}
 
 App.headerVC = {
-  controller: function(sessionState){
-    this.ss = sessionState
+  controller: function(sessiondata){
+    this.ss = sessiondata
     
     this.toggleSettings = function(){      
       // Disable toggling if a required value has not been provided...
-      for (var prop in sessionState) { if (sessionState[prop] === null) return }
+      for (var prop in sessiondata) { if (sessiondata[prop] === null) return }
       
       // Change the view state
-      var state = sessionState.State
-      sessionState.State = (!!state) ? false : true
+      var state = sessiondata.State
+      sessiondata.State = (!!state) ? false : true
     }
   },
   
   view: function(ctrl){
-    var ss = ctrl.ss
     return m("header", { 
         className: App.connectionStatus() ? 'connected' : 'disconnected' 
       }, [
@@ -29,7 +28,7 @@ App.headerVC = {
         onclick: ctrl.toggleSettings,
         square: true
       }, m.trust('&#9776;')),
-      m("span.details", ss.WetNm || m.trust('&nbsp;'))
+      m("span.details", ctrl.ss.WetNm || m.trust('&nbsp;'))
     ])
   }
 }
