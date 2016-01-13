@@ -34,7 +34,7 @@ App.SuperVC = {
     } 
 
     this.person = App.Person
-    this.vm     = App.VM(this.person)
+    this.vm     = App.VM(this.person, this.ss)
   },
   
   view: function(ctrl){

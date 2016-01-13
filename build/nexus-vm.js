@@ -6,7 +6,7 @@
 
 window.App = window.App || {}
 
-App.VM = function(model){  
+App.VM = function(model, sessiondata){  
   return {
     // View-Model parameters and functions to link the App.Person model
     start_order : null,
@@ -27,8 +27,7 @@ App.VM = function(model){
     },
   
     parseModelData: function(model){
-      var vm  =  App.sessionStorage.get('AppState')
-        , key = 'p' + String(parseInt(vm.BlcNr, 10))
+      var key = 'p' + String(parseInt(sessiondata.BlcNr, 10))
         , obj = JSON.parse(model.data.result_json)
 
       for (var prop in this.result) {
@@ -41,14 +40,13 @@ App.VM = function(model){
     },
         
     composeURLParams: function(val){
-      var vm = App.sessionStorage.get('AppState')
-        , rounds = {"Q":0,"S":2,"F":3}
+      var rounds = {"Q":0,"S":2,"F":3}
         , groups = {"M":6,"F":5,"MJ":84,"FJ":81,"MA":82,"FA":79,"MB":83,"FB":80}
 
       return {
-        wet_id     : parseInt(vm.WetId, 10),
-        route      : rounds[vm.Route],
-        grp_id     : groups[vm.GrpId],
+        wet_id     : parseInt(sessiondata.WetId, 10),
+        route      : rounds[sessiondata.Route],
+        grp_id     : groups[sessiondata.GrpId],
         start_order: parseInt(val, 10) || 1          
       }
     },
@@ -70,8 +68,7 @@ App.VM = function(model){
     },
   
     serialiseResults: function(){
-      var vm  =  App.sessionStorage.get('AppState')
-        , key = 'p' + String(parseInt(vm.BlcNr, 10))
+      var key = 'p' + String(parseInt(sessiondata.BlcNr, 10))
         , obj = {}, str = ''
       
       for (var prop in this.result) {
