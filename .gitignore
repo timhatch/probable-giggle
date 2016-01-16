@@ -13,5 +13,8 @@ CVS
 *.db
 assets/scripts/results.db
 
+# SASS cache files
+*.scssc
+
 # VIM files
 # *.swp
