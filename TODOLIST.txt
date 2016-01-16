@@ -1,0 +1,30 @@
+RESETS
+
+WE NEED TO EITHER RESET DISABLE SAVES WHERE NO STARTNUMBER IS PROVIDED, OR 
+
+TIMEOUTS...
+
+Add a XMLHttpRequest.timeout so that the app doesn't just sit there forever waiting for response
+See Dash XMLHttpRequest
+see http://mithril.js.org/mithril.request.html for clues on implementation
+
+NON-JSON Responses
+
+Think about eliminating the try:catch in the m.request implementations by using the "extract" option
+see http://mithril.js.org/mithril.request.html for clues on implementation
+
+var nonJSONError = function(xhr) {
+  return xhr.status > 200 ? JSON.stringify(xhr.responseText) : xhr.responseText
+}
+
+m.request({
+  method: "GET", 
+  url: "/foo/bar.x", 
+  extract: nonJSONError
+})
+.then(function(data) {}, function(error) {console.log(error)})
+
+ERROR HANDLING
+
+Move error handling from the Model layer into the ViewModel or Controller layers..
+
