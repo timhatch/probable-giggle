@@ -72,7 +72,7 @@ header {
 
     input[type=text] {
       float       : left;
-      width       : 72px;
+      width       : 7.2rem;
     }
   
     button {
@@ -133,22 +133,22 @@ header {
   // Use the modal class for each 'row'
   .modal {
     @include row($row-height);
-    
+
     label {
       display   : inline-block;
       margin    : 0 0 0 1.8rem;
-      width     : $body-width * 0.6;
+      width     : 0.65 * $body-width;
   
       text-transform: uppercase;
       font-size : $font-size-btn-upper-normal;
       line-height: $row-height;
     }
-    
+
     input[type=text] {
-      width     : 72px;
+      width     : 7.2rem;
     }
   }
-  
+
   // Override the general 
   button {
     margin      : 2.4rem 1.2rem 0.8rem 1.2rem;
