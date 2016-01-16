@@ -39,11 +39,9 @@ App.SuperVC = {
   
   view: function(ctrl){
     var vm = ctrl.vm
-      , ss = ctrl.ss
-
     return [
-      m.component(App.headerVC, ss),
-      (!!ss.State) ? m.component(App.ResultsVC, vm) : m.component(App.settingsVC, ss)
+      m.component(App.headerVC, vm),
+      (!!vm.ss.State) ? m.component(App.ResultsVC, vm) : m.component(App.settingsVC, vm)
     ]
   }
 }

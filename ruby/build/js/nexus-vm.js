@@ -8,6 +8,7 @@ window.App = window.App || {}
 
 App.VM = function(model, sessiondata){  
   return {
+    ss          : sessiondata,
     // View-Model parameters and functions derived from the model
     //
     start_order : null,
@@ -93,7 +94,6 @@ App.VM = function(model, sessiondata){
       .then(null, function(){ App.connectionStatus(false) })
     },
     
-    // TODO Figure out when and where to call this...
     reset: function(){
       this.start_order = null
       this.fullname    = null 

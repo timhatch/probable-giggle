@@ -7,34 +7,35 @@
 window.App = window.App || {}
 
 App.settingsVC = {
-  controller: function(sessiondata){
-    this.ss = sessiondata
+  // Chnage this to vm, as the sessiondata is callable from the vm...
+  controller: function(vm){
+    this.ss = vm.ss
     
     this.fetch = function(){
       // Break if a required value has not been provided...
       // Note that we're not validating date here...
-      for (var prop in sessiondata) { if (sessiondata[prop] === null) return }
+      for (var prop in vm.ss) { if (vm.ss[prop] === null) return }
       
       // If all values have been provided, then fetch the competition ID from the server
       m.request({ 
         method: 'GET', 
         url   : '/competition',
-        data  : { wet_id: sessiondata.WetId }
+        data  : { wet_id: vm.ss.WetId }
       })
       .then(function(resp){
         try {
           var title = resp.title || '-'
-          title +=  ' / '+sessiondata.Route+' / '+sessiondata.GrpId+' / '+sessiondata.BlcNr 
+          title +=  ' / '+vm.ss.Route+' / '+vm.ss.GrpId+' / '+vm.ss.BlcNr 
           
-          sessiondata.WetNm = title
-          sessiondata.State = true
-          App.sessionStorage.set('AppState', sessiondata)
+          vm.ss.WetNm = title
+          vm.ss.State = true
+          App.sessionStorage.set('AppState', vm.ss)
         }
         catch (err) {
           window.console.log('invalid response : '+err) 
         }
         // TODO Need to clear or reset the model & view model when changing settings
-        // model.reset()
+        vm.reset()
         App.connectionStatus(true)
       })
       .then(null, function(){

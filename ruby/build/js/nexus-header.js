@@ -7,16 +7,16 @@
 window.App = window.App || {}
 
 App.headerVC = {
-  controller: function(sessiondata){
-    this.ss = sessiondata
+  controller: function(vm){
+    this.ss = vm.ss
     
     this.toggleSettings = function(){      
       // Disable toggling if a required value has not been provided...
-      for (var prop in sessiondata) { if (sessiondata[prop] === null) return }
+      for (var prop in vm.ss) { if (vm.ss[prop] === null) return }
       
       // Change the view state
-      var state = sessiondata.State
-      sessiondata.State = (!!state) ? false : true
+      var state = vm.ss.State
+      vm.ss.State = (!!state) ? false : true
     }
   },
   

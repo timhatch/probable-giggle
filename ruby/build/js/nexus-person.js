@@ -32,6 +32,7 @@ App.Person = {
   //  "{\"p2\":\"a2\",\"p1\":\"a3b1t3\"}"
   //
   save: function(jsonString){
+    window.console.log('save called')
     var params = {
       wet_id     : this.data.wet_id,
       route      : this.data.route,
