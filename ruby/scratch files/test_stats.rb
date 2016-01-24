@@ -102,11 +102,11 @@ end
 
 def test_array_update params
   rec = DB[:Results].where(params)
-  #rec.update({ param: '{2,2,3,4}' })
+  #rec.update({ sort_values: '{2,2,3,4}' })
   r1 = 2
   # Have to create this outside the assignment
   s  = "{#{r1},4,4,4}"
-  rec.update({ param: s })
+  rec.update({ sort_values: s })
 end
 
 params = { wet_id: 1, grp_id: 6, route: 0, per_id: 6550 }
