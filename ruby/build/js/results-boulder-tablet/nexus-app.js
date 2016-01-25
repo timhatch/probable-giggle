@@ -1,8 +1,8 @@
 //	-----------------------------------------------------
 //	CODEKIT DECLARATIONS
 //	-----------------------------------------------------
-/* global m                       */
-/* global mx                       */
+/* global m                                            */
+/* global mx                                           */
 
 // @codekit-prepend "./nexus-settings.js"
 // @codekit-prepend "./nexus-header.js"

@@ -85,10 +85,6 @@ module Perseus
     end
     # placeholder - will need to be renamed
     get '/mithril' do
-      # TODO Set these parameters based on earlier input. e.g. get values from a database 
-      @title = 'Test Comp'
-      @wetid = 1
-      # e.g. re-route to /mithril/params
       haml :mithril
     end
   end
