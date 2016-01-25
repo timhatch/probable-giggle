@@ -52,7 +52,7 @@ App.MPerson = function(wetid){
     var _this = this
     m.request({ 
       method: 'GET', 
-      url: '/climber', 
+      url: '/results/person', 
       data: { 
         'wet_id': this.WetId, 
         'route' : this.Route, 
@@ -85,7 +85,7 @@ App.MPerson = function(wetid){
     
     m.request({
       method: 'PUT', 
-      url   : '/climber', 
+      url   : '/results/person', 
       data  : { 
         "wet_id"      : this.WetId,
         "route"       : this.Route,
