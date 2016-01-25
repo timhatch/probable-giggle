@@ -11,4 +11,7 @@
   %body#inner
 
   %script{ src: './js/mithril.min.js' }
-  =yield
+  %script{ src: './m-results.js' }
+  :javascript
+    var c = m.component(App.CompetitionVC, { wetid: "#{@wetid}", title: "#{@title}" })
+    m.mount(document.body, c)
