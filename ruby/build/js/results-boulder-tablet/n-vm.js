@@ -1,8 +1,8 @@
-/***********************************
-* CODEKIT DECLARATIONS
-***********************************/
-/* global m                       */
-/* global App                     */
+//	-----------------------------------------------------
+//	CODEKIT DECLARATIONS
+//	-----------------------------------------------------
+/* global m                                            */
+/* global App                                          */
 
 window.App = window.App || {}
 
@@ -58,12 +58,8 @@ App.VM = function(model, sessiondata){
         , promise = model.fetch(params)
     
       promise.then(function(){
-        try {
-          this.parseModelData(model)
-        }
-        catch (err) {
-          window.console.log(err)
-        }
+        try { this.parseModelData(model) }
+        catch (err) { window.console.log(err) }
       }.bind(this))
       .then(function(){ App.connectionStatus(true) })
       .then(null, function(){ App.connectionStatus(false) })

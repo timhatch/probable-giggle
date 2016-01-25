@@ -4,11 +4,11 @@
 /* global m                                            */
 /* global mx                                           */
 
-// @codekit-prepend "./nexus-settings.js"
-// @codekit-prepend "./nexus-header.js"
-// @codekit-prepend "./nexus-results.js"
-// @codekit-prepend "./nexus-person.js"
-// @codekit-prepend "./nexus-vm.js"
+// @codekit-prepend "./n-settings.js"
+// @codekit-prepend "./n-header.js"
+// @codekit-prepend "./n-results.js"
+// @codekit-prepend "./n-person.js"
+// @codekit-prepend "./n-vm.js"
 
 window.App = window.App || {}
 
