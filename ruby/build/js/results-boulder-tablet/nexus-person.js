@@ -19,7 +19,7 @@ App.Person = {
   fetch: function(params){
     return m.request({
       method : 'GET',
-      url    : '/climber',
+      url    : '/results/person',
       data   : params
     })
     .then(function(resp){
@@ -42,7 +42,7 @@ App.Person = {
     }
     return m.request({
       method: 'PUT',
-      url   : '/climber/bloc',
+      url   : '/results/person',
       data  : params
     })
   }

@@ -18,13 +18,5 @@ module Perseus
     # Set the path to views, public, etc.
     set :views, File.expand_path('../../views', __FILE__)
     set :public_folder, File.expand_path('../../public', __FILE__)
-    
-    # Keep this page-route here for the time being
-    get '/nexus' do
-      haml :nexus
-    end
-
   end
 end
-
-

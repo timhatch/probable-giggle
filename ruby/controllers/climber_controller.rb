@@ -22,17 +22,13 @@ module Perseus
       old_result.merge(new_result)
     end
     
-    def update_param result_json
+    def update_sort_values result_json
       tarr = [0,0]; barr = [0,0]
       result_json.each do |key,value|
         parse_attempts "t", value, tarr
         parse_attempts "b", value, barr
       end
       tarr + barr
-    end
-    
-    def update_reslt array
-      array[0].to_s << 't' << array[1].to_s << ' ' << array[2].to_s << 'b' << array[3].to_s
     end
     
     # Primary routing functions (expressed as lambdas)
@@ -56,10 +52,9 @@ module Perseus
         .where(hash)
       # Update results values
       new_rjson  = update_rjson(dataset, result)
-      new_param  = update_param(new_rjson)
+      new_param  = update_sort_values(new_rjson)
       resp = dataset.update({ 
-        result:      update_reslt(new_param), 
-        param:       Sequel.pg_array(new_param), 
+        sort_values: Sequel.pg_array(new_param), 
         result_json: new_rjson.to_json 
       })
       # Return success/error

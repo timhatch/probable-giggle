@@ -1,7 +1,6 @@
 require 'sinatra/base'
 require 'rack/contrib'
 
-
 Dir.glob('./{helpers,controllers}/*.rb').each { |file| require file }
 
 # Rack options
@@ -10,5 +9,7 @@ use Rack::PostBodyContentTypeParser
 
 #run Perseus::App
 map('/competition') { run Perseus::CompetitionController }
-map('/climber')     { run Perseus::ClimberController }
+map('/results')     { run Perseus::ResultsController }
 map('/')            { run Perseus::ApplicationController }
+
+#map('/statistics')  { run Perseus::StatisticsController }

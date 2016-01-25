@@ -31,10 +31,6 @@ module Perseus
       tarr + barr
     end
     
-    def update_reslt array
-      array[0].to_s << 't' << array[1].to_s << ' ' << array[2].to_s << 'b' << array[3].to_s
-    end
-    
     # Primary routing functions (expressed as lambdas)
     # Fetch a __single__ result from the server
     # 
@@ -44,7 +40,15 @@ module Perseus
         .where(hash)
         .first
         .to_json
-    end 
+    end
+    
+    get_result_multi = lambda do
+      hash = Hash[params.map{ |(k,v)| [k.to_sym,v] }]
+      resp = DB[:Ranking]
+        .where(hash)
+        .all
+        .to_json
+    end
     
     # Set a __single__ result on the server
     # 
@@ -58,15 +62,34 @@ module Perseus
       new_rjson  = update_rjson(dataset, result)
       new_param  = update_sort_values(new_rjson)
       resp = dataset.update({ 
-        result:      update_reslt(new_param), 
-        sort_values:       Sequel.pg_array(new_param), 
+        sort_values: Sequel.pg_array(new_param), 
         result_json: new_rjson.to_json 
       })
       # Return success/error
       resp ? 200 : 404 
     end
     
-    get '/', &get_result_single
-    put '/bloc', &set_result_single
+    set_result_multi = lambda do
+      p 'not implemented yet'
+      404
+    end
+    
+    get '/person', &get_result_single
+    put '/person', &set_result_single
+    get '/route',  &get_result_multi
+    put '/route',  &set_result_multi
+    
+    # placeholder - will need to be renamed
+    get '/nexus' do
+      haml :nexus
+    end
+    # placeholder - will need to be renamed
+    get '/mithril' do
+      # TODO Set these parameters based on earlier input. e.g. get values from a database 
+      @title = 'Test Comp'
+      @wetid = 1
+      # e.g. re-route to /mithril/params
+      haml :mithril
+    end
   end
 end
