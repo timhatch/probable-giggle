@@ -15,93 +15,101 @@ Sequel.extension :pg_array_ops  # Needed to query stored arrays
 
 params = { wet_id: 1584, route: 3, grp_id: 5 }
 
-def get_ranking table
+def set_ranking_from_table table
   table
-    .select(:start_order, :sort_values, :rank_prev_heat)
-    .select_more{rank.function
-    .over(order: [
-      Sequel.desc(Sequel.pg_array_op(:sort_values)[1]),
-      Sequel.pg_array_op(:sort_values)[2],
-      Sequel.desc(Sequel.pg_array_op(:sort_values)[3]),
-      Sequel.pg_array_op(:sort_values)[3],
-      :rank_prev_heat
-    ])}
-    .all
+  .select(:start_order, :sort_values, :rank_prev_heat)
+  .select_more{rank.function
+  .over(order: [
+    Sequel.desc(Sequel.pg_array_op(:sort_values)[1]),
+    Sequel.pg_array_op(:sort_values)[2],
+    Sequel.desc(Sequel.pg_array_op(:sort_values)[3]),
+    Sequel.pg_array_op(:sort_values)[3],
+    :rank_prev_heat
+  ])}
+  .all
 end
 
+def project_results results, kind, sort_key, base_key
+  results.each do |result|
+    DB[:Forecast]
+    .where(start_order: result[:start_order])
+    .update(sort_values: Sequel.pg_array(result[base_key]))
+
+    # CHECK RESULT
+    puts "STEP 5: Check updated temporary sorting table for person #{result[:per_id]}"
+    p  DB[:Forecast].where(start_order: result[:start_order]).first
+    puts "\n\n"
+  end
+  
+  results.each do |result|
+    DB[:Forecast]
+    .where(start_order: result[:start_order])
+    .update(sort_values: Sequel.pg_array(result[sort_key]))
+  
+    # CHECK RESULT
+    puts "STEP 2: Check updated temporary sorting table for person #{result[:per_id]}"
+    p  DB[:Forecast].where(start_order: result[:start_order]).first
+    puts "\n\n"
+    
+    # Rankn the resylts in the 
+    forecast_ranks = set_ranking_from_table(DB[:Forecast])
+  
+    # CHECK RESULT
+    puts "STEP 3: Check forecast rank for person #{result[:per_id]}" 
+    p forecast_ranks
+    puts "\n\n"
+    
+    result[kind] = forecast_ranks.to_a
+                            .select { |a| a[:start_order] == result[:start_order] }
+                            .first[:rank]
+  
+    # CHECK RESULT
+    puts "STEP 4: Check stored result for person #{result[:per_id]}" 
+    p result
+    puts "\n\n"
+  
+    DB[:Forecast]
+    .where(start_order: result[:start_order])
+    .update(sort_values: Sequel.pg_array(result[base_key]))
+  end
+end
+
+def forecast_best_result results
+  # TODO Set this dynamically:
+  boulder_n = 4
+  
+  results.map do |result|
+    b_completed  = JSON.parse(result.delete(:result_json)).length
+    result_array = Array.new(4, boulder_n - b_completed)
+    result_array.map.with_index { |x,i| result_array[i] += result[:sort_values][i] }
+    result.merge({ best_values: result_array })
+  end
+end
 # Fetch the default Ranking data
 # NOTE Can remove :per_id as it is used here only for debugging (or replace :start_order)
 dataset = DB[:Ranking]
-  .select(:per_id, :start_order, :result_rank, :sort_values, :rank_prev_heat, :result_json)
-  .where(params)
-  .exclude(sort_values: nil)
-
-#p dataset.all
-#puts "\n\n\n"
+.select(:per_id, :start_order, :result_rank, :sort_values, :rank_prev_heat, :result_json)
+.where(params)
+.exclude(sort_values: nil)
 
 # Insert the default ranking data into
-#DB.create_table! :Forecast, { as: dataset, temp: true }
-DB.create_table! :Forecast, { as: dataset }
+DB.create_table! :Forecast, { as: dataset, temp: true }
 
-# TODO Set this dynamically:
-boulder_n = 4
+#
+forecast = forecast_best_result(dataset.all)
 
-test_array = dataset.all.to_a
+# CHECK RESULT
+puts "STEP 1: Check input result and calculated \"best\" result"
+p forecast
+puts "\n\n"
 
-test_array.each do |result|
-  b_completed  = JSON.parse(result.delete(:result_json)).length
-  forecast_best_result = Array.new(4, boulder_n - b_completed)
-  forecast_best_result.map.with_index { |x,i| forecast_best_result[i] += result[:sort_values][i] }
-  
-  # CHECK RESULT
-  puts "STEP 1: Check input result and calculated \"best\" result for person #{result[:per_id]}"
-  p result
-  p forecast_best_result
-  puts "\n\n"
-  
-  DB[:Forecast]
-    .where(start_order: result[:start_order])
-    .update(sort_values: Sequel.pg_array(forecast_best_result))
-  
-  # CHECK RESULT
-  puts "STEP 2: Check updated temporary sorting table for person #{result[:per_id]}"
-  p  DB[:Forecast].where(start_order: result[:start_order]).first
-  puts "\n\n"
-    
-  
-  # Rankn the resylts in the 
-  forecast_ranks = get_ranking DB[:Forecast]
-#  forecast_ranks = DB[:Forecast]
-#    .select(:start_order, :sort_values, :rank_prev_heat)
-#    .select_more{rank.function
-#    .over(order: [
-#      Sequel.desc(Sequel.pg_array_op(:sort_values)[1]),
-#      Sequel.pg_array_op(:sort_values)[2],
-#      Sequel.desc(Sequel.pg_array_op(:sort_values)[3]),
-#      Sequel.pg_array_op(:sort_values)[3],
-#      :rank_prev_heat
-#    ])}
-#    .all
-  
-  # CHECK RESULT
-  puts "STEP 3: Check forecast rank for person #{result[:per_id]}" 
-  p forecast_ranks
-  puts "\n\n"
-    
-  f_rank = forecast_ranks.to_a.select { |a| a[:start_order] == result[:start_order] }
-  result[:best_outcome] = f_rank.first[:rank]
-  
-  # CHECK RESULT
-  puts "STEP 4: Check stored result for person #{result[:per_id]}" 
-  p result
-  puts "\n\n"
-  
-  DB[:Forecast]
-    .where(start_order: result[:start_order])
-    .update(sort_values: result[:sort_values])
-end
 
-test_array.each { |x| p x }
+project_results(forecast, :best, :best_values, :sort_values)
+project_results(forecast, :worst, :sort_values, :best_values)
+  
+forecast.each { |x| p x }
+
+
 
 
 #p data = DB[:Ranking]
@@ -209,38 +217,3 @@ def test_window params
     }
   dataset.where(params).all
 end
-
-#params = { wet_id: 1, grp_id: 6, route: 0, per_id: 6550 }
-#p test_view params
-#test =  create_uuid params
-
-#p params
-#p create_uuid params
-#p params
-#p test_array_update params
-
-
-#SELECT "WetId", "GrpId", "route" "PerId", "lastname","firstname","nation","GrpId", "route", rank() OVER (ORDER BY "rank_param" ASC,"rank_prev_heat" ASC) AS "result_rank", "result","result_json", "rank_prev_heat"
-#FROM `Results` JOIN "Climbers" USING ("PerId") WHERE "WetId" = 1 AND "GrpId" = 5 AND "route" = 2 
-
-#dataset = DB[:Results].where({ PerId: 1030, route: 2 })
-#p dataset
-#res_hsh = dataset.select(:result_json).first
-#puts "res_hsh #{res_hsh}"
-#res_obj = JSON.parse(res_hsh[:result_json], { symbolize_names: true })
-#puts "res_obj #{res_obj}"
-#res_obj[:p1] = "t1b1"
-#
-#out_hsh = { result_json: res_obj.to_json }
-#puts "out_hsh #{out_hsh}"
-#
-#def test 
-#  {
-#    thing: 1,
-#    more:  2 + 2
-#  }
-#end
-#p test
-#res[:thing] = 1
-
-#dataset.update(out_hsh)
