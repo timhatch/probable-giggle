@@ -13,10 +13,23 @@ DB = Sequel.connect(ENV['DATABASE_URL'] || "postgres://timhatch@localhost:5432/t
 DB.extension :pg_array      # Needed to insert arrays
 Sequel.extension :pg_array_ops  # Needed to query stored arrays
 
-params = { wet_id: 1584, route: 3, grp_id: 5 }
+#
+# HELPERS
+#
+def forecast_best_result results
+  # TODO Set this dynamically:
+  boulder_n = 4
+  
+  results.map do |result|
+    b_completed  = JSON.parse(result.delete(:result_json)).length
+    forecast_best_result = Array.new(4, boulder_n - b_completed)
+    forecast_best_result.map.with_index { |x,i| forecast_best_result[i] += result[:sort_values][i] }
+    result.merge({ mathematical_best: forecast_best_result })
+  end
+end
 
-def set_ranking_from_table table
-  table
+def set_ranking_from_table sorting_table
+  sorting_table
   .select(:start_order, :sort_values, :rank_prev_heat)
   .select_more{rank.function
   .over(order: [
@@ -29,44 +42,28 @@ def set_ranking_from_table table
   .all
 end
 
-def project_results results, kind, sort_key, base_key
+def project_results results, kind, test_key, base_key
+  # Set the sort values in the temporary sorting table
   results.each do |result|
     DB[:Forecast]
     .where(start_order: result[:start_order])
     .update(sort_values: Sequel.pg_array(result[base_key]))
-
-    # CHECK RESULT
-    puts "STEP 2A: Check updated temporary sorting table for person #{result[:per_id]}"
-    p  DB[:Forecast].where(start_order: result[:start_order]).first
-    puts "\n\n"
   end
-  
+
+  # For each result, set the "test" result in the sorting database, generate a forecast ranking,
+  # store that ranking in the result and then re-set the sorting database before proceeding to the
+  # next result
   results.each do |result|
     DB[:Forecast]
     .where(start_order: result[:start_order])
-    .update(sort_values: Sequel.pg_array(result[sort_key]))
+    .update(sort_values: Sequel.pg_array(result[test_key]))
   
-    # CHECK RESULT
-    puts "STEP 2B: Check updated temporary sorting table for person #{result[:per_id]}"
-    p  DB[:Forecast].where(start_order: result[:start_order]).first
-    puts "\n\n"
-    
     # Rankn the resylts in the 
     forecast_ranks = set_ranking_from_table(DB[:Forecast])
   
-    # CHECK RESULT
-    puts "STEP 3: Check forecast rank for person #{result[:per_id]}" 
-    p forecast_ranks
-    puts "\n\n"
-    
-    result[kind] = forecast_ranks.to_a
-                            .select { |a| a[:start_order] == result[:start_order] }
-                            .first[:rank]
-  
-    # CHECK RESULT
-    puts "STEP 4: Check stored result for person #{result[:per_id]}" 
-    p result
-    puts "\n\n"
+    result[kind]   = forecast_ranks.to_a
+                      .select { |a| a[:start_order] == result[:start_order] }
+                      .first[:rank]
   
     DB[:Forecast]
     .where(start_order: result[:start_order])
@@ -74,35 +71,32 @@ def project_results results, kind, sort_key, base_key
   end
 end
 
-def forecast_best_result results
-  # TODO Set this dynamically:
-  boulder_n = 4
-  
-  results.map do |result|
-    b_completed  = JSON.parse(result.delete(:result_json)).length
-    forecast_best_result = Array.new(4, boulder_n - b_completed)
-    forecast_best_result.map.with_index { |x,i| forecast_best_result[i] += result[:sort_values][i] }
-    #result[:best_values] = forecast_best_result
-    result.merge({ best_values: forecast_best_result })
-  end
-end
+#
+# MAIN
+#
+
+params = { wet_id: 1584, route: 3, grp_id: 5 }
 # Fetch the default Ranking data
 # NOTE Can remove :per_id as it is used here only for debugging (or replace :start_order)
-dataset = DB[:Ranking]
-.select(:per_id, :start_order, :result_rank, :sort_values, :rank_prev_heat, :result_json)
-.where(params)
-.exclude(sort_values: nil)
-# Insert the default ranking data into
-#DB.create_table! :Forecast, { as: dataset, temp: true }
-#DB.create_table! :Forecast, { as: dataset }
-DB.create_table! :Forecast, { as: dataset, temp: true }
-
-results_data =  forecast_best_result(dataset.all)
-project_results(results_data, :best, :best_values, :sort_values)
-project_results(results_data, :worst, :sort_values, :best_values)
+def forecast params
+  dataset = DB[:Ranking]
+  .select(:start_order, :result_rank, :sort_values, :rank_prev_heat, :result_json)
+  .where(params)
+  .exclude(sort_values: nil)
+  results_data =  forecast_best_result(dataset.all)
   
-results_data.each { |x| p x }
+  # Insert the default ranking data into
+  #DB.create_table! :Forecast, { as: dataset, temp: true }
+  #DB.create_table! :Forecast, { as: dataset }
+  DB.create_table! :Forecast, { as: dataset, temp: true }
+  
+  project_results(results_data, :best, :mathematical_best, :sort_values)
+  project_results(results_data, :worst, :sort_values, :mathematical_best)
+    
+  results_data.each { |x| p x }
+end
 
+forecast params
 
 
 
