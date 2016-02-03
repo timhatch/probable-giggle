@@ -15,32 +15,21 @@ Sequel.extension :pg_array_ops  # Needed to query stored arrays
 
 params = { wet_id: 1584, route: 3, grp_id: 5 }
 
-def set_ranking_from_table table
+def set_ranking_from_table table, sort_key
   table
-  .select(:start_order, :sort_values, :rank_prev_heat)
+  .select(:start_order, sort_key, :rank_prev_heat)
   .select_more{rank.function
   .over(order: [
-    Sequel.desc(Sequel.pg_array_op(:sort_values)[1]),
-    Sequel.pg_array_op(:sort_values)[2],
-    Sequel.desc(Sequel.pg_array_op(:sort_values)[3]),
-    Sequel.pg_array_op(:sort_values)[3],
+    Sequel.desc(Sequel.pg_array_op(sort_key)[1]),
+    Sequel.pg_array_op(sort_key)[2],
+    Sequel.desc(Sequel.pg_array_op(sort_key)[3]),
+    Sequel.pg_array_op(sort_key)[3],
     :rank_prev_heat
   ])}
   .all
 end
 
 def project_results results, kind, sort_key, base_key
-  results.each do |result|
-    DB[:Forecast]
-    .where(start_order: result[:start_order])
-    .update(sort_values: Sequel.pg_array(result[base_key]))
-
-    # CHECK RESULT
-    puts "STEP 5: Check updated temporary sorting table for person #{result[:per_id]}"
-    p  DB[:Forecast].where(start_order: result[:start_order]).first
-    puts "\n\n"
-  end
-  
   results.each do |result|
     DB[:Forecast]
     .where(start_order: result[:start_order])
@@ -52,7 +41,7 @@ def project_results results, kind, sort_key, base_key
     puts "\n\n"
     
     # Rankn the resylts in the 
-    forecast_ranks = set_ranking_from_table(DB[:Forecast])
+    forecast_ranks = set_ranking_from_table(DB[:Forecast], :sort_values)
   
     # CHECK RESULT
     puts "STEP 3: Check forecast rank for person #{result[:per_id]}" 
@@ -80,9 +69,10 @@ def forecast_best_result results
   
   results.map do |result|
     b_completed  = JSON.parse(result.delete(:result_json)).length
-    result_array = Array.new(4, boulder_n - b_completed)
-    result_array.map.with_index { |x,i| result_array[i] += result[:sort_values][i] }
-    result.merge({ best_values: result_array })
+    forecast_best_result = Array.new(4, boulder_n - b_completed)
+    forecast_best_result.map.with_index { |x,i| forecast_best_result[i] += result[:sort_values][i] }
+    #result[:best_values] = forecast_best_result
+    result.merge({ best_values: forecast_best_result })
   end
 end
 # Fetch the default Ranking data
@@ -91,23 +81,36 @@ dataset = DB[:Ranking]
 .select(:per_id, :start_order, :result_rank, :sort_values, :rank_prev_heat, :result_json)
 .where(params)
 .exclude(sort_values: nil)
-
 # Insert the default ranking data into
+#DB.create_table! :Forecast, { as: dataset, temp: true }
+#DB.create_table! :Forecast, { as: dataset }
 DB.create_table! :Forecast, { as: dataset, temp: true }
 
-#
-forecast = forecast_best_result(dataset.all)
+test_array =  forecast_best_result(dataset.all)
 
 # CHECK RESULT
 puts "STEP 1: Check input result and calculated \"best\" result"
-p forecast
+p test_array
 puts "\n\n"
 
 
-project_results(forecast, :best, :best_values, :sort_values)
-project_results(forecast, :worst, :sort_values, :best_values)
+project_results(test_array, :best, :best_values, :sort_values)
+
+# Rebuild the DB[:Forecast] db
+test_array.each do |result|
+  DB[:Forecast]
+  .where(start_order: result[:start_order])
+  .update(sort_values: Sequel.pg_array(result[:best_values]))
+
+  # CHECK RESULT
+  puts "STEP 5: Check updated temporary sorting table for person #{result[:per_id]}"
+  p  DB[:Forecast].where(start_order: result[:start_order]).first
+  puts "\n\n"
+end
+
+project_results(test_array, :worst, :sort_values, :best_values)
   
-forecast.each { |x| p x }
+test_array.each { |x| p x }
 
 
 
