@@ -15,15 +15,15 @@ Sequel.extension :pg_array_ops  # Needed to query stored arrays
 
 params = { wet_id: 1584, route: 3, grp_id: 5 }
 
-def set_ranking_from_table table, sort_key
+def set_ranking_from_table table
   table
-  .select(:start_order, sort_key, :rank_prev_heat)
+  .select(:start_order, :sort_values, :rank_prev_heat)
   .select_more{rank.function
   .over(order: [
-    Sequel.desc(Sequel.pg_array_op(sort_key)[1]),
-    Sequel.pg_array_op(sort_key)[2],
-    Sequel.desc(Sequel.pg_array_op(sort_key)[3]),
-    Sequel.pg_array_op(sort_key)[3],
+    Sequel.desc(Sequel.pg_array_op(:sort_values)[1]),
+    Sequel.pg_array_op(:sort_values)[2],
+    Sequel.desc(Sequel.pg_array_op(:sort_values)[3]),
+    Sequel.pg_array_op(:sort_values)[3],
     :rank_prev_heat
   ])}
   .all
@@ -33,15 +33,26 @@ def project_results results, kind, sort_key, base_key
   results.each do |result|
     DB[:Forecast]
     .where(start_order: result[:start_order])
+    .update(sort_values: Sequel.pg_array(result[base_key]))
+
+    # CHECK RESULT
+    puts "STEP 2A: Check updated temporary sorting table for person #{result[:per_id]}"
+    p  DB[:Forecast].where(start_order: result[:start_order]).first
+    puts "\n\n"
+  end
+  
+  results.each do |result|
+    DB[:Forecast]
+    .where(start_order: result[:start_order])
     .update(sort_values: Sequel.pg_array(result[sort_key]))
   
     # CHECK RESULT
-    puts "STEP 2: Check updated temporary sorting table for person #{result[:per_id]}"
+    puts "STEP 2B: Check updated temporary sorting table for person #{result[:per_id]}"
     p  DB[:Forecast].where(start_order: result[:start_order]).first
     puts "\n\n"
     
     # Rankn the resylts in the 
-    forecast_ranks = set_ranking_from_table(DB[:Forecast], :sort_values)
+    forecast_ranks = set_ranking_from_table(DB[:Forecast])
   
     # CHECK RESULT
     puts "STEP 3: Check forecast rank for person #{result[:per_id]}" 
@@ -86,31 +97,11 @@ dataset = DB[:Ranking]
 #DB.create_table! :Forecast, { as: dataset }
 DB.create_table! :Forecast, { as: dataset, temp: true }
 
-test_array =  forecast_best_result(dataset.all)
-
-# CHECK RESULT
-puts "STEP 1: Check input result and calculated \"best\" result"
-p test_array
-puts "\n\n"
-
-
-project_results(test_array, :best, :best_values, :sort_values)
-
-# Rebuild the DB[:Forecast] db
-test_array.each do |result|
-  DB[:Forecast]
-  .where(start_order: result[:start_order])
-  .update(sort_values: Sequel.pg_array(result[:best_values]))
-
-  # CHECK RESULT
-  puts "STEP 5: Check updated temporary sorting table for person #{result[:per_id]}"
-  p  DB[:Forecast].where(start_order: result[:start_order]).first
-  puts "\n\n"
-end
-
-project_results(test_array, :worst, :sort_values, :best_values)
+results_data =  forecast_best_result(dataset.all)
+project_results(results_data, :best, :best_values, :sort_values)
+project_results(results_data, :worst, :sort_values, :best_values)
   
-test_array.each { |x| p x }
+results_data.each { |x| p x }
 
 
 
