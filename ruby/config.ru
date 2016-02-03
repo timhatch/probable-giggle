@@ -12,4 +12,4 @@ map('/competition') { run Perseus::CompetitionController }
 map('/results')     { run Perseus::ResultsController }
 map('/')            { run Perseus::ApplicationController }
 
-#map('/statistics')  { run Perseus::StatisticsController }
+map('/statistics')  { run Perseus::StatisticsController }
