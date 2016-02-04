@@ -25,8 +25,8 @@ module Perseus
     def update_sort_values result_json
       tarr = [0,0]; barr = [0,0]
       result_json.each do |key,value|
-        parse_attempts "t", value, tarr
-        parse_attempts "b", value, barr
+        parse_attempts("t", value, tarr)
+        parse_attempts("b", value, barr)
       end
       tarr + barr
     end

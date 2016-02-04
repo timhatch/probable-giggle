@@ -25,8 +25,8 @@ module Perseus
     def update_sort_values result_json
       tarr = [0,0]; barr = [0,0]
       result_json.each do |key,value|
-        parse_attempts "t", value, tarr
-        parse_attempts "b", value, barr
+        parse_attempts("t", value, tarr)
+        parse_attempts("b", value, barr)
       end
       tarr + barr
     end
@@ -53,11 +53,13 @@ module Perseus
     # Set a __single__ result on the server
     # 
     set_result_single = lambda do
+      #TODO: Add guardian to avoid overwriting data
       # Process the input parameters
       result  = JSON.parse(params.delete("result_json"))
       hash    = Hash[params.map{|(k,v)| [k.to_sym,v.to_i]}]
       dataset = DB[:Results]
         .where(hash)
+
       # Update results values
       new_rjson  = update_rjson(dataset, result)
       new_param  = update_sort_values(new_rjson)
@@ -70,6 +72,8 @@ module Perseus
     end
     
     set_result_multi = lambda do
+      #TODO: Add guardian to avoid overwriting data
+      
       p 'not implemented yet'
       404
     end
@@ -80,12 +84,16 @@ module Perseus
     put '/route',  &set_result_multi
     
     # placeholder - will need to be renamed
-    get '/nexus' do
+    get '/tablet' do
       haml :nexus
     end
     # placeholder - will need to be renamed
-    get '/mithril' do
+    get '/jam_results' do
       haml :mithril
+    end
+    # placeholder - may need to be renamed
+    get '/desktop' do
+      haml :desktop
     end
   end
 end
