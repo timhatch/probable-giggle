@@ -17,16 +17,16 @@ end
 #p get_attempts("t", res, arr)  
 
 # Use a lambda instead of a function
-#def gen_attempts type
-#  regex    = Regexp.new "#{type}([0-9]{1,})"
-#  lambda do |result|
-#    matched = regex.match result
-#    matched.captures.to_a.first.to_i unless matched.nil?
-#  end
-#end
-#
-#tops = gen_attempts "t"
-#p tops["a3b1t3"]
+def gen_attempts type
+  regex    = Regexp.new "#{type}([0-9]{1,})"
+  lambda do |result|
+    matched = regex.match result
+    matched.captures.to_a.first.to_i unless matched.nil?
+  end
+end
+
+tops = gen_attempts "t"
+p tops["a3b1t3"]
 
 def set_overall result_json
   tarr = [0,0]; barr = [0,0]
@@ -37,19 +37,20 @@ def set_overall result_json
   tarr + barr
 end
 
-obj = { "p2" => "a3b2", "p1" => "a4b2t4" }
-resArray = set_overall obj
+#obj = { "p2" => "a3b2", "p1" => "a4b2t4" }
+#resArray = set_overall obj
 
 DB = Sequel.connect(ENV['DATABASE_URL'] || "postgres://timhatch@localhost:5432/test")
-DB.extension :pg_array
+DB.extension :pg_array          # Needed to insert arrays
+Sequel.extension :pg_array_ops  # Needed to query stored arrays?
 
 dataset = DB[:Results]
   .where({per_id: 1030, route: 2})
 
-p dataset.first
+#p dataset.first
 
-dataset.update(result: "4t4 4b4")
-pg_arr = Sequel.pg_array(resArray)
+#dataset.update(result: "4t4 4b4")
+#pg_arr = Sequel.pg_array(resArray)
 #dataset.update(sort_values: Sequel.pg_array(resArray))
 
 def update_result arr
@@ -57,20 +58,35 @@ def update_result arr
 end
 
 arr = [1,2,3,3]
-p update_result arr
+#p update_result arr
 #def gen_times factor
-#  return Proc.new { |n| n*factor }
-#end
-#
-#times3 = gen_times(3)
-#
-#p times3.call(5)
-#p times3[5]
 
-#def gen_times factor
-#  lambda { |n| return n * factor }
-#end
-#
-#times4 = gen_times(4)
-#p times4[5]
+  #THREE METHODS FOR ORDERING IN SEQUEL
+  p DB[:Forecast]
+  .select(:start_order, :sort_values, :rank_prev_heat)
+  .reverse(Sequel.pg_array_op(:sort_values)[1])
+  .order_more(Sequel.pg_array_op(:sort_values)[2]).reverse
+  .order_more(Sequel.pg_array_op(:sort_values)[3]).reverse
+  .order_more([Sequel.pg_array_op(:sort_values)[4], :rank_prev_heat])
+  .all
+ # Reset the data ahead of the next comparison 
 
+  p DB[:Forecast]
+  .select(:start_order, :sort_values, :rank_prev_heat)
+  .order(Sequel.desc(Sequel.pg_array_op(:sort_values)[1]))
+  .order_more(Sequel.asc(Sequel.pg_array_op(:sort_values)[2]))
+  .order_more(Sequel.desc(Sequel.pg_array_op(:sort_values)[3]))
+  .order_more(Sequel.asc(Sequel.pg_array_op(:sort_values)[4]))
+  .order_more(Sequel.asc(:rank_prev_heat))
+  .all
+
+  DB[:Forecast]
+  .select(:start_order, :sort_values, :rank_prev_heat)
+  .order(
+    Sequel.desc(Sequel.pg_array_op(:sort_values)[1]),
+    Sequel.asc(Sequel.pg_array_op(:sort_values)[2]),
+    Sequel.desc(Sequel.pg_array_op(:sort_values)[3]),
+    Sequel.asc(Sequel.pg_array_op(:sort_values)[4]),
+    Sequel.asc(:rank_prev_heat)
+  )
+  .all
