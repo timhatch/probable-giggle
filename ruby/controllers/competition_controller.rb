@@ -5,12 +5,13 @@ module Perseus
   class CompetitionController < ApplicationController
 
     get '/' do
-      prms = Hash[params.map{|(k,v)| [k.to_sym,v.to_i]}]
+      hash = Hash[params.map{|(k,v)| [k.to_sym,v.to_i]}]
 
-      resp = DB[:Competitions]
-        .where(prms)
+      DB[:Competitions]
+        .where(hash)
         .all
-      resp.first.to_json
+        .first
+        .to_json
     end
   end
 end
