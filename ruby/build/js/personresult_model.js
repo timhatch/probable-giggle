@@ -9,6 +9,7 @@ var App = App || {};
 App.PersonResult = { 
   //  Store the model directly as retrieved from the server (a plain JS object)
   //
+  params      : {},
   data        : {},
   
   //  Fetch a single set of results from the server
@@ -17,6 +18,7 @@ App.PersonResult = {
   //  - wet_id, route, per_id
   //
   fetch: function(params){
+    this.params = params
     return m.request({
       method : 'GET',
       url    : '/results/person',
@@ -32,14 +34,9 @@ App.PersonResult = {
   //  "{\"p2\":\"a2\",\"p1\":\"a3b1t3\"}"
   //
   save: function(jsonString){
-    window.console.log('save called')
-    var params = {
-      wet_id     : this.data.wet_id,
-      route      : this.data.route,
-      grp_id     : this.data.grp_id,
-      start_order: this.data.start_order,
-      result_json: jsonString
-    }
+  //  window.console.log('save called')
+    var params         = this.params
+    params.result_json = jsonString
     return m.request({
       method: 'PUT',
       url   : '/results/person',

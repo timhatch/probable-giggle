@@ -8,7 +8,7 @@
 // @codekit-prepend "./headerbar_viewcontroller.js"
 // @codekit-prepend "./personselector_viewcontroller.js"
 
-// @codekit-prepend "./boulderresult_view model.js"
+// @codekit-prepend "./boulderresult_viewmodel.js"
 
 // @codekit-prepend "./desktop_settings_viewcontroller.js"
 // @codekit-prepend "./desktop_results_viewcontroller.js"

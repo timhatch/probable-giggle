@@ -9,6 +9,7 @@ var App = App || {};
 App.PersonResult = { 
   //  Store the model directly as retrieved from the server (a plain JS object)
   //
+  params      : {},
   data        : {},
   
   //  Fetch a single set of results from the server
@@ -17,6 +18,7 @@ App.PersonResult = {
   //  - wet_id, route, per_id
   //
   fetch: function(params){
+    this.params = params
     return m.request({
       method : 'GET',
       url    : '/results/person',
@@ -32,14 +34,9 @@ App.PersonResult = {
   //  "{\"p2\":\"a2\",\"p1\":\"a3b1t3\"}"
   //
   save: function(jsonString){
-    window.console.log('save called')
-    var params = {
-      wet_id     : this.data.wet_id,
-      route      : this.data.route,
-      grp_id     : this.data.grp_id,
-      start_order: this.data.start_order,
-      result_json: jsonString
-    }
+  //  window.console.log('save called')
+    var params         = this.params
+    params.result_json = jsonString
     return m.request({
       method: 'PUT',
       url   : '/results/person',
@@ -114,6 +111,63 @@ App.PersonSelectorView = {
         onclick : ctrl.incrementStarter.bind(ctrl)
       }, m.trust('&#8594;'))
     ])
+  }
+}
+
+//	-----------------------------------------------------
+//	CODEKIT DECLARATIONS
+//	-----------------------------------------------------
+/*global m                                            */
+
+var App = App || {}
+
+// Single Result Model / View
+//
+App.BoulderResultVM = function(id){
+  this.id           = 'p'+id
+  this.result       = {a:null,b:null,c:null}
+  this.displayResult = ''
+}
+
+App.BoulderResultVM.prototype = {
+  
+  // Set the model parameters from a results string
+  parse: function(str){
+    var t = str.match("t[0-9]{1,}") || null
+      , b = str.match("b[0-9]{1,}") || null
+      , a = str.match("a[0-9]{1,}") || null
+    this.result.a     = a ? parseInt(a[0].slice(1),10) : null
+    this.result.b     = b ? parseInt(b[0].slice(1),10) : null
+    this.result.t     = t ? parseInt(t[0].slice(1),10) : null
+    this.setResultString()
+  },
+  
+  // Set the model parameters from a passed value
+  update: function(val){
+    switch (val) {
+    case 'b':
+      this.result.t = 0
+      this.result.a = this.result.a || 3
+      this.result.b = this.result.b || 3
+      break
+    case '1':
+    case '2':
+    case '3':
+      this.result.b = this.result.b || parseInt(val,10)
+      this.result.t = this.result.a = parseInt(val,10)
+      break
+    default:
+      this.result.t = this.result.b = this.result.a = 0
+    }
+    this.setResultString()
+  },
+    
+  setResultString: function(){
+    var t = !!this.result.t ? 't'+this.result.t : ''
+      , b = !!this.result.b ? 'b'+this.result.b : ''
+      , a = !!this.result.a ? 'a'+this.result.a : ''
+    this.displayResult = t + (b[0] || '')
+    this.resultString  = a+b+t
   }
 }
 
@@ -344,7 +398,7 @@ App.VM = function(model, sessiondata){
 // @codekit-prepend "./headerbar_viewcontroller.js"
 // @codekit-prepend "./personselector_viewcontroller.js"
 
-// @codekit-prepend "./boulderresult_view model.js"
+// @codekit-prepend "./boulderresult_viewmodel.js"
 
 // @codekit-prepend "./desktop_settings_viewcontroller.js"
 // @codekit-prepend "./desktop_results_viewcontroller.js"
