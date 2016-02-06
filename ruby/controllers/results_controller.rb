@@ -88,7 +88,7 @@ module Perseus
       haml :nexus
     end
     # placeholder - will need to be renamed
-    get '/jam_results' do
+    get '/flash' do
       haml :mithril
     end
     # placeholder - may need to be renamed
