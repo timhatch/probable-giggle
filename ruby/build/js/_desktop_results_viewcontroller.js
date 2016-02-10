@@ -27,13 +27,12 @@ App.TableViewController = {
       return {
         onclick: function(e){
           var prop = e.target.getAttribute("data-sort-by")
-          if (prop) {
+          if (!!prop) {
             var first = list[0]
             list.sort(function(a,b){
-              return a[prop] > b[prop] ? 1 : a[prop] < b[prop] ? -1 : 0
+              return a.data[prop] > b.data[prop] ? 1 : a.data[prop] < b.data[prop] ? -1 : 0
             })
-            window.console.log(list)
-            //if (first === list[0]) list.reverse()
+            if (first === list[0]) list.reverse()
           }
         }
       }
