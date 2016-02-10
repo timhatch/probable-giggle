@@ -72,9 +72,15 @@ module Perseus
     end
     
     set_result_multi = lambda do
+      results = params.delete("result_json")
+      hash    = Hash[params.map{|(k,v)| [k.to_sym,v]}]
       #TODO: Add guardian to avoid overwriting data
-      
-      p 'not implemented yet'
+      p hash
+      results.each do |obj|
+        
+        results_hash = Hash[obj.map{|(k,v)| [k.to_sym,v]}]
+        p results_hash
+      end
       404
     end
     
@@ -93,7 +99,7 @@ module Perseus
     end
     # placeholder - may need to be renamed
     get '/desktop' do
-      haml :desktop
+      haml :route_results
     end
   end
 end

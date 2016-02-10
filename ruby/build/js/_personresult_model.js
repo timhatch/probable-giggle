@@ -34,7 +34,7 @@ App.PersonResult.prototype = {
   // Parse the results_json object from the string form returned (we're not using the 
   // Postgresql JSON extensions yet) into an actual JS object
   objectifyResults: function(json){
-    window.console.log(json)
+//    window.console.log(json)
     try {
       var obj = JSON.parse(json)
         , str, val

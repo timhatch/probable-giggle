@@ -12,7 +12,7 @@ App.RouteResult = {
   //  Store the model directly as retrieved from the server (a plain JS object)
   //
   params      : {},
-  data        : {},
+  data        : [],
   
   //  Fetch a single set of results from the server
   //  params can take the form of:
@@ -21,15 +21,23 @@ App.RouteResult = {
   //
   fetch: function(params){
     this.params = params
+
     return m.request({
       method : 'GET',
       url    : '/results/route',
       data   : params
     })
     .then(function(resp){
-      window.console.log(this.data)
-      this.data = resp
-      window.console.log(this.data)
+      try {
+        this.data = resp.map(function(result){
+          var person    = new App.PersonResult(result.start_order)
+          person.params = Object.assign({start_order: result.start_order}, params)
+          person.data   = result
+          person.data.result_json = person.objectifyResults(result.result_json)
+          return person
+        })
+      }
+      catch (err) { window.console.log(err) }
     }.bind(this))
   },
     
