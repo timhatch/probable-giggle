@@ -1,0 +1,48 @@
+@import 'mixins';
+@import 'variables';
+@import 'reset';
+@import 'typography';
+@import 'forms';
+@import 'buttons';
+
+/* =Application / mixins and variables 
+-----------------------------------------------------------------------------*/
+
+$body-width      : 96rem;
+$row-height      : 4.8rem;
+
+@mixin row($height) {
+  height        : $height;
+  
+  &[rows="2"] { height: $height * 2 };
+  &[rows="3"] { height: $height * 3 };
+  &[rows="4"] { height: $height * 4 };
+}
+
+body {
+  width         : $body-width;
+  margin        : 0 auto 0 auto;
+}
+
+/* =Application / table styling 
+-----------------------------------------------------------------------------*/
+$color-table-stripped: #f8f8f8;
+
+table {
+  width         : $body-width;
+//  background    : #ffffff;
+  margin        : 1em 0em;
+  border        : 1px solid rgba(34, 36, 38, 0.15);
+  box-shadow    : none;
+  border-radius : 0.25rem;
+  text-align    : left;
+  color         : rgba(0, 0, 0, 0.87);
+  border-collapse: separate;
+  border-spacing: 0px;
+}
+table:first-child { margin-top: 0em;}
+table:last-child { margin-bottom: 0em;}
+
+table tr:nth-child(even) td {
+	background: $color-table-stripped;
+}

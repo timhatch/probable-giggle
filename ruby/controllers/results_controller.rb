@@ -90,7 +90,7 @@ module Perseus
     put '/route',  &set_result_multi
     
     # placeholder - will need to be renamed
-    get '/tablet' do
+    get '/m' do
       haml :nexus
     end
     # placeholder - will need to be renamed
@@ -98,7 +98,7 @@ module Perseus
       haml :mithril
     end
     # placeholder - may need to be renamed
-    get '/desktop' do
+    get '/' do
       haml :route_results
     end
   end
