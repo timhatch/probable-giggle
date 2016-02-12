@@ -1,0 +1,25 @@
+/* =Application / routes styling 
+-----------------------------------------------------------------------------*/
+#routes {
+  display       : none;
+}
+
+/* =Application / table styling 
+-----------------------------------------------------------------------------*/
+table {
+  margin        : 0 auto;
+  width         : 100%;
+  table-layout  : fixed;
+
+	font-size     : 80.0%;
+  border-spacing: 0;
+  
+  tr {
+    th, td {
+      padding       : 0 3px;
+      border        : 0.5px dotted black;
+    }
+  }
+}
+
+//@page { margin: 2.0cm !important; }
