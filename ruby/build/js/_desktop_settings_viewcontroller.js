@@ -42,8 +42,7 @@ App.SettingsVC = {
       ),
       m.component(App.ParamSV, ctrl, { key: 'WetId', text: "competition", pattern: "[0-9]" }),
       m.component(App.ParamSV, ctrl, { key: 'Route', text: "round" }),
-      m.component(App.ParamSV, ctrl, { key: 'GrpId', text: "category" }),
-      m.component(App.TableSelectorViewController, ctrl.vm)
+      m.component(App.ParamSV, ctrl, { key: 'GrpId', text: "category" })
     ])
   }
 };
@@ -76,30 +75,6 @@ App.ParamSV = {
         pattern : ctrl.params.pattern || null,
         value   : ctrl.ss[ctrl.params.key] || m.trust('')
       })
-    ])
-  }
-}
-
-App.TableSelectorViewController = {
-  controller: function(vm){
-    this.clicked = function(){
-      return {
-        onclick: function(e){
-          var prop    = e.target.getAttribute("value")
-          vm.viewType = prop
-        }
-      }
-    }
-  },
-  
-  view: function(ctrl){
-    return m("span", ctrl.clicked(), [
-      m("label", "Startlist"),
-      m("input[type=radio]", {name: "type", value: "Starters", checked: true}), 
-      m("label", "Jurylist"),
-      m("input[type=radio]", {name: "type", value: "Scores" }), 
-      m("label", "Results"),
-      m("input[type=radio]", {name: "type", value: "Results" })
     ])
   }
 }

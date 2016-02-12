@@ -70,10 +70,11 @@ App.PersonResult.prototype = {
   //  "{\"p2\":\"a2\",\"p1\":\"a3b1t3\"}"
   //
   save: function(jsonString){
-  //  window.console.log('save called')
     var params         = this.params
     params.result_json = jsonString
+    
     window.console.log(params)
+    
     return m.request({
       method: 'PUT',
       url   : '/results/person',

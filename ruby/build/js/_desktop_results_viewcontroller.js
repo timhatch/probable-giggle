@@ -19,7 +19,7 @@ App.TableViewController = {
     }
     
     this.delete = function(){
-      window.console.log('not implemented yet')
+      alert('starter deletion not yet implemented')
     }
     
     this.sorts = function(){
@@ -40,8 +40,7 @@ App.TableViewController = {
   },
   
   view: function(ctrl){
-    var table = "table#"+ctrl.type
-    return m(table, ctrl.sorts(), [
+    return m("table", ctrl.sorts(), [
       App[ctrl.type].createHeaderRow(ctrl),
       ctrl.model.data.map(function(person){
         return App[ctrl.type].createContentRow(ctrl, person)
@@ -59,13 +58,13 @@ App.Results = {
       m("th[data-sort-by=nation]", "IOC "),
       m("th[data-sort-by=start_order]", "Sn "),
 //      m("th[data-sort-by=per_id]", "UUID"),
-      m("th.w42.flex", [
+      m("th.w45.flex", [
         ctrl.blocs.map(function(bloc_nr){
           return m(".bloc", m.trust("p"+bloc_nr))
         })        
       ]),
       m("th.w09", "Result"),
-      m("th")
+      m("th.w03")
     ])
   },
 
@@ -78,23 +77,27 @@ App.Results = {
       m("td", data.nation),
       m("td", data.start_order),
 //      m("td", data.per_id),
-      m("td.w42.flex",[
+      m("td.w45.flex",[
         ctrl.blocs.map(function(bloc_nr){
           var id ='p'+bloc_nr
           return m(".bloc", [
-            m.component(this.AttemptsSubView, { person: data, id: id, datatype: "b" }),
-            m.component(this.AttemptsSubView, { person: data, id: id, datatype: "t" })
+            m.component(this.AttemptsSubView, { person: person, id: id, datatype: "b" }),
+            m.component(this.AttemptsSubView, { person: person, id: id, datatype: "t" })
           ]
         )}.bind(this))       
       ]),
       m("td.w09", data.result),
-      m("td", [ m("button[outline=true]", { onclick: ctrl.save.bind(person) }, "^") ])
+      m("td.w03", [ m("button[outline=true].icon-upload-cloud", { 
+          // style: person.changed ? "color: red" : "color: black", 
+          onclick: ctrl.save.bind(person) 
+        }) 
+      ])
     ])
   },
   
   AttemptsSubView: {
     controller: function(params){
-      this.result = params.person.result_json
+      this.result = params.person.data.result_json
       this.id     = params.id
       this.text   = params.datatype
       // Check if the result alrady exists
@@ -107,6 +110,7 @@ App.Results = {
         if (!this.result[params.id]) { this.result[params.id] = {a:0} }
         this.result[params.id][params.datatype] = this.prop = parseInt(value,10) || null
         this.result[params.id].a = Math.max(this.result[params.id].a, this.prop)
+        // params.person.changed = true
       }
     },
   
@@ -142,7 +146,7 @@ App.Starters = {
       m("td", data.nation),
       m("td", data.per_id),
       m("td", data.rank_prev_heat || m.trust("NA")),
-      m("td", [ m("button[outline=true]", { onclick: ctrl.delete.bind(person) }, "d") ])
+      m("td", [ m("button[outline=true].icon-trash-empty", { onclick: ctrl.delete.bind(person) }) ])
     ])
   }  
 }

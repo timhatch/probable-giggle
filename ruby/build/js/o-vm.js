@@ -5,11 +5,10 @@
 
 var App = App || {}
 
-App.VM = function(routedata, sessiondata){
+App.VM = function(model, sessiondata){
   return {
     ss          : sessiondata,
-    rd          : routedata,
-    viewType    : "Starters",
+    rd          : model,
     // View-Model parameters and functions derived from the model
     //
     params      : {},
@@ -49,7 +48,7 @@ App.VM = function(routedata, sessiondata){
         }
       })
       
-      promise = routedata.save(obj)
+      promise = model.save(obj)
       promise
         .then(function(){ App.connectionStatus(true) })
         .then(null, function(){ App.connectionStatus(false) })

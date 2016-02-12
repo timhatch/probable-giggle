@@ -20,33 +20,59 @@ App.connectionStatus = m.prop(true)
 App.sessionStorage   = mx.storage( 'session' , mx.SESSION_STORAGE )
 
 App.SuperVC = {
-  controller: function(){
-    var defaults = {
-      WetId : null, Route : null,
-      comp  : {title: null}, 
-    }
-
-    this.ss  = App.sessionStorage.get('o-appstate')
-    if (!this.ss) {
-      this.ss = defaults
-      App.sessionStorage.set('o-appstate', defaults)
-    }
-
-    this.model = App.RouteResult
-    this.vm    = new App.VM(this.model, this.ss)        
+  controller: function(params){
+    this.vm   = params.vm
+    this.type = params.type
   },   
   // View declaration  
   view: function(ctrl){
-    var vm    = ctrl.vm
-      , blocs = [1,2,3,4]
-    window.console.log(vm.viewType)
+    var vm      = ctrl.vm
+      , blocs   = [1,2,3,4]
+      , results = ctrl.type === "Results" ? true : false
+
     return [
       m.component(App.SettingsVC, vm),
-      m.component(App.TableViewController, { model: ctrl.model, blocs: blocs, type: "Starters" }),
+      m.component(App.RouterVC),
+      m.component(App.TableViewController, { model: vm.rd, blocs: blocs, type: ctrl.type }),
       // Make this contingent on whether the active view is 
-      m('button', { onclick : vm.save.bind(vm) }, 'Save All')
+      (results) ? m('button', { onclick : vm.save.bind(vm) }, 'Save All') : ''
     ]
   }
 }
 
-m.mount(document.body, App.SuperVC)
+//m.mount(document.body, App.SuperVC)
+App.RouterVC = {
+  view: function(){
+    return m("#routes", [
+      m("a[href='/']", { config: m.route }, "Startlist"),
+      m("a[href='/re']", { config: m.route }, "Resultlist"),     
+      m("a[href='/sc']", { config: m.route }, "Scoresheet")
+    ])
+  }
+}
+
+// INitialise the application
+App.init = function(){  
+  var model    = App.RouteResult
+  
+  var defaults = {
+        WetId : null, Route : null,
+        comp  : {title: null}, 
+      }
+  
+  var ss  = App.sessionStorage.get('o-appstate')
+  if (!ss) {
+    ss = defaults
+    App.sessionStorage.set('o-appstate', defaults)
+  }
+  
+  var vm = new App.VM(model, ss)
+  
+  // Render the mithril route tree
+  m.route.mode = "hash"
+  m.route(document.body, "/", {
+    "/"  : m.component(App.SuperVC, { vm: vm, type: "Starters"}),
+    "/re": m.component(App.SuperVC, { vm: vm, type: "Results"}),
+    "/sc": m.component(App.SuperVC, { vm: vm, type: "Scores"})
+  })
+}()
