@@ -40,8 +40,9 @@ App.TableViewController = {
   },
   
   view: function(ctrl){
-    return m("table", ctrl.sorts(), [
-      App[ctrl.type].createHeaderRow(),
+    var table = "table#"+ctrl.type
+    return m(table, ctrl.sorts(), [
+      App[ctrl.type].createHeaderRow(ctrl),
       ctrl.model.data.map(function(person){
         return App[ctrl.type].createContentRow(ctrl, person)
       })
@@ -49,18 +50,22 @@ App.TableViewController = {
   }
 }
 
-App.ResultsTable = {
-  createHeaderRow: function(){
+App.Results = {
+  createHeaderRow: function(ctrl){
     return m("tr", [
-      m("th[data-sort-by=result_rank]", "Rank"),
-      m("th[data-sort-by=lastname]", "Lastname"),
-      m("th[data-sort-by=firstname]", "Firstname"),
-      m("th[data-sort-by=nation]", "Nation"),
-      m("th[data-sort-by=start_order]", "Start Nr"),
-      m("th[data-sort-by=per_id]", "UUID"),
-      m("th", "Scores"),
-      m("th", "Result"),
-      m("th", m.trust(""))      
+      m("th[data-sort-by=result_rank]", "Rk"),
+      m("th[data-sort-by=lastname].w12.left", "Lastname"),
+      m("th[data-sort-by=firstname].w09.left", "Firstname"),
+      m("th[data-sort-by=nation]", "IOC "),
+      m("th[data-sort-by=start_order]", "Sn "),
+//      m("th[data-sort-by=per_id]", "UUID"),
+      m("th.w42.flex", [
+        ctrl.blocs.map(function(bloc_nr){
+          return m(".bloc", m.trust("p"+bloc_nr))
+        })        
+      ]),
+      m("th.w09", "Result"),
+      m("th")
     ])
   },
 
@@ -68,23 +73,22 @@ App.ResultsTable = {
     var data = person.data
     return m("tr", [
       m("td", data.result_rank || m.trust(''), { result_rank: data.result_rank }),
-      m("td", data.lastname),
-      m("td", data.firstname),
+      m("td.w12.left", data.lastname),
+      m("td.w09.left", data.firstname),
       m("td", data.nation),
       m("td", data.start_order),
-      m("td", data.per_id),
-      m("td", [
+//      m("td", data.per_id),
+      m("td.w42.flex",[
         ctrl.blocs.map(function(bloc_nr){
           var id ='p'+bloc_nr
-          return [
-            m('span', id), 
+          return m(".bloc", [
             m.component(this.AttemptsSubView, { person: data, id: id, datatype: "b" }),
             m.component(this.AttemptsSubView, { person: data, id: id, datatype: "t" })
           ]
-        }.bind(this))       
+        )}.bind(this))       
       ]),
-      m("td", data.result),
-      m("td", [ m("button", { onclick: ctrl.save.bind(person) }, "Save") ])
+      m("td.w09", data.result),
+      m("td", [ m("button[outline=true]", { onclick: ctrl.save.bind(person) }, "^") ])
     ])
   },
   
@@ -116,15 +120,15 @@ App.ResultsTable = {
   }
 }
 
-App.StartlistTable = {
+App.Starters = {
   createHeaderRow: function(){
     return m("tr", [
-      m("th[data-sort-by=start_order]", "Start Nr"),
-      m("th[data-sort-by=lastname]", "Lastname"),
-      m("th[data-sort-by=firstname]", "Firstname"),
-      m("th[data-sort-by=nation]", "Nation"),
-      m("th[data-sort-by=per_id]", "UUID"),
-      m("th[data-sort-by=rank_prev_heat]", "Last Round"),
+      m("th[data-sort-by=start_order]", "Sn"),
+      m("th[data-sort-by=lastname].w12.left", "Lastname"),
+      m("th[data-sort-by=firstname].w09.left", "Firstname"),
+      m("th[data-sort-by=nation]", "IOC"),
+      m("th[data-sort-by=per_id]", "ID"),
+      m("th[data-sort-by=rank_prev_heat]", "Prev Heat"),
       m("th", m.trust(""))      
     ])
   },
@@ -133,26 +137,26 @@ App.StartlistTable = {
     var data = person.data
     return m("tr", [
       m("td", data.start_order),
-      m("td", data.lastname),
-      m("td", data.firstname),
+      m("td.w12.left", data.lastname),
+      m("td.w09.left", data.firstname),
       m("td", data.nation),
       m("td", data.per_id),
       m("td", data.rank_prev_heat || m.trust("NA")),
-      m("td", [ m("button", { onclick: ctrl.delete.bind(person) }, "Delete") ])
+      m("td", [ m("button[outline=true]", { onclick: ctrl.delete.bind(person) }, "d") ])
     ])
   }  
 }
 
-App.ScoresheetTable = {
+App.Scores = {
   createHeaderRow: function(){
     return m("tr", [
-      m("th[data-sort-by=start_order]", "Start Nr"),
-      m("th", "Lastname"),
-      m("th", "Firstname"),
-      m("th", "Nation"),
-      m("th", "UUID"),
-      m("th", "Score"),
-      m("th", "Result")      
+      m("th[data-sort-by=start_order]", "Sn"),
+      m("th.w12.left", "Lastname"),
+      m("th.w09.left", "Firstname"),
+      m("th", "IOC"),
+//      m("th", "UUID"),
+      m("th.w48", "Score"),
+      m("th.w09", "Result")      
     ])
   },
 
@@ -160,12 +164,12 @@ App.ScoresheetTable = {
     var data = person.data
     return m("tr", [
       m("td", data.start_order),
-      m("td", data.lastname),
-      m("td", data.firstname),
+      m("td.w12.left", data.lastname),
+      m("td.w09.left", data.firstname),
       m("td", data.nation),
-      m("td", data.per_id),
-      m("td"),
-      m("td")
+//      m("td", data.per_id),
+      m("td.w48"),
+      m("td.w09")
     ])
   }  
 }

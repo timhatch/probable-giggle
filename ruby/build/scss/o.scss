@@ -8,41 +8,144 @@
 /* =Application / mixins and variables 
 -----------------------------------------------------------------------------*/
 
-$body-width      : 96rem;
-$row-height      : 4.8rem;
+$body-width      : 96.0rem;
+$row-height      :  2.4rem;
 
-@mixin row($height) {
-  height        : $height;
-  
-  &[rows="2"] { height: $height * 2 };
-  &[rows="3"] { height: $height * 3 };
-  &[rows="4"] { height: $height * 4 };
+@mixin flex() {
+  &.flex {
+    display       : flex;
+    flex-flow     : row wrap;
+    justify-content: space-around;
+  }
+}
+
+html {
 }
 
 body {
+  margin        : 0 auto;
+
   width         : $body-width;
-  margin        : 0 auto 0 auto;
+//  line-height   : $base-line/12 + 0em;
 }
+
+header {
+  width: 100%;
+  margin: $row-height/2 0 $row-height/2 1.6rem; 
+  
+  font-size  : 2.0rem;
+  line-height : 3.2rem;
+  font-weight: bold;
+  
+  &.connected    { background-color: white }
+  &.disconnected { background-color: darkorange }  
+}
+
+/* =Application / settings panel
+-----------------------------------------------------------------------------*/
+#settings { 
+  margin: $row-height/2 0; 
+//  display       : flex;
+//  flex-flow     : row wrap;
+//  justify-content: space-around;
+  
+  // Use the modal class for each 'row'
+  .modal {
+    label {
+      display   : inline;
+      margin    : 0 0 0 1.8rem;
+      width     : 0.65 * $body-width;
+  
+      text-transform: uppercase;
+      font-size : $font-size-btn-upper-normal;
+      line-height: $row-height;
+    }
+
+    input[type=text] {
+      width     : 7.2rem;
+      
+      font          : 1.2rem sans-serif;
+      line-height   : 2.0rem;
+    }
+  }
+}
+
 
 /* =Application / table styling 
 -----------------------------------------------------------------------------*/
+$color-table-header:   #f8f8f8;
 $color-table-stripped: #f8f8f8;
+$cell-width     : 6rem;
 
 table {
-  width         : $body-width;
-//  background    : #ffffff;
-  margin        : 1em 0em;
-  border        : 1px solid rgba(34, 36, 38, 0.15);
-  box-shadow    : none;
-  border-radius : 0.25rem;
-  text-align    : left;
-  color         : rgba(0, 0, 0, 0.87);
-  border-collapse: separate;
-  border-spacing: 0px;
-}
-table:first-child { margin-top: 0em;}
-table:last-child { margin-bottom: 0em;}
+  margin        : 0 auto;
+  width         : 100%;
+  table-layout  : fixed;
 
-table tr:nth-child(even) td {
-	background: $color-table-stripped;
+	font-size     : 80.0%;
+
+  border-top    : 1px solid rgba(34, 36, 38, 0.15);
+//  border-collapse: separate;
+  border-spacing: 0;
+}
+
+//table tr:nth-child(odd) td { background: $color-table-stripped; }
+//table tr:first-child th { background-color: #f4f4f4; }
+
+table {
+  :first-child { margin-top   : 0em; }
+  :last-child {  margin-bottom: 0em; }
+  
+  tr:first-child {
+    th { 
+      border-bottom   : 1px solid rgba(34, 36, 38, 0.15);
+      background      : $color-table-header }
+  }
+  tr:nth-child(odd) {
+    td { background: $color-table-stripped }
+  }
+  
+  td, th {
+    @include flex();
+    
+    padding       : 0;
+    width         : $cell-width * 1;
+    text-align    : center;
+  
+  	white-space   : nowrap;
+  	overflow      : hidden;
+
+    -webkit-text-overflow: ellipsis;
+           text-overflow : ellipsis;
+
+    &.w09 { width : $cell-width * 1.5; }
+    &.w12 { width : $cell-width * 2; }
+    &.w18 { width : $cell-width * 3; }
+    &.w24 { width : $cell-width * 4; }
+    &.w30 { width : $cell-width * 5; }
+    &.w36 { width : $cell-width * 6; }
+    &.w42 { width : $cell-width * 7; }
+    &.w48 { width : $cell-width * 8; }
+
+    &.left { text-align : left; }
+    div.bloc {
+      width         : 20%;
+      text-align    : center;
+    }
+    input[type=text] {
+      margin        : 0;
+      width         : 40%; 
+
+      font          : 1.2rem sans-serif;
+      line-height   : 1.6rem;
+    }
+    button[outline] {
+      padding     : 0;
+      margin-top  : 8px !important;
+      
+      min-width   : 0;
+      width       : 24px !important;
+      height      : 24px;
+    } 
+  }
 }

@@ -13,7 +13,7 @@ html {
 
 body {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 1.6em;
+  font-size: 1.2em;
   line-height: 2.4em;
   background: #ffffff;
   color: #202020; }
@@ -127,96 +127,27 @@ button {
 /* =Application / mixins and variables 
 -----------------------------------------------------------------------------*/
 body {
-  margin: 0 auto;
-  width: 96rem; }
-
-header {
-  width: 100%;
-  margin: 1.2rem 0 1.2rem 1.6rem;
-  font-size: 2.0rem;
-  line-height: 3.2rem;
-  font-weight: bold; }
-  header.connected {
-    background-color: white; }
-  header.disconnected {
-    background-color: darkorange; }
-
-/* =Application / settings panel
------------------------------------------------------------------------------*/
-#settings {
-  margin: 1.2rem 0; }
-  #settings .modal label {
-    display: inline;
-    margin: 0 0 0 1.8rem;
-    width: 62.4rem;
-    text-transform: uppercase;
-    font-size: 1.1rem;
-    line-height: 2.4rem; }
-  #settings .modal input[type=text] {
-    width: 7.2rem;
-    font: 1.2rem sans-serif;
-    line-height: 2.0rem; }
+  width: 96rem;
+  margin: 0 auto 0 auto; }
 
 /* =Application / table styling 
 -----------------------------------------------------------------------------*/
 table {
-  margin: 0 auto;
-  width: 100%;
-  table-layout: fixed;
-  font-size: 80.0%;
-  border-top: 1px solid rgba(34, 36, 38, 0.15);
-  border-spacing: 0; }
+  width: 96rem;
+  margin: 1em 0em;
+  border: 1px solid rgba(34, 36, 38, 0.15);
+  box-shadow: none;
+  border-radius: 0.25rem;
+  text-align: left;
+  color: rgba(0, 0, 0, 0.87);
+  border-collapse: separate;
+  border-spacing: 0px; }
 
-table :first-child {
+table:first-child {
   margin-top: 0em; }
-table :last-child {
+
+table:last-child {
   margin-bottom: 0em; }
-table tr:first-child th {
-  border-bottom: 1px solid rgba(34, 36, 38, 0.15);
+
+table tr:nth-child(even) td {
   background: #f8f8f8; }
-table tr:nth-child(odd) td {
-  background: #f8f8f8; }
-table td, table th {
-  padding: 0;
-  width: 6rem;
-  text-align: center;
-  white-space: nowrap;
-  overflow: hidden;
-  -webkit-text-overflow: ellipsis;
-  text-overflow: ellipsis; }
-  table td.flex, table th.flex {
-    display: flex;
-    flex-flow: row wrap;
-    justify-content: space-around; }
-  table td.w09, table th.w09 {
-    width: 9rem; }
-  table td.w12, table th.w12 {
-    width: 12rem; }
-  table td.w18, table th.w18 {
-    width: 18rem; }
-  table td.w24, table th.w24 {
-    width: 24rem; }
-  table td.w30, table th.w30 {
-    width: 30rem; }
-  table td.w36, table th.w36 {
-    width: 36rem; }
-  table td.w42, table th.w42 {
-    width: 42rem; }
-  table td.w48, table th.w48 {
-    width: 48rem; }
-  table td.left, table th.left {
-    text-align: left; }
-  table td div.bloc, table th div.bloc {
-    width: 20%;
-    text-align: center; }
-  table td input[type=text], table th input[type=text] {
-    margin: 0;
-    width: 40%;
-    font: 1.2rem sans-serif;
-    line-height: 1.6rem; }
-  table td button[outline], table th button[outline] {
-    padding: 0;
-    margin-top: 8px !important;
-    min-width: 0;
-    width: 24px !important;
-    height: 24px; }

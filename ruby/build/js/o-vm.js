@@ -9,6 +9,7 @@ App.VM = function(routedata, sessiondata){
   return {
     ss          : sessiondata,
     rd          : routedata,
+    viewType    : "Starters",
     // View-Model parameters and functions derived from the model
     //
     params      : {},
