@@ -13,3 +13,4 @@ map('/results')     { run Perseus::ResultsController }
 map('/')            { run Perseus::ApplicationController }
 
 map('/statistics')  { run Perseus::StatisticsController }
+map('/registration'){ run Perseus::RegistrationController }

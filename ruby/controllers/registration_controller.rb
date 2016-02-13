@@ -1,62 +1,54 @@
 # Handlers for '/registration' routes 
 #
+require 'csv'
 
 module Perseus
   class RegistrationController < ApplicationController
-    # TODO: 
-    def parse_csv_file params
+    
+    # Insert a single person into the database. 
+    # required params: per_id
+    # optional params: firstname, lastname, nation, gender, birthyear, club
+    #   
+    def insert_person person
+      dataset = DB[:Climbers].where(per_id: person[:per_id])
+      dataset.insert(person) unless dataset.first
+    end  
+
+    # Delete a single person from the database. 
+    # required params: per_id
+    # 
+    def delete_person params
+      DB[:Climbers].where(per_id: params[:per_id]).delete
+    end
+    
+    # Parse a CSV file, converting each row into a "Person" object and inserting the provided
+    # parameters into the database. The header row of the CSV file is used to set the relevant
+    # parameters
+    # required params: per_id
+    # optional params: firstname, lastname, nation, gender, birthyear, club
+    #   
+    parse_csv_file = lambda do
       if params[:file]
         file    = params[:file][:tempfile]
-        #data    = []
+
+        # TODO: Add content checking, we don't actually handle the case of an invalid file
         # NOTE: header_converters downcases all headers...
-        options = { headers: true, converters: :numeric }        
-        CSV.foreach(file, options) do |row|
+        CSV.foreach(file, { headers: true, converters: :numeric }) do |row|
           person = Hash[row.to_hash.map{|(k,v)| [k.to_sym,v]}]
-          # TODO
-          #Startlist.set_starter person
+          insert_person(person)
         end
       else
-        p 'no file'
+        p "no file"
       end
     end
     
-    def insert_competitors params
-    
+    # Route handling
+    #
+    get '/' do
+      haml :registration
     end
-  
-    def delete_competitors params
     
-    end
+    post '/', &parse_csv_file
+    
   end
 end
-
-## Public: Route handling for the admin/registration page
-##
-## params - TODO: Add WetId and CompName as params
-##
-#get '/registration' do
-#  # TODO Set these parameters based on earlier input. e.g. get values from a database 
-#  @title = 'Test Comp'
-#  @wetid = 1
-#  haml :registration, :layout => :mithril
-#end
-#
-#post '/registration' do
-#  if params[:file]
-#    file     = params[:file][:tempfile]
-#    data     = []
-#    # NOTE: header_converters downcases all headers...
-##    csv_opts = { headers: true, converters: :numeric, header_converters: :symbol }
-##    CSV.foreach(file, csv_opts) { |row| resp.push row.to_hash }
-#    csv_opts = { headers: true, converters: :numeric }
-##    CSV.foreach(file, csv_opts) { |row| data.push Hash[row.to_hash.map{|(k,v)| [k.to_sym,v]}] }
-##    Startlist.set_starters({ starters: data })
-#    
-#    CSV.foreach(file, csv_opts) do |row|
-#      person = Hash[row.to_hash.map{|(k,v)| [k.to_sym,v]}]
-#      Startlist.set_starter person
-#    end
-#  else
-#    p 'No file provided'
-#  end
-#end
