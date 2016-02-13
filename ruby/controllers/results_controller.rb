@@ -99,7 +99,7 @@ module Perseus
     end
     # placeholder - may need to be renamed
     get '/' do
-      haml :route_results
+      haml :results
     end
   end
 end
