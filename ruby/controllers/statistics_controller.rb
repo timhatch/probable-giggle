@@ -6,6 +6,8 @@ module Perseus
 
     def forecast_best_result results, b_number
       results.map do |result|
+        # TODO: b_completed as currently defined simply picks up how many boulders have 
+        # been attempted, but it presumes that 
         b_completed  = JSON.parse(result.delete(:result_json)).length
         forecast_best_result = Array.new(4, b_number - b_completed)
         forecast_best_result.map.with_index { |x,i| forecast_best_result[i] += result[:sort_values][i] }
@@ -58,8 +60,8 @@ module Perseus
       end
     end
     
-    # Helper function to create a regex for a given data type ("type") and boulder (x)
-    # returns a lambda function
+    # Helper function to create a regex for a given data type ("type"), e.g. "a", "b" or "t" 
+    # returns a lambda function with the boulder "x" as an input parameter...
     #
     def generate_regex type
       lambda do |x|

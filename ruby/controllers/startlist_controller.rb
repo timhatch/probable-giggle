@@ -31,17 +31,20 @@ module Perseus
     def insert_final_list params
       next_route = params.delete(:next_route)
       quota      = params.delete(:quota)
-    
+
+      # Query the database to get the list of qualified climbers
       dataset = DB[:Ranking]
         .select(:per_id, :result_rank)
         .where(params)
         .where(result_rank: 1..quota)
         .reverse_order(:result_rank)
         .all
-    
+      
+      # Delete any pre-existing startlist
       params[:route] = next_route
       delete_competitors(params)
-    
+      
+      # Create a new startlist from an ordered array
       dataset.each.with_index(1) do |person, i|
         person.merge!(params)
         person[:start_order]    = i
@@ -49,6 +52,15 @@ module Perseus
         DB[:Results].insert(person)
       end
     end
+  
+    # Route handling
+    #    
+    post '/' do
+      hash = Hash[params.map{ |(k,v)| [k.to_sym,v.to_i] }]
+      insert_final_list hash
+      200
+    end
+  
   end
 end
 
