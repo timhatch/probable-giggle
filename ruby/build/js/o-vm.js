@@ -47,11 +47,11 @@ App.VM = function(model, sessiondata){
           result_json: JSON.stringify(result.stringifyResults(result.data.result_json))
         }
       })
-      
-      promise = model.save(obj)
-      promise
-        .then(function(){ App.connectionStatus(true) })
-        .then(null, function(){ App.connectionStatus(false) })
+      window.console.log(obj)
+//      promise = model.save(obj)
+//      promise
+//        .then(function(){ App.connectionStatus(true) })
+//        .then(null, function(){ App.connectionStatus(false) })
     },
     
     reset: function(){
