@@ -47,12 +47,14 @@ App.RouteResult = {
   //
   save: function(jsonString){
   //  window.console.log('save called')
-    var params         = this.params
-    params.result_json = jsonString
-    return m.request({
-      method: 'PUT',
-      url   : '/results/route',
-      data  : params
-    })
+    var params     = this.params
+    params.results = jsonString
+    window.console.log(params)
+    // TODO: NOT WORKING!!!
+//    return m.request({
+//      method: 'PUT',
+//      url   : '/results/route',
+//      data  : params
+//    })
   }
 };

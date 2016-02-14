@@ -15,13 +15,6 @@ module Perseus
       end
     end
     
-    # Generate the overall result as a matrix [tn,ta,bn,ba]
-    #
-    def update_rjson dataset, new_result
-      old_result = JSON.parse(dataset.first[:result_json])
-      old_result.merge(new_result)
-    end
-    
     def update_sort_values result_json
       tarr = [0,0]; barr = [0,0]
       result_json.each do |key,value|
@@ -29,6 +22,13 @@ module Perseus
         parse_attempts("b", value, barr)
       end
       tarr + barr
+    end
+    
+    # Generate the overall result as a matrix [tn,ta,bn,ba]
+    #
+    def update_rjson dataset, new_result
+      old_result = JSON.parse(dataset.first[:result_json])
+      old_result.merge(new_result)
     end
     
     # Primary routing functions (expressed as lambdas)
@@ -71,16 +71,18 @@ module Perseus
       resp ? 200 : 404 
     end
     
+    # TODO: Not working!!!
     set_result_multi = lambda do
-      results = params.delete("result_json")
-      hash    = Hash[params.map{|(k,v)| [k.to_sym,v]}]
-      #TODO: Add guardian to avoid overwriting data
-      p hash
-      results.each do |obj|
-        
-        results_hash = Hash[obj.map{|(k,v)| [k.to_sym,v]}]
-        p results_hash
-      end
+      p Hash[params.map{|(k,v)| [k.to_sym,v]}]
+#      results = params.delete("result_json")
+#      hash    = Hash[params.map{|(k,v)| [k.to_sym,v]}]
+#      #TODO: Add guardian to avoid overwriting data
+#      p hash
+#      results.each do |obj|
+#        
+#        results_hash = Hash[obj.map{|(k,v)| [k.to_sym,v]}]
+#        p results_hash
+#      end
       404
     end
     
