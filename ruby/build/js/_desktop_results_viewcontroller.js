@@ -70,7 +70,7 @@ App.Results = {
 
   createContentRow: function(ctrl, person){
     var data = person.data
-    return m("tr", [
+    return m("tr", {id: person.data.per_id}, [
       m("td", data.result_rank || m.trust(''), { result_rank: data.result_rank }),
       m("td.w12.left", data.lastname),
       m("td.w09.left", data.firstname),
@@ -97,6 +97,7 @@ App.Results = {
   
   AttemptsSubView: {
     controller: function(params){
+      this.per_id = params.person.data.per_id
       this.result = params.person.data.result_json
       this.id     = params.id
       this.text   = params.datatype
@@ -116,6 +117,7 @@ App.Results = {
   
     view: function(ctrl){
       return m("input[type=text]", {
+        id         : ctrl.per_id+ctrl.id,
         placeholder: ctrl.text, 
         value      : ctrl.prop || m.trust(""),
         onchange   : m.withAttr("value", ctrl.set.bind(ctrl)) 
