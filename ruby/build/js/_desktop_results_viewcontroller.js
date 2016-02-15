@@ -79,8 +79,8 @@ App.Results = {
 //      m("td", data.per_id),
       m("td.w45.flex",[
         ctrl.blocs.map(function(bloc_nr){
-          var id ='p'+bloc_nr
-          return m(".bloc", [
+          var id    ='p'+bloc_nr
+          return m(".bloc", { key: data.per_id+"."+bloc_nr }, [
             m.component(this.AttemptsSubView, { person: person, id: id, datatype: "b" }),
             m.component(this.AttemptsSubView, { person: person, id: id, datatype: "t" })
           ]
@@ -117,7 +117,7 @@ App.Results = {
   
     view: function(ctrl){
       return m("input[type=text]", {
-        id         : ctrl.per_id+ctrl.id,
+        key        : ctrl.per_id+"."+ctrl.id+ctrl.text,
         placeholder: ctrl.text, 
         value      : ctrl.prop || m.trust(""),
         onchange   : m.withAttr("value", ctrl.set.bind(ctrl)) 
