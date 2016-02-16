@@ -96,7 +96,7 @@ App.Results = {
       // Create the result if it doesnt already exist
       // TODO - Highlight changes by adjusting the color of the 
       this.set = function(value){
-        var intValue, resString
+        var intValue, resString, promise
         // If there is no  pre-existing result, create one
         if (!this.result[params.id]) { 
           this.result[params.id] = {a:0} 
@@ -112,7 +112,12 @@ App.Results = {
 
         // Stringify and then save the result
         resString = params.person.stringifySingleResult(params.id)
-        params.person.save(resString) 
+        promise   = params.person.save(resString)
+        
+        // Did we successfully save the response?
+        promise
+          .then(function(){ window.console.log("success") })
+          .then(null,function(){ window.console.log("failure") })
       }
     },
   
