@@ -33,10 +33,7 @@ App.SuperVC = {
     return [
       m.component(App.SettingsVC, vm),
       m.component(App.RouterVC),
-      m.component(App.TableViewController, { model: vm.rd, blocs: blocs, type: ctrl.type }),
-      // Make this contingent on whether the active view is 
-      // TODO: "Save All" not working, so comment this out
-      // (results) ? m('button', { onclick : vm.save.bind(vm) }, 'Save All') : ''
+      m.component(App.TableViewController, { model: vm.rd, blocs: blocs, type: ctrl.type })
     ]
   }
 }

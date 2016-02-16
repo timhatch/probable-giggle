@@ -72,9 +72,9 @@ module Perseus
       resp ? 200 : 404 
     end
     
-    # TODO: Not working!!!
+    # NOTE: NOT IMPLEMENTED
     set_result_multi = lambda do
-      p Hash[params.map{|(k,v)| [k.to_sym,v]}]
+#      p Hash[params.map{|(k,v)| [k.to_sym,v]}]
 #      results = params.delete("result_json")
 #      hash    = Hash[params.map{|(k,v)| [k.to_sym,v]}]
 #      #TODO: Add guardian to avoid overwriting data
@@ -84,13 +84,15 @@ module Perseus
 #        results_hash = Hash[obj.map{|(k,v)| [k.to_sym,v]}]
 #        p results_hash
 #      end
-      404
+#      404
     end
     
     get '/person', &get_result_single
     put '/person', &set_result_single
     get '/route',  &get_result_multi
-    put '/route',  &set_result_multi
+
+# TODO: Need to update route results when saving...
+#    put '/route',  &set_result_multi
     
     # placeholder - will need to be renamed
     get '/m' do

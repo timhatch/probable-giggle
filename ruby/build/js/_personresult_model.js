@@ -52,15 +52,20 @@ App.PersonResult.prototype = {
     catch (err) { window.console.log(err) }
   },
   
-  stringifyResults: function(results){
-    var obj = {}
-    for (var boulderID in results) {
-      var result = results[boulderID], str = ''
-      obj[boulderID] = boulderID
-      for (var key in result) {
-        if (!!result[key]) str += (key+result[key])
-      }
-      obj[boulderID] = str
+//  stringifyResults: function(results){
+//    var obj = {}
+//    for (var boulderID in results) {
+//      window.console.log(boulderID)
+//      var result = results[boulderID], str = ''
+//      obj[boulderID] = boulderID
+//      for (var key in result) {
+//        if (!!result[key]) str += (key+result[key])
+//      }
+//      obj[boulderID] = str
+//    }
+//    return obj
+//  },
+//  
     }
     return obj
   },

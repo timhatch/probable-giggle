@@ -37,23 +37,6 @@ App.VM = function(model, sessiondata){
         .then(null, function(){ App.connectionStatus(false) })
     },
   
-    save: function(){
-      var obj = []
-        , promise
-      
-      obj = this.rd.data.map(function(result){
-        return {
-          start_order: result.data.start_order,
-          result_json: JSON.stringify(result.stringifyResults(result.data.result_json))
-        }
-      })
-      window.console.log(obj)
-//      promise = model.save(obj)
-//      promise
-//        .then(function(){ App.connectionStatus(true) })
-//        .then(null, function(){ App.connectionStatus(false) })
-    },
-    
     reset: function(){
 //      window.console.log('reset called')
 //      this.start_order = null
