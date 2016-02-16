@@ -66,8 +66,14 @@ App.PersonResult.prototype = {
 //    return obj
 //  },
 //  
+  stringifySingleResult: function(resID){
+    var res = this.data.result_json[resID]
+      , obj = {}, str = ""
+    for (var key in res){
+      if (res[key] !== null) str += (key+res[key])
     }
-    return obj
+    obj[resID] = str
+    return JSON.stringify(obj)
   },
   
   //  Save results for a single person
@@ -78,8 +84,7 @@ App.PersonResult.prototype = {
     var params         = this.params
     params.result_json = jsonString
     
-    window.console.log(params)
-    
+//    window.console.log(params)
     return m.request({
       method: 'PUT',
       url   : '/results/person',

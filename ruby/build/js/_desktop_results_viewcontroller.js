@@ -10,14 +10,7 @@ App.TableViewController = {
     this.model = params.model
     this.blocs = params.blocs
     this.type  = params.type
-    
-    // Called with context "person"
-    this.save = function(){
-      var results = this.data.result_json
-        , obj     = this.stringifyResults(results)
-      this.save(JSON.stringify(obj)) 
-    }
-    
+        
     this.delete = function(){
       alert('starter deletion not yet implemented')
     }
@@ -86,12 +79,7 @@ App.Results = {
           ]
         )}.bind(this))       
       ]),
-      m("td.w09", data.result),
-      m("td.w03", [ m("button[outline=true].icon-upload-cloud", { 
-          // style: person.changed ? "color: red" : "color: black", 
-          onclick: ctrl.save.bind(person) 
-        }) 
-      ])
+      m("td.w09", data.result)
     ])
   },
   
