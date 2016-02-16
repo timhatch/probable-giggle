@@ -10,8 +10,9 @@ module Perseus
       regex   = Regexp.new "#{type}([0-9]{1,})"
       matched = regex.match(result)
       if matched
-        arr[0] += 1
-        arr[1] += matched.captures.to_a.first.to_i
+        scored_attempts = matched.captures.to_a.first.to_i
+        arr[0] += 1 unless scored_attempts == 0
+        arr[1] += scored_attempts
       end
     end
     

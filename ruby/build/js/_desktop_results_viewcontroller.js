@@ -108,10 +108,24 @@ App.Results = {
       // Create the result if it doesnt already exist
       // TODO - Highlight changes by adjusting the color of the 
       this.set = function(value){
-        if (!this.result[params.id]) { this.result[params.id] = {a:0} }
-        this.result[params.id][params.datatype] = this.prop = parseInt(value,10) || null
+        
+        // If there is no  pre-existing result, create one
+        if (!this.result[params.id]) { 
+          this.result[params.id] = {a:0} 
+        }
+        
+        // Discard non-numeric inputs
+        var int_val 
+        int_val = parseInt(value,10)
+        int_val = isNaN(int_val) ? null : int_val
+        
+        // Update the results
+        this.result[params.id][params.datatype] = this.prop = int_val        
         this.result[params.id].a = Math.max(this.result[params.id].a, this.prop)
-        // params.person.changed = true
+
+        // Stringify and then save the result
+        var str = params.person.stringifySingleResult(params.id)
+        params.person.save(str) 
       }
     },
   
@@ -119,7 +133,7 @@ App.Results = {
       return m("input[type=text]", {
         key        : ctrl.per_id+"."+ctrl.id+ctrl.text,
         placeholder: ctrl.text, 
-        value      : ctrl.prop || m.trust(""),
+        value      : (ctrl.prop !== null) ? ctrl.prop : m.trust(""),
         onchange   : m.withAttr("value", ctrl.set.bind(ctrl)) 
       })
     }
