@@ -84,7 +84,6 @@ App.PersonResult.prototype = {
     var params         = this.params
     params.result_json = jsonString
     
-//    window.console.log(params)
     return m.request({
       method: 'PUT',
       url   : '/results/person',
