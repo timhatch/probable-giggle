@@ -96,24 +96,23 @@ App.Results = {
       // Create the result if it doesnt already exist
       // TODO - Highlight changes by adjusting the color of the 
       this.set = function(value){
-        
+        var intValue, resString
         // If there is no  pre-existing result, create one
         if (!this.result[params.id]) { 
           this.result[params.id] = {a:0} 
         }
         
         // Discard non-numeric inputs
-        var int_val 
-        int_val = parseInt(value,10)
-        int_val = isNaN(int_val) ? null : int_val
+        intValue = parseInt(value,10)
+        intValue = isNaN(intValue) ? null : intValue
         
         // Update the results
-        this.result[params.id][params.datatype] = this.prop = int_val        
+        this.result[params.id][params.datatype] = this.prop = intValue        
         this.result[params.id].a = Math.max(this.result[params.id].a, this.prop)
 
         // Stringify and then save the result
-        var str = params.person.stringifySingleResult(params.id)
-        params.person.save(str) 
+        resString = params.person.stringifySingleResult(params.id)
+        params.person.save(resString) 
       }
     },
   
