@@ -26,14 +26,15 @@ App.PersonResult.prototype = {
       data   : params
     })
     .then(function(resp){
-      this.data             = resp
-      this.data.result_json = this.objectifyResults(resp.result_json)
+      this.data = resp
+      this.objectifyResults()
     }.bind(this))
   },
   
   // Parse the results_json object from the string form returned (we're not using the 
   // Postgresql JSON extensions yet) into an actual JS object
-  objectifyResults: function(json){
+  objectifyResults: function(){
+    var json = this.data.result_json
 //    window.console.log(json)
     try {
       var obj = JSON.parse(json)
@@ -47,7 +48,8 @@ App.PersonResult.prototype = {
         }
         obj[boulder] = res
       }
-      return obj
+      this.data.result_json = obj
+      //return obj
     }
     catch (err) { window.console.log(err) }
   },

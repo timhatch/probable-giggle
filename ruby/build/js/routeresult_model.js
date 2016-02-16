@@ -33,7 +33,7 @@ App.RouteResult = {
           var person    = new App.PersonResult(result.start_order)
           person.params = Object.assign({start_order: result.start_order}, params)
           person.data   = result
-          person.data.result_json = person.objectifyResults(result.result_json)
+          person.objectifyResults()
           return person
         })
       }
