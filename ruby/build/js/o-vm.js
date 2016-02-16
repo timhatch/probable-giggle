@@ -14,7 +14,7 @@ App.VM = function(model, sessiondata){
     params      : {},
     // Construct query parameters from stored data on the competition, round and group
     // plus the provided start_order
-    composeURLParams: function(val){
+    composeURLParams: function(){
       var rounds = {"Q":0,"S":2,"F":3}
         , groups = {"M":6,"F":5,"MJ":84,"FJ":81,"MA":82,"FA":79,"MB":83,"FB":80}
 

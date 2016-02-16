@@ -28,7 +28,6 @@ App.SuperVC = {
   view: function(ctrl){
     var vm      = ctrl.vm
       , blocs   = [1,2,3,4]
-      , results = ctrl.type === "Results" ? true : false
 
     return [
       m.component(App.SettingsVC, vm),
