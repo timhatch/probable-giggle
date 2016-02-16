@@ -17,6 +17,7 @@ App.PersonResult.prototype = {
   //  - wet_id, route, grp_id and start_order 
   //  - wet_id, route, per_id
   //
+  // TODO: Untested!!
   fetch: function(params){
     this.params = params
     return m.request({
@@ -25,9 +26,8 @@ App.PersonResult.prototype = {
       data   : params
     })
     .then(function(resp){
-      this.data = resp
-//      this.objectifyResults(resp.result_json)
-//      window.console.log()
+      this.data             = resp
+      this.data.result_json = this.objectifyResults(resp.result_json)
     }.bind(this))
   },
   
