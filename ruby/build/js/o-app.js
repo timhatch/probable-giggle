@@ -20,19 +20,16 @@ App.connectionStatus = m.prop(true)
 App.sessionStorage   = mx.storage( 'session' , mx.SESSION_STORAGE )
 
 App.SuperVC = {
-  controller: function(params){
-    this.vm   = params.vm
-    this.type = params.type
-  },   
   // View declaration  
-  view: function(ctrl){
-    var vm      = ctrl.vm
-      , blocs   = [1,2,3,4]
+  view: function(ctrl, params){
+    var vm    = params.vm
+      , type  = params.type
+      , blocs = [1,2,3,4]
 
     return [
       m.component(App.SettingsVC, vm),
       m.component(App.RouterVC),
-      m.component(App.TableViewController, { model: vm.rd, blocs: blocs, type: ctrl.type })
+      m.component(App.TableViewController, { model: vm, blocs: blocs, type: type })
     ]
   }
 }

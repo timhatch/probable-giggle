@@ -7,7 +7,7 @@ var App = App || {}
 
 App.TableViewController = {
   controller: function(params){
-    this.model = params.model
+    this.model = params.model.rd
     this.blocs = params.blocs
     this.type  = params.type
         
