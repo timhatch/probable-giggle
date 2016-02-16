@@ -12,29 +12,6 @@ App.SettingsVC = {
     this.vm = vm
     this.ss = vm.ss
     
-    this.fetchCompetitionParams = function(){
-      m.request({ 
-        method: 'GET', 
-        url   : '/competition',
-        data  : { wet_id: vm.ss.WetId }
-      })
-      .then(function(resp){
-        try {
-          vm.ss.comp  = resp
-          App.sessionStorage.set('o-appstate', vm.ss)          
-        }
-        catch (err) { window.console.log('invalid response : '+err) }
-        vm.reset()
-      })
-      .then(function(){ App.connectionStatus(true) })
-      .then(null, function(){ App.connectionStatus(false) })
-    }
-    
-    this.fetchResultList = function(){
-      vm.fetch(null)
-    }
-  },
-  
   view: function(ctrl){
     return m("div#settings",[
       m("header", { className: App.connectionStatus() ? 'connected' : 'disconnected' }, 

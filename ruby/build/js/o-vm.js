@@ -37,6 +37,25 @@ App.VM = function(model, sessiondata){
         .then(null, function(){ App.connectionStatus(false) })
     },
   
+    fetchCompetition: function(){
+      var w = this.ss.WetId
+      m.request({ 
+        method: 'GET', 
+        url   : '/competition',
+        data  : { wet_id: w }
+      })
+      .then(function(resp){
+        try {
+          this.ss.comp  = resp
+          App.sessionStorage.set('o-appstate', this.ss)          
+        }
+        catch (err) { window.console.log('invalid response : '+err) }
+        this.reset()
+      }.bind(this))
+      .then(function(){ App.connectionStatus(true) })
+      .then(null, function(){ App.connectionStatus(false) })
+    },
+  
     reset: function(){
 //      window.console.log('reset called')
 //      this.start_order = null
