@@ -4,7 +4,8 @@
 module Perseus
   class ResultsController < ApplicationController
     
-    #  Interrogate in individual result string to construct a result
+    # HELPERS
+    # Interrogate in individual result string to construct a result
     #
     def parse_attempts type, result, arr
       regex   = Regexp.new "#{type}([0-9]{1,})"
@@ -16,6 +17,9 @@ module Perseus
       end
     end
     
+    # Parse the provided results string to create a results array
+    # in the form [t,ta,b,ba]
+    #
     def update_sort_values result_json
       tarr = [0,0]; barr = [0,0]
       result_json.each do |key,value|
@@ -32,28 +36,17 @@ module Perseus
       old_result.merge(new_result)
     end
     
-    # Primary routing functions (expressed as lambdas)
-    # Fetch a __single__ result from the server
+    # Prepare a Sequel query to get __single__ or __multiple__ results
     # 
-    get_result_single = lambda do
+    def get_result params
       hash = Hash[params.map{ |(k,v)| [k.to_sym,v] }]
-      resp = DB[:Ranking]
+      DB[:Ranking]
         .where(hash)
-        .first
-        .to_json
-    end
-    
-    get_result_multi = lambda do
-      hash = Hash[params.map{ |(k,v)| [k.to_sym,v] }]
-      resp = DB[:Ranking]
-        .where(hash)
-        .all
-        .to_json
     end
     
     # Set a __single__ result on the server
     # 
-    set_result_single = lambda do
+    def set_result_single params
       #TODO: Add guardian to avoid overwriting data
       # Process the input parameters
       result  = JSON.parse(params.delete("result_json"))
@@ -72,27 +65,22 @@ module Perseus
       resp ? 200 : 404 
     end
     
-    # NOTE: NOT IMPLEMENTED
-    set_result_multi = lambda do
-#      p Hash[params.map{|(k,v)| [k.to_sym,v]}]
-#      results = params.delete("result_json")
-#      hash    = Hash[params.map{|(k,v)| [k.to_sym,v]}]
-#      #TODO: Add guardian to avoid overwriting data
-#      p hash
-#      results.each do |obj|
-#        
-#        results_hash = Hash[obj.map{|(k,v)| [k.to_sym,v]}]
-#        p results_hash
-#      end
-#      404
+    # ROUTING
+    #
+    # Fetch a __single__ result
+    get '/person' do
+      get_result(params).first.to_json
     end
     
-    get '/person', &get_result_single
-    put '/person', &set_result_single
-    get '/route',  &get_result_multi
+    # Update a single result
+    put '/person' do
+      set_result_single(params)
+    end
 
-# TODO: Need to update route results when saving...
-#    put '/route',  &set_result_multi
+    # Fetch __multiple__ results (i.e. for a route)
+    get '/route' do
+      get_result(params).all.to_json
+    end
     
     # placeholder - will need to be renamed
     get '/m' do
