@@ -6,10 +6,7 @@
 var App = App || {}
 
 App.TableViewController = {
-  controller: function(params){
-//    this.model = params.vm.rd
-    this.blocs = params.vm.blocs
-//    this.type  = params.type
+  controller: function(){
         
     this.delete = function(){
       alert('starter deletion not yet implemented')
@@ -36,8 +33,9 @@ App.TableViewController = {
       , blocs = params.vm.blocs
     return m("table", ctrl.sorts(list), [
       App[params.type].createHeaderRow(blocs),
-      params.vm.rd.data.map(function(person){
-        return App[params.type].createContentRow(ctrl, person)
+      list.map(function(person){
+        var _params = {vm: params.vm, person: person }
+        return App[params.type].createContentRow(ctrl, _params)
       })
     ])
   }
@@ -62,9 +60,10 @@ App.Results = {
     ])
   },
 
-  createContentRow: function(ctrl, person){
-    var data = person.data
-    return m("tr", {id: person.data.per_id}, [
+  createContentRow: function(ctrl, _params){
+    var vm   = _params.vm
+      , data = _params.person.data
+    return m("tr", {id: data.per_id}, [
       m("td", data.result_rank || m.trust(''), { result_rank: data.result_rank }),
       m("td.w12.left", data.lastname),
       m("td.w09.left", data.firstname),
@@ -72,11 +71,11 @@ App.Results = {
       m("td", data.start_order),
 //      m("td", data.per_id),
       m("td.w45.flex",[
-        ctrl.blocs.map(function(bloc_nr){
+        vm.blocs.map(function(bloc_nr){
           var id    ='p'+bloc_nr
           return m(".bloc", { key: data.per_id+"."+bloc_nr }, [
-            m.component(this.AttemptsSubView, { person: person, id: id, datatype: "b" }),
-            m.component(this.AttemptsSubView, { person: person, id: id, datatype: "t" })
+            m.component(this.AttemptsSubView, { person: _params.person, id: id, datatype: "b" }),
+            m.component(this.AttemptsSubView, { person: _params.person, id: id, datatype: "t" })
           ]
         )}.bind(this))       
       ]),
@@ -86,21 +85,23 @@ App.Results = {
   
   AttemptsSubView: {
     controller: function(params){
-      this.per_id = params.person.data.per_id
-      this.result = params.person.data.result_json
-      this.id     = params.id
-      this.text   = params.datatype
-      // Check if the result alrady exists
-      this.prop   = (!!this.result[params.id]) ? this.result[params.id][params.datatype] : null
-
+      // For a given boulder ("id") get the value of an associated property
+      // e.g. attempts/bonus/top ("prop")
+      this.getPropertyValue = function(id, prop){
+        var result = params.person.data.result_json
+        return (!!result[id]) ? result[id][prop] : null
+      }
+      
       // Reset the result value when a change is made. Show it again when the server is updated
       // Create the result if it doesnt already exist
       // TODO - Highlight changes by adjusting the color of the 
       this.set = function(value){
         var intValue, resString, promise
+          , result = params.person.data.result_json
+        
         // If there is no  pre-existing result, create one
-        if (!this.result[params.id]) { 
-          this.result[params.id] = {a:0} 
+        if (!result[params.id]) { 
+          result[params.id] = {a:0} 
         }
         
         // Discard non-numeric inputs
@@ -108,8 +109,8 @@ App.Results = {
         intValue = isNaN(intValue) ? null : intValue
         
         // Update the results
-        this.result[params.id][params.datatype] = this.prop = intValue        
-        this.result[params.id].a = Math.max(this.result[params.id].a, this.prop)
+        result[params.id][params.datatype] = this.prop = intValue        
+        result[params.id].a = Math.max(result[params.id].a, this.prop)
 
         // Stringify and then save the result
         resString = params.person.stringifySingleResult(params.id)
@@ -122,11 +123,13 @@ App.Results = {
       }
     },
   
-    view: function(ctrl){
+    view: function(ctrl, params){
+      var data = params.person.data
+        , val  = ctrl.getPropertyValue(params.id, params.datatype)
       return m("input[type=text]", {
-        key        : ctrl.per_id+"."+ctrl.id+ctrl.text,
-        placeholder: ctrl.text, 
-        value      : (ctrl.prop !== null) ? ctrl.prop : m.trust(""),
+        key        : data.per_id+"."+params.id+params.datatype,
+        placeholder: params.datatype, 
+        value      : (val !== null) ? val : m.trust(""),
         onchange   : m.withAttr("value", ctrl.set.bind(ctrl)) 
       })
     }
@@ -146,8 +149,9 @@ App.Starters = {
     ])
   },
 
-  createContentRow: function(ctrl, person){
-    var data = person.data
+  createContentRow: function(ctrl, _params){
+    var who  = _params.person
+      , data = _params.person.data
     return m("tr", [
       m("td", data.start_order),
       m("td.w12.left", data.lastname),
@@ -155,7 +159,7 @@ App.Starters = {
       m("td", data.nation),
       m("td", data.per_id),
       m("td", data.rank_prev_heat || m.trust("NA")),
-      m("td", [ m("button[outline=true].icon-trash-empty", { onclick: ctrl.delete.bind(person) }) ])
+      m("td", [ m("button[outline=true].icon-trash-empty", { onclick: ctrl.delete.bind(who) }) ])
     ])
   }  
 }
@@ -173,8 +177,8 @@ App.Scores = {
     ])
   },
 
-  createContentRow: function(ctrl, person){
-    var data = person.data
+  createContentRow: function(ctrl, _params){
+    var data = _params.person.data
     return m("tr", [
       m("td", data.start_order),
       m("td.w12.left", data.lastname),

@@ -32,7 +32,7 @@ App.SuperVC = {
 App.RouterVC = {
   view: function(){
     return m("#routes", [
-      m("a[href='/']", { config: m.route }, "Startlist"),
+      m("a[href='/st']", { config: m.route }, "Startlist"),
       m("a[href='/re']", { config: m.route }, "Resultlist"),     
       m("a[href='/sc']", { config: m.route }, "Scoresheet")
     ])
@@ -40,26 +40,30 @@ App.RouterVC = {
 }
 
 // INitialise the application
-App.init = function(){  
+App.init = function(){
+  // Initialise a model  
   var model    = App.RouteResult
   
+  // Initialise default values for the stored application state
   var defaults = {
         WetId : null, Route : null,
         comp  : {title: null}, 
       }
   
+  // Fetch (or initialise) sessionStorage
   var ss  = App.sessionStorage.get('o-appstate')
   if (!ss) {
     ss = defaults
     App.sessionStorage.set('o-appstate', defaults)
   }
   
+  // Create a new viewmodel object
   var vm = new App.VM(model, ss)
   
   // Render the mithril route tree
   m.route.mode = "hash"
   m.route(document.body, "/", {
-    "/"  : m.component(App.SuperVC, { vm: vm, type: "Starters"}),
+    "/st"  : m.component(App.SuperVC, { vm: vm, type: "Starters"}),
     "/re": m.component(App.SuperVC, { vm: vm, type: "Results"}),
     "/sc": m.component(App.SuperVC, { vm: vm, type: "Scores"})
   })
