@@ -7,16 +7,15 @@ var App = App || {}
 
 App.TableViewController = {
   controller: function(params){
-    this.model = params.model.rd
+//    this.model = params.vm.rd
     this.blocs = params.blocs
-    this.type  = params.type
+//    this.type  = params.type
         
     this.delete = function(){
       alert('starter deletion not yet implemented')
     }
     
-    this.sorts = function(){
-      var list = this.model.data
+    this.sorts = function(list){
       return {
         onclick: function(e){
           var prop = e.target.getAttribute("data-sort-by")
@@ -32,11 +31,12 @@ App.TableViewController = {
     }
   },
   
-  view: function(ctrl){
-    return m("table", ctrl.sorts(), [
-      App[ctrl.type].createHeaderRow(ctrl),
-      ctrl.model.data.map(function(person){
-        return App[ctrl.type].createContentRow(ctrl, person)
+  view: function(ctrl, params){
+    var list = params.vm.rd.data
+    return m("table", ctrl.sorts(list), [
+      App[params.type].createHeaderRow(ctrl),
+      params.vm.rd.data.map(function(person){
+        return App[params.type].createContentRow(ctrl, person)
       })
     ])
   }

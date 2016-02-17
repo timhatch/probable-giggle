@@ -8,8 +8,6 @@
 // @codekit-prepend "./_desktop_settings_viewcontroller.js"
 // @codekit-prepend "./_desktop_results_viewcontroller.js"
 // @codekit-prepend "./_personresult_model.js"
-
-// @codekit-prepend "./boulderresult_viewmodel.js"
 // @codekit-prepend "./o-vm.js"
 
 var App = App || {}
@@ -29,7 +27,7 @@ App.SuperVC = {
     return [
       m.component(App.SettingsVC, vm),
       m.component(App.RouterVC),
-      m.component(App.TableViewController, { model: vm, blocs: blocs, type: type })
+      m.component(App.TableViewController, { vm: vm, blocs: blocs, type: type })
     ]
   }
 }
