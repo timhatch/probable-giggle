@@ -8,7 +8,7 @@ var App = App || {}
 App.TableViewController = {
   controller: function(params){
 //    this.model = params.vm.rd
-    this.blocs = params.blocs
+    this.blocs = params.vm.blocs
 //    this.type  = params.type
         
     this.delete = function(){
@@ -32,9 +32,10 @@ App.TableViewController = {
   },
   
   view: function(ctrl, params){
-    var list = params.vm.rd.data
+    var list  = params.vm.rd.data
+      , blocs = params.vm.blocs
     return m("table", ctrl.sorts(list), [
-      App[params.type].createHeaderRow(ctrl),
+      App[params.type].createHeaderRow(blocs),
       params.vm.rd.data.map(function(person){
         return App[params.type].createContentRow(ctrl, person)
       })
@@ -43,7 +44,7 @@ App.TableViewController = {
 }
 
 App.Results = {
-  createHeaderRow: function(ctrl){
+  createHeaderRow: function(blocs){
     return m("tr", [
       m("th[data-sort-by=result_rank]", "Rk"),
       m("th[data-sort-by=lastname].w12.left", "Lastname"),
@@ -52,7 +53,7 @@ App.Results = {
       m("th[data-sort-by=start_order]", "Sn "),
 //      m("th[data-sort-by=per_id]", "UUID"),
       m("th.w45.flex", [
-        ctrl.blocs.map(function(bloc_nr){
+        blocs.map(function(bloc_nr){
           return m(".bloc", m.trust("p"+bloc_nr))
         })        
       ]),

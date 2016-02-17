@@ -20,14 +20,10 @@ App.sessionStorage   = mx.storage( 'session' , mx.SESSION_STORAGE )
 App.SuperVC = {
   // View declaration  
   view: function(ctrl, params){
-    var vm    = params.vm
-      , type  = params.type
-      , blocs = [1,2,3,4]
-
     return [
-      m.component(App.SettingsVC, vm),
+      m.component(App.SettingsVC, params.vm),
       m.component(App.RouterVC),
-      m.component(App.TableViewController, { vm: vm, blocs: blocs, type: type })
+      m.component(App.TableViewController, { vm: params.vm, type: params.type })
     ]
   }
 }

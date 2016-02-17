@@ -9,6 +9,7 @@ App.VM = function(model, sessiondata){
   return {
     ss          : sessiondata,
     rd          : model,
+    blocs       : [1,2,3,4],
     // View-Model parameters and functions derived from the model
     //
     params      : {},
