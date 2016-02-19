@@ -50,27 +50,26 @@ App.Results = {
       m("th[data-sort-by=nation]", "IOC "),
       m("th[data-sort-by=start_order]", "Sn "),
 //      m("th[data-sort-by=per_id]", "UUID"),
-      m("th.w45.flex", [
+      m("th.w48.flex", [
         blocs.map(function(bloc_nr){
           return m(".bloc", m.trust("p"+bloc_nr))
         })        
       ]),
       m("th.w09", "Result"),
-      m("th.w03")
     ])
   },
 
   createContentRow: function(ctrl, _params){
     var vm   = _params.vm
       , data = _params.person.data
-    return m("tr", {id: data.per_id}, [
+    return m("tr", [
       m("td", data.result_rank || m.trust(''), { result_rank: data.result_rank }),
       m("td.w12.left", data.lastname),
       m("td.w09.left", data.firstname),
       m("td", data.nation),
       m("td", data.start_order),
 //      m("td", data.per_id),
-      m("td.w45.flex",[
+      m("td.w48.flex",[
         vm.blocs.map(function(bloc_nr){
           var id  ='p'+bloc_nr
             , who = _params.person
