@@ -28,7 +28,6 @@ App.SuperVC = {
   }
 }
 
-//m.mount(document.body, App.SuperVC)
 App.RouterVC = {
   view: function(){
     return m("#routes", [
@@ -39,7 +38,7 @@ App.RouterVC = {
   }
 }
 
-// INitialise the application
+// Initialise the application
 App.init = function(){
   // Initialise a model  
   var model    = App.RouteResult

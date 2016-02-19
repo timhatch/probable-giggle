@@ -40,6 +40,24 @@ App.RouteResult = {
       catch (err) { window.console.log(err) }
     }.bind(this))
   },
+  
+  updateResults: function(){
+    var params = this.params   
+    return m.request({
+      method : 'GET',
+      url    : '/results/route',
+      data   : params
+    })
+    .then(function(resp){
+      try {
+        resp.forEach(function(result){
+          this.data.find(function(res){ return (res.data.per_id === result.per_id) })
+          .update(result)
+        }.bind(this))
+      }
+      catch (err) { window.console.log(err) }
+    }.bind(this))
+  },
     
   //  NOTE: NOT IMPLEMENTED
   //  Save results for a single person

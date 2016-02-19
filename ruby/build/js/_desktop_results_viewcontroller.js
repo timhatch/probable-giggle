@@ -72,10 +72,11 @@ App.Results = {
 //      m("td", data.per_id),
       m("td.w45.flex",[
         vm.blocs.map(function(bloc_nr){
-          var id    ='p'+bloc_nr
+          var id  ='p'+bloc_nr
+            , who = _params.person
           return m(".bloc", { key: data.per_id+"."+bloc_nr }, [
-            m.component(this.AttemptsSubView, { person: _params.person, id: id, datatype: "b" }),
-            m.component(this.AttemptsSubView, { person: _params.person, id: id, datatype: "t" })
+            m.component(this.AttemptsSubView, { vm: vm, person: who, id: id, datatype: "b" }),
+            m.component(this.AttemptsSubView, { vm: vm, person: who, id: id, datatype: "t" })
           ]
         )}.bind(this))       
       ]),
@@ -85,6 +86,7 @@ App.Results = {
   
   AttemptsSubView: {
     controller: function(params){
+      this.responseStatus   = m.prop(true)
       // For a given boulder ("id") get the value of an associated property
       // e.g. attempts/bonus/top ("prop")
       this.getPropertyValue = function(id, prop){
@@ -115,11 +117,14 @@ App.Results = {
         // Stringify and then save the result
         resString = params.person.stringifySingleResult(params.id)
         promise   = params.person.save(resString)
-        
-        // Did we successfully save the response?
+                
+        // If we successfully saved the response, update the results data
         promise
-          .then(function(){ window.console.log("success") })
-          .then(null,function(){ window.console.log("failure") })
+          .then(function(){
+            params.vm.rd.updateResults()
+            this.responseStatus(true)
+          }.bind(this))
+          .then(null,function(){this.responseStatus(false)}.bind(this))
       }
     },
   
@@ -129,7 +134,8 @@ App.Results = {
       return m("input[type=text]", {
         key        : data.per_id+"."+params.id+params.datatype,
         placeholder: params.datatype, 
-        value      : (val !== null) ? val : m.trust(""),
+        value      : isNaN(val) ? m.trust("") : val,
+        className  : ctrl.responseStatus() ? "connected" : "disconnected",
         onchange   : m.withAttr("value", ctrl.set.bind(ctrl)) 
       })
     }

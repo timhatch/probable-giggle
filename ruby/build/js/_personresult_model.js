@@ -31,6 +31,14 @@ App.PersonResult.prototype = {
     }.bind(this))
   },
   
+  update: function(result){
+    this.data.result      = result.result
+    this.data.result_rank = result.result_rank
+    this.data.sort_values = result.sort_values
+    this.data.result_json = result.result_json
+    this.objectifyResults()    
+  },
+  
   // Parse the results_json object from the string form returned (we're not using the 
   // Postgresql JSON extensions yet) into an actual JS object
   objectifyResults: function(){
