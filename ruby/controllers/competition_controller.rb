@@ -9,7 +9,6 @@ module Perseus
 
       DB[:Competitions]
         .where(hash)
-        .all
         .first
         .to_json
     end

@@ -31,7 +31,7 @@ App.SuperVC = {
 App.RouterVC = {
   view: function(){
     return m("#routes", [
-      m("a[href='/st']", { config: m.route }, "Startlist"),
+      m("a[href='/']", { config: m.route }, "Startlist"),
       m("a[href='/re']", { config: m.route }, "Resultlist"),     
       m("a[href='/sc']", { config: m.route }, "Scoresheet")
     ])
@@ -62,7 +62,7 @@ App.init = function(){
   // Render the mithril route tree
   m.route.mode = "hash"
   m.route(document.body, "/", {
-    "/st": m.component(App.SuperVC, { vm: vm, type: "Starters"}),
+    "/": m.component(App.SuperVC, { vm: vm, type: "Starters"}),
     "/re": m.component(App.SuperVC, { vm: vm, type: "Results"}),
     "/sc": m.component(App.SuperVC, { vm: vm, type: "Scores"})
   })

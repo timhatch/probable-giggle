@@ -24,5 +24,9 @@ module Perseus
       redirect '/ifsc_display/index.boulder.html'
     end
     
+    get '/' do
+      haml :index
+    end
+    
   end
 end
