@@ -287,6 +287,10 @@ table {
       width: 40%;
       font: 1.2rem sans-serif;
       line-height: 1.8rem; }
+      table td input[type=text].connected, table th input[type=text].connected {
+        background: white; }
+      table td input[type=text].disconnected, table th input[type=text].disconnected {
+        background: rgba(255, 0, 0, 0.1); }
     table td button[outline], table th button[outline] {
       padding: 0;
       margin-top: 8px !important;

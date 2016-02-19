@@ -158,6 +158,9 @@ table {
       font          : 1.2rem sans-serif;
 //      font-size     : 100%;
       line-height   : 1.8rem;
+      
+      &.connected    { background: white; }
+      &.disconnected { background: rgba(255,0,0,0.1); }
     }
     button[outline] {
       padding     : 0;
