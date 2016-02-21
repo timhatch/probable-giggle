@@ -5,6 +5,8 @@ module Perseus
   class ResultsController < ApplicationController
     
     # HELPERS
+    helpers Perseus::MediaInterface
+
     # Interrogate in individual result string to construct a result
     #
     def parse_attempts type, result, arr
@@ -38,10 +40,11 @@ module Perseus
     
     # Prepare a Sequel query to get __single__ or __multiple__ results
     # 
-    def get_result params
+    def get_result params, order_by: "result_rank"
       hash = Hash[params.map{ |(k,v)| [k.to_sym,v] }]
       DB[:Ranking]
         .where(hash)
+        .order(order_by.to_sym)
     end
     
     # Set a __single__ result on the server
@@ -74,7 +77,14 @@ module Perseus
     
     # Update a single result
     put '/person' do
-      set_result_single(params)
+      resp = set_result_single(params)
+      
+      # Simple hack to dump results data to a csv file
+      what = Perseus::MediaInterface.trim_params(params)
+      data = get_result(what, order_by:"start_order").all
+      Perseus::MediaInterface.write_to_csvfile(what, data)
+      
+      resp
     end
 
     # Fetch __multiple__ results (i.e. for a route)
