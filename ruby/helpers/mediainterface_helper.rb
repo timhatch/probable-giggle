@@ -25,8 +25,10 @@ module Perseus
     end
     
     def write_to_csvfile params, data
+      # set the filename based on the passed parameters
       filename = params["wet_id"].to_s+"."+params["route"].to_s+"."+params["grp_id"].to_s+".csv"
       
+      # Create or open the requisite csv file 
       File.new(filename, "w") unless File.exists?(filename)
       File.open(filename,"w") do |file|
       

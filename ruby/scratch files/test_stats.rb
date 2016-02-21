@@ -17,19 +17,16 @@ Sequel.extension :pg_array_ops  # Needed to query stored arrays
 
 params = {wet_id: 1584, route: 3, grp_id: 5 }
 
+# USE A FILTER TO SCREEN OUT JUNIOES (CWIF)
+
 # date = Sequel.cast(Date.today,DateTime)
 # year = Sequel.extract(:year, date).cast(Integer)
 year    = Sequel.cast(Date.today, DateTime).extract(:year).cast(Integer)
 juniors = DB[:Climbers].where{birthyear > year - 19}
 
-#p DB[:Ranking]
-#  .where(params)
-#  .join(juniors, :per_id => :per_id)
-#  .all
-###DB.create_table! :Forecast, { as: dataset, temp: true }
-#puts "\n\n"
 
-#p DB[:Ranking].where(params).all
+# TEST IFSC SORTING AND CWIF QUALIFICATION SORTING
+#
 
 module IFSCResultsModus
   module_function
