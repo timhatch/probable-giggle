@@ -4,6 +4,7 @@ Dir.chdir("/users/timhatch/sites/flashresults/ruby")
 require 'json'
 require 'pg'
 require 'sequel'
+require 'csv'
 
 #
 # address format for a non-passwork protected BD "postgres://[user]@localhost:5432/[name]"
@@ -14,51 +15,73 @@ DB.extension :pg_array      # Needed to insert arrays
 Sequel.extension :pg_array_ops  # Needed to query stored arrays
 
 
-params = {wet_id: 1, route: 2, grp_id: 5, per_id: 201632, start_order: 16, rank_prev_heat: 16}
+params = {wet_id: 1584, route: 3, grp_id: 5 }
 
-#DB[:Results].insert(params)
-DB[:Results]
-.where(per_id: 201632)
-.update({per_id: 2016032})
+# date = Sequel.cast(Date.today,DateTime)
+# year = Sequel.extract(:year, date).cast(Integer)
+year    = Sequel.cast(Date.today, DateTime).extract(:year).cast(Integer)
+juniors = DB[:Climbers].where{birthyear > year - 19}
 
+#p DB[:Ranking]
+#  .where(params)
+#  .join(juniors, :per_id => :per_id)
+#  .all
+###DB.create_table! :Forecast, { as: dataset, temp: true }
+#puts "\n\n"
 
+#p DB[:Ranking].where(params).all
 
-#
-# MAIN
-#
-
-
-#p  JSON.parse(DB[:Competitions].first[:format])[index.to_s]
-
-# Get ranking data by operating on a pre-ranked view
-def test_view params
-  DB[:Ranking]
-    .where(params)
-    .select(:PerId,:lastname,:firstname,:nation,:result_rank,:result,:result_json,:rank_prev_heat)
-    .all
+module IFSCResultsModus
+  module_function
+  def result_generator
+    t  = Sequel.pg_array_op(:sort_values)[1].cast(:text) 
+    ta = Sequel.pg_array_op(:sort_values)[2].cast(:text)
+    b  = Sequel.pg_array_op(:sort_values)[3].cast(:text) 
+    ba = Sequel.pg_array_op(:sort_values)[4].cast(:text)
+    str =  t + "t" + ta + " " + b + "b" + ba 
+  end
+  def rank_generator 
+  [
+    Sequel.pg_array_op(:sort_values)[1].desc,
+    Sequel.pg_array_op(:sort_values)[2],
+    Sequel.pg_array_op(:sort_values)[3].desc,
+    Sequel.pg_array_op(:sort_values)[4]
+  ]
+  end
 end
 
-def create_uuid params
-  ruid = {}
-  if params.has_key?(:wet_id) then ruid[:wet_id] = params.delete(:wet_id) end
-  if params.has_key?(:grp_id) then ruid[:grp_id] = params.delete(:grp_id) end
-  if params.has_key?(:route) then ruid[:route] = params.delete(:route) end
-  ruid
+module CWIFResultsModus
+  module_function
+  def result_generator
+    t  = Sequel.pg_array_op(:sort_values)[1] * 13
+    ta = Sequel.pg_array_op(:sort_values)[2] * 3
+    b  = Sequel.pg_array_op(:sort_values)[3].cast(:text) 
+    
+    Sequel.cast(t - ta, :text) + "b" + b 
+  end
+  def rank_generator
+    t  = Sequel.pg_array_op(:sort_values)[1] * 13
+    ta = Sequel.pg_array_op(:sort_values)[2] * 3
+    b  = Sequel.pg_array_op(:sort_values)[3]
+    
+    [(t - ta).desc, b.desc]
+  end    
 end
-  
-# Get ranking data by calling a window funtion
-def test_window params
-  round   = create_uuid params
-  dataset = DB[:Ranking]
-    .where(round)
-    .select(:wet_id, :grp_id, :route, :lastname)
-    .select_append{rank.function.over(
-      :partition => [:wet_id, :grp_id, :route],
-      :order => [
-        Sequel.desc(:rank_param), 
-        Sequel.asc(:rank_prev_heat)
-      ])
-      .as(:result_rank)
-    }
-  dataset.where(params).all
-end
+
+who = :Climbers
+#who = juniors
+
+data = DB[:Results]
+  .where(params)
+  .select(:wet_id, :grp_id, :route)
+  .select_append(:Results__per_id, :lastname, :firstname, :nation, :birthyear)
+  .select_append(:result_json, :rank_prev_heat, :start_order, :sort_values)
+  .select_append{
+    rank.function.over(
+    partition: [:wet_id, :grp_id, :route],
+    order: IFSCResultsModus.rank_generator)
+    .as(:result_rank)}
+  .select_append(Sequel.as(IFSCResultsModus.result_generator, :result))
+  .join(who, :per_id => :per_id)
+  .order(:start_order)
+  .all
