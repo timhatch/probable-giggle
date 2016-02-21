@@ -9,7 +9,6 @@ var App = App || {};
 App.settingsVC = {
   // Chnage this to vm, as the sessiondata is callable from the vm...
   controller: function(vm){
-    this.ss = vm.ss
     
     this.fetch = function(){
       // Break if a required value has not been provided...
@@ -45,13 +44,12 @@ App.settingsVC = {
     }
   },
   
-  view: function(ctrl){
-    var ss = ctrl.ss
+  view: function(ctrl, vm){
     return m("div#settings",[
-      m.component(App.ParamSV, ss, { key: 'WetId', text: "competition", pattern: "[0-9]" }),
-      m.component(App.ParamSV, ss, { key: 'Route', text: "round" }),
-      m.component(App.ParamSV, ss, { key: 'GrpId', text: "category" }),
-      m.component(App.ParamSV, ss, { key: 'BlcNr', text: "boulder", pattern: "[0-9]" }),
+      m.component(App.ParamSV, { ss : vm.ss, key: 'WetId', text: "competition", pattern: "[0-9]" }),
+      m.component(App.ParamSV, { ss : vm.ss, key: 'Route', text: "round" }),
+      m.component(App.ParamSV, { ss : vm.ss, key: 'GrpId', text: "category" }),
+      m.component(App.ParamSV, { ss : vm.ss, key: 'BlcNr', text: "boulder", pattern: "[0-9]" }),
       m("button.save", { 
         type    : "primary", 
         outline : true, 
@@ -63,22 +61,20 @@ App.settingsVC = {
 };
 
 App.ParamSV = {
-  controller: function(sessiondata, params){
-    this.ss     = sessiondata
-    this.params = params
+  controller: function(params){
     // Note that this stores all keys as strings...
     this.set = function(val){
-      sessiondata[params.key] = val.toUpperCase() || null
+      params.ss[params.key] = val.toUpperCase() || null
     }
   },
   
-  view: function(ctrl){
+  view: function(ctrl, params){
     return m("div.modal", [
-      m("label", ctrl.params.text),
+      m("label", params.text),
       m("input[type=text]", {
         onchange: m.withAttr("value", ctrl.set.bind(ctrl)),
-        pattern : ctrl.params.pattern || null,
-        value   : ctrl.ss[ctrl.params.key]
+        pattern : params.pattern || null,
+        value   : params.ss[params.key]
       })
     ])
   }

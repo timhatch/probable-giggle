@@ -8,7 +8,6 @@ var App = App || {};
 
 App.ResultsVC = {
   controller: function(vm){
-    this.vm = vm
     
     this.changeAttempts = function(e){
       var i    = (e.type === 'swipedown') ? 1 : -1
@@ -20,8 +19,7 @@ App.ResultsVC = {
     }
   },
   
-  view: function(ctrl){
-    var vm = ctrl.vm
+  view: function(ctrl, vm){
     return m("div#results", {
       config  : m.touchHelper({
         'swipedown' : ctrl.changeAttempts.bind(ctrl),
@@ -29,31 +27,30 @@ App.ResultsVC = {
       })
     }, [
       m.component(App.PersonSelectorView, vm),
-      m.component(App.AttemptsView, vm, { text: "Tops" }),
-      m.component(App.AttemptsView, vm, { text: "Bonus" }),
-      m.component(App.AttemptsView, vm, { text: "Attempts" })
+      m.component(App.AttemptsView, { vm: vm, text: "Tops" }),
+      m.component(App.AttemptsView, { vm: vm, text: "Bonus" }),
+      m.component(App.AttemptsView, { vm: vm, text: "Attempts" })
     ])
   }
 }
 
 App.AttemptsView = {
-  controller: function(vm, params){
-    this.prop   = params.text[0].toLowerCase()
-    this.vm     = vm
-    this.params = params
+  controller: function(params){
     
     this.changeValue = function(e){
+      var prop = params.text[0].toLowerCase()
       // TODO: Disable swipefleft on attepts field...
-      if (e.type === 'swiperight') { vm.setResult(this.prop) }
-      if (e.type === 'swipeleft')  { vm.resetValues(this.prop) }
+      if (e.type === 'swiperight') { params.vm.setResult(prop) }
+      if (e.type === 'swipeleft')  { params.vm.resetValues(prop) }
       
-      vm.save()
+      params.vm.save()
       m.redraw(true)
     }
   },
   
-  view: function(ctrl){
-    var val = ctrl.vm.result[ctrl.prop]
+  view: function(ctrl, params){
+    var prop = params.text[0].toLowerCase()
+      , val  = params.vm.result[prop]
 
     return m("div.row", {
       config: m.touchHelper({
@@ -61,7 +58,7 @@ App.AttemptsView = {
         'swipeleft'  : ctrl.changeValue.bind(ctrl)
       })
     }, [
-      m("div.list", ctrl.params.text),
+      m("div.list", params.text),
       m("div.round", (!val) ? "-" : val)
     ])
   }

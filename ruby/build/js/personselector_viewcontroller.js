@@ -7,7 +7,6 @@ var App = App || {}
 
 App.PersonSelectorView = {
   controller: function(vm){
-    this.vm = vm
             
     this.incrementStarter = function(){
       var val = vm.start_order + 1
@@ -15,8 +14,7 @@ App.PersonSelectorView = {
     }
   },
   
-  view: function(ctrl){
-    var vm = ctrl.vm
+  view: function(ctrl, vm){
     return m("div.search",[
       m("input[type=text]", {
         pattern : '[0-9]',

@@ -54,9 +54,7 @@ App.PersonResult = {
 var App = App || {};
 
 App.HeaderVC = {
-  controller: function(vm){
-    this.ss = vm.ss
-    
+  controller: function(vm){    
     this.toggleSettings = function(){      
       // Disable toggling if a required value has not been provided...
       for (var prop in vm.ss) { if (vm.ss[prop] === null) return }
@@ -67,7 +65,7 @@ App.HeaderVC = {
     }
   },
   
-  view: function(ctrl){
+  view: function(ctrl, vm){
     return m("header", { 
         className: App.connectionStatus() ? 'connected' : 'disconnected' 
       }, [
@@ -75,7 +73,7 @@ App.HeaderVC = {
         onclick: ctrl.toggleSettings,
         square: true
       }, m.trust('&#9776;')),
-      m("span.details", ctrl.ss.WetNm || m.trust('&nbsp;'))
+      m("span.details", vm.ss.WetNm || m.trust('&nbsp;'))
     ])
   }
 };
@@ -89,7 +87,6 @@ var App = App || {}
 
 App.PersonSelectorView = {
   controller: function(vm){
-    this.vm = vm
             
     this.incrementStarter = function(){
       var val = vm.start_order + 1
@@ -97,8 +94,7 @@ App.PersonSelectorView = {
     }
   },
   
-  view: function(ctrl){
-    var vm = ctrl.vm
+  view: function(ctrl, vm){
     return m("div.search",[
       m("input[type=text]", {
         pattern : '[0-9]',
