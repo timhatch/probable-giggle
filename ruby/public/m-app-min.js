@@ -26,9 +26,43 @@ App.PersonResult = {
     })
     .then(function(resp){
       this.data = resp
+      this.objectifyResults()      
     }.bind(this))
   },
   
+  // Parse the results_json object from the string form returned (we're not using the 
+  // Postgresql JSON extensions yet) into an actual JS object
+  objectifyResults: function(){
+    var json = this.data.result_json
+//    window.console.log(json)
+    try {
+      var obj = JSON.parse(json)
+        , str, val
+      for (var boulder in obj) {
+        var res = {a:null,b:null,t:null}
+        for (var key in res) {
+          str = key + "[0-9]{1,}"
+          val = obj[boulder].match(str)
+          res[key] = val ? parseInt(val[0].slice(1),10) : null
+        }
+        obj[boulder] = res
+      }
+      this.data.result_json = obj
+      //return obj
+    }
+    catch (err) { window.console.log(err) }
+  },
+
+  stringifySingleResult: function(resID){
+    var res = this.data.result_json[resID]
+      , obj = {}, str = ""
+    for (var key in res){
+      if (res[key] !== null) str += (key+res[key])
+    }
+    obj[resID] = str
+    return JSON.stringify(obj)
+  },
+    
   //  Save results for a single person
   //  jsonString is a stringified JSON object in the form:
   //  "{\"p2\":\"a2\",\"p1\":\"a3b1t3\"}"
@@ -66,14 +100,15 @@ App.HeaderVC = {
   },
   
   view: function(ctrl, vm){
+    var title = (vm.ss.Route || "-")+" / "+(vm.ss.GrpId || "-")+" / "+(vm.ss.BlcNr || "-")
     return m("header", { 
         className: App.connectionStatus() ? 'connected' : 'disconnected' 
       }, [
       m("button", {
         onclick: ctrl.toggleSettings,
         square: true
-      }, m.trust('&#9776;')),
-      m("span.details", vm.ss.WetNm || m.trust('&nbsp;'))
+      }, m.trust('=')),
+      m("span.details", title || m.trust('&nbsp;'))
     ])
   }
 };
@@ -90,6 +125,24 @@ App.PersonSelectorView = {
             
     this.incrementStarter = function(){
       var val = vm.start_order + 1
+      // No top
+      if (vm.result.b > 0 && vm.result.t === null) { 
+        vm.result.t = 0 
+        vm.save()
+      }
+      // No bonus
+      else if (vm.result.a > 0 && vm.result.b === null) { 
+        vm.result.b = 0 
+        vm.save()      
+      }
+      // Result manually zeroed
+      else if (vm.result === 0) { 
+        vm.result.a = vm.result.b = vm.result.t = null 
+        vm.save()
+      }
+      
+      // Fetch the next set of data 
+      // TODO Add error handling to deal with running past the last climber...
       vm.fetch(val)
     }
   },

@@ -8,6 +8,7 @@ var App = App || {};
 
 App.VM = function(model, sessiondata){  
   return {
+    model       : model,
     ss          : sessiondata,
     // View-Model parameters and functions derived from the model
     //
@@ -28,19 +29,6 @@ App.VM = function(model, sessiondata){
       if (!!this.result[attr]) this.result[attr] = 0
     },
   
-    parseModelData: function(model){
-      var key = 'p' + String(parseInt(sessiondata.BlcNr, 10))
-        , obj = JSON.parse(model.data.result_json)
-
-      for (var prop in this.result) {
-        var str = prop + "[0-9]{1,}"          
-          , v   = (!!obj[key]) ? obj[key].match(str) : null
-        this.result[prop] = v ? parseInt(v[0].slice(1),10) : null
-      }
-      this.start_order = model.data.start_order
-      this.fullname    = model.data.lastname+', '+model.data.firstname      
-    },
-    
     // Construct query parameters from stored data on the competition, round and group
     // plus the provided start_order
     composeURLParams: function(val){
@@ -60,25 +48,35 @@ App.VM = function(model, sessiondata){
         , promise = model.fetch(params)
     
       promise.then(function(){
-        try { this.parseModelData(model) }
+        try {
+          var key          = 'p' + String(parseInt(sessiondata.BlcNr, 10))
+          this.result      = model.data.result_json[key] || {a: null,b: null,t: null}
+          this.start_order = model.data.start_order
+          this.fullname    = model.data.lastname+', '+model.data.firstname 
+        }
         catch (err) { window.console.log(err) }
       }.bind(this))
       .then(function(){ App.connectionStatus(true) })
-      .then(null, function(){ App.connectionStatus(false) })
+      .then(null, function(){ App.connectionStatus(false) })      
     },
   
     serialiseResults: function(){
       var key = 'p' + String(parseInt(sessiondata.BlcNr, 10))
         , obj = {}, str = ''
-      
+       
       for (var prop in this.result) {
-        if (!!this.result[prop]) str += (prop+this.result[prop])
+        if (this.result[prop] !== null) str += (prop+this.result[prop])
       }
+      window.console.log(str)
       obj[key] = str
       return JSON.stringify(obj)
     },
 
     save: function(){
+      var key = 'p' + String(parseInt(sessiondata.BlcNr, 10))
+      model.data.result_json[key] = this.result
+      
+      // TODO: Add code here to save the model (if it has changed, in particular setting "b0")
       var json    = this.serialiseResults()
         , promise
 
