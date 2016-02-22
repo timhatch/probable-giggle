@@ -19,14 +19,15 @@ App.HeaderVC = {
   },
   
   view: function(ctrl, vm){
+    var title = (vm.ss.Route || "-")+" / "+(vm.ss.GrpId || "-")+" / "+(vm.ss.BlcNr || "-")
     return m("header", { 
         className: App.connectionStatus() ? 'connected' : 'disconnected' 
       }, [
       m("button", {
         onclick: ctrl.toggleSettings,
         square: true
-      m("span.details", vm.ss.WetNm || m.trust('&nbsp;'))
       }, m.trust('=')),
+      m("span.details", title || m.trust('&nbsp;'))
     ])
   }
 };

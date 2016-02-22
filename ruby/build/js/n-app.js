@@ -34,7 +34,7 @@ App.init = function(){
   var defaults = {
         WetId : null, Route : null, GrpId : null, 
         BlcNr : null,
-        State : false, WetNm : false
+        State : false
       }
   
   var ss = App.sessionStorage.get('n-appstate')
