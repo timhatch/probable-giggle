@@ -25,7 +25,6 @@ App.HeaderVC = {
       m("button", {
         onclick: ctrl.toggleSettings,
         square: true
-      }, m.trust('&#9776;')),
       m("span.details", vm.ss.WetNm || m.trust('&nbsp;'))
       }, m.trust('=')),
     ])
