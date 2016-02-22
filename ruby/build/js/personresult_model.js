@@ -25,8 +25,12 @@ App.PersonResult = {
       data   : params
     })
     .then(function(resp){
-      this.data = resp
-      this.objectifyResults()      
+      try {
+        this.data = resp
+        this.objectifyResults()              
+      } catch  (err) { 
+        window.console.log(resp)
+      }
     }.bind(this))
   },
   
