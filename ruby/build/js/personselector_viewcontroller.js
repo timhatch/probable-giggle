@@ -37,7 +37,7 @@ App.PersonSelectorView = {
       m("input[type=text]", {
         pattern : '[0-9]',
         onchange: m.withAttr('value', vm.fetch.bind(vm)),
-        value   : vm.start_order 
+        value   : vm.start_order
       }),
       m("span.details", vm.fullname || m.trust('&nbsp;')),
       m("button", {

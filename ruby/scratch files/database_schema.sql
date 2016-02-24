@@ -15,7 +15,7 @@ JOIN "Climbers" USING (per_id)
 .where(params)
 .select{rank.function
   .over(:order => [
-    Sequel.desc(Sequel.pg_array_op(:sort_values)[1]),
+    Sequel.desc(Sequel.pg_array_op(:sort_values)[1], :nulls=>:last),
     Sequel.pg_array_op(:sort_values)[2],
     Sequel.desc(Sequel.pg_array_op(:sort_values)[3]),
     Sequel.pg_array_op(:sort_values)[3],
