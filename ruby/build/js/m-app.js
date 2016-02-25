@@ -22,25 +22,8 @@ App.connectionStatus = m.prop(true)
 App.sessionStorage   = mx.storage( 'session' , mx.SESSION_STORAGE )
 
 App.SuperVC = {
-  controller: function(){
-    var defaults = {
-      WetId : null, Route : null, GrpId : null,
-      State : false, WetNm : null
-    }
-
-    this.ss   = App.sessionStorage.get('m-appstate')
-    //window.console.log(this.ss)
-    if (!this.ss) {
-      this.ss = defaults
-      App.sessionStorage.set('m-appstate', defaults)
-    }
-        
-    this.personResult = App.PersonResult
-    this.vm     = new App.VM(this.personResult, this.ss)
-  },   
   // View declaration  
-  view: function(ctrl){
-    var vm = ctrl.vm
+  view: function(ctrl, vm){
     return [
       m.component(App.HeaderVC, vm),
       m.component(App.SettingsVC, vm),
@@ -55,4 +38,22 @@ App.SuperVC = {
     ]
   }
 }
-m.mount(document.body, App.SuperVC)
+
+App.init = function(){
+  var model = App.PersonResult
+  
+  var defaults = {
+        WetId : null, Route : null, GrpId : null, 
+        State : false, WetNm : null
+      }
+  
+  var ss = App.sessionStorage.get('m-appstate')
+      if (!ss) { 
+        ss = defaults
+        App.sessionStorage.set('m-appstate', defaults) 
+      } 
+  
+  var vm = App.VM(model, ss)
+  
+  m.mount(document.body, m.component(App.SuperVC, vm))
+}()

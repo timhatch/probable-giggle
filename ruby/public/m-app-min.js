@@ -156,7 +156,7 @@ App.PersonSelectorView = {
       m("input[type=text]", {
         pattern : '[0-9]',
         onchange: m.withAttr('value', vm.fetch.bind(vm)),
-        value   : vm.start_order 
+        value   : vm.start_order
       }),
       m("span.details", vm.fullname || m.trust('&nbsp;')),
       m("button", {
@@ -179,21 +179,22 @@ var App = App || {}
 App.BoulderResultVM = function(id){
   this.id           = 'p'+id
   this.result       = {a:null,b:null,c:null}
-  this.displayResult = ''
+//  this.displayResult = ''
 }
 
 App.BoulderResultVM.prototype = {
   
   // Set the model parameters from a results string
-  parse: function(str){
-    var t = str.match("t[0-9]{1,}") || null
-      , b = str.match("b[0-9]{1,}") || null
-      , a = str.match("a[0-9]{1,}") || null
-    this.result.a     = a ? parseInt(a[0].slice(1),10) : null
-    this.result.b     = b ? parseInt(b[0].slice(1),10) : null
-    this.result.t     = t ? parseInt(t[0].slice(1),10) : null
-    this.setResultString()
-  },
+//  parse: function(result){
+//    this.result = result
+////    var t = str.match("t[0-9]{1,}") || null
+////      , b = str.match("b[0-9]{1,}") || null
+////      , a = str.match("a[0-9]{1,}") || null
+////    this.result.a     = a ? parseInt(a[0].slice(1),10) : null
+////    this.result.b     = b ? parseInt(b[0].slice(1),10) : null
+////    this.result.t     = t ? parseInt(t[0].slice(1),10) : null
+////    this.setResultString()
+//  },
   
   // Set the model parameters from a passed value
   update: function(val){
@@ -212,15 +213,15 @@ App.BoulderResultVM.prototype = {
     default:
       this.result.t = this.result.b = this.result.a = 0
     }
-    this.setResultString()
-  },
-    
-  setResultString: function(){
-    var t = !!this.result.t ? 't'+this.result.t : ''
-      , b = !!this.result.b ? 'b'+this.result.b : ''
-      , a = !!this.result.a ? 'a'+this.result.a : ''
-    this.displayResult = t + (b[0] || '')
-    this.resultString  = a+b+t
+//    this.setResultString()
+//  },
+//    
+//  setResultString: function(){
+//    var t = !!this.result.t ? 't'+this.result.t : ''
+//      , b = !!this.result.b ? 'b'+this.result.b : ''
+//      , a = !!this.result.a ? 'a'+this.result.a : ''
+//    this.displayResult = t + (b[0] || '')
+//    this.resultString  = a+b+t
   }
 }
 
@@ -311,24 +312,38 @@ var App = App || {}
 App.ResultsVC = {
   // Controller, calling model and super's results aggregation function
   controller: function(params){
-    this.model = params.model
-    
+    this.result = {a:null,b:null,c:null}    
+
     this.set = function(val){
-      params.model.update(val)
-      params.addFn()
+      switch (val) {
+      case 'b':
+        this.result.t = 0
+        this.result.a = this.result.a || 3
+        this.result.b = this.result.b || 3
+        break
+      case '1':
+      case '2':
+      case '3':
+        this.result.b = this.result.b || parseInt(val,10)
+        this.result.t = this.result.a = parseInt(val,10)
+        break
+      default:
+        this.result.t = this.result.b = this.result.a = 0
+      }      
+      // TODO: Save here!!!
+//      params.addFn()
     }
   },  
   // View declaration  
-  view: function(ctrl){
-    var result = ctrl.model.result
+  view: function(ctrl, params){
+    var result = params.model.result
       , value  = result.t || (result.b ? 'b' : null)
     return m('.tile', [
-      m('span.bloc', ctrl.model.id), 
+      m('span.bloc', params.model.id), 
       m('input[type=text].textbox', {
         value   : value,
         onchange: m.withAttr('value', ctrl.set.bind(ctrl))
-      }),
-      m('span.result', ctrl.model.displayResult)
+      })
     ])
   }  
 }
@@ -355,12 +370,12 @@ App.VM = function(model, sessiondata){
     })(),
 
     sumResults: function(){
-      var x = 0, y = 0, xa = 0
-      this.resArray.forEach(function(boulderModel){
-        if (boulderModel.result.t) { x  += 1; xa += boulderModel.result.t }
-        if (boulderModel.result.t || boulderModel.result.b) { y  += 1 }
-      })
-      this.result = x+'t'+xa+' b'+y
+//      var x = 0, y = 0, xa = 0
+//      this.resArray.forEach(function(boulderModel){
+//        if (boulderModel.result.t) { x  += 1; xa += boulderModel.result.t }
+//        if (boulderModel.result.t || boulderModel.result.b) { y  += 1 }
+//      })
+//      this.result = x+'t'+xa+' b'+y
     },
   
     parseModelData: function(model){
@@ -368,10 +383,10 @@ App.VM = function(model, sessiondata){
       this.fullname    = model.data.lastname+', '+model.data.firstname
         
       this.resArray.forEach(function(boulderModel){
-        var r = JSON.parse(model.data.result_json)[boulderModel.id]          
-        if (!!r) boulderModel.parse(r)
+        var r = model.data.result_json[boulderModel.id]
+        if (!!r) boulderModel.result = r
       }.bind(this)) 
-      this.sumResults()
+//      this.sumResults()
     },
   
     // Construct query parameters from stored data on the competition, round and group
@@ -405,38 +420,38 @@ App.VM = function(model, sessiondata){
     },
   
     serialiseResults: function(){
-      var tmp = {}
-      this.resArray
-        .filter(function(res){ return res.result.a !== null })
-        .forEach(function(res){ tmp[res.id] = res.resultString })
-      return JSON.stringify(tmp)
+//      var tmp = {}
+//      this.resArray
+//        .filter(function(res){ return res.result.a !== null })
+//        .forEach(function(res){ tmp[res.id] = res.resultString })
+//      return JSON.stringify(tmp)
     },
 
     save: function(){
-      var json = this.serialiseResults()
-        , promise
-
-      // Prevent a save occuring if no viewmodel has been instantiated
-      if (!this.start_order) return
-
-      promise = model.save(json)
-      promise
-        .then(function(){ App.connectionStatus(true) })
-        .then(null, function(){ App.connectionStatus(false) })
+//      var json = this.serialiseResults()
+//        , promise
+//
+//      // Prevent a save occuring if no viewmodel has been instantiated
+//      if (!this.start_order) return
+//
+//      promise = model.save(json)
+//      promise
+//        .then(function(){ App.connectionStatus(true) })
+//        .then(null, function(){ App.connectionStatus(false) })
     },
   
     reset: function(){
-      window.console.log('reset called')
-      this.start_order = null
-      this.fullname    = null
-      this.result      = null
-      
-      model.data = {}
-      this.resArray.forEach(function(boulder){
-        boulder.result = {a:null,b:null,c:null}
-        boulder.displayResult = ''
-        boulder.resultString  = null
-      })
+//      window.console.log('reset called')
+//      this.start_order = null
+//      this.fullname    = null
+//      this.result      = null
+//      
+//      model.data = {}
+//      this.resArray.forEach(function(boulder){
+//        boulder.result = {a:null,b:null,c:null}
+//        boulder.displayResult = ''
+//        boulder.resultString  = null
+//      })
     }
   }
 }
@@ -465,25 +480,8 @@ App.connectionStatus = m.prop(true)
 App.sessionStorage   = mx.storage( 'session' , mx.SESSION_STORAGE )
 
 App.SuperVC = {
-  controller: function(){
-    var defaults = {
-      WetId : null, Route : null, GrpId : null,
-      State : false, WetNm : null
-    }
-
-    this.ss   = App.sessionStorage.get('m-appstate')
-    //window.console.log(this.ss)
-    if (!this.ss) {
-      this.ss = defaults
-      App.sessionStorage.set('m-appstate', defaults)
-    }
-        
-    this.personResult = App.PersonResult
-    this.vm     = new App.VM(this.personResult, this.ss)
-  },   
   // View declaration  
-  view: function(ctrl){
-    var vm = ctrl.vm
+  view: function(ctrl, vm){
     return [
       m.component(App.HeaderVC, vm),
       m.component(App.SettingsVC, vm),
@@ -498,5 +496,24 @@ App.SuperVC = {
     ]
   }
 }
-m.mount(document.body, App.SuperVC)
+
+App.init = function(){
+  var model = App.PersonResult
+  
+  var defaults = {
+        WetId : null, Route : null, GrpId : null, 
+        State : false, WetNm : null
+      }
+  
+  var ss = App.sessionStorage.get('m-appstate')
+      if (!ss) { 
+        ss = defaults
+        App.sessionStorage.set('m-appstate', defaults) 
+      } 
+  
+  var vm = App.VM(model, ss)
+  
+  m.mount(document.body, m.component(App.SuperVC, vm))
+}()
+
 
