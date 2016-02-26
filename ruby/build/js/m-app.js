@@ -8,8 +8,6 @@
 // @codekit-prepend "./headerbar_viewcontroller.js"
 // @codekit-prepend "./personselector_viewcontroller.js"
 
-// @codekit-prepend "./boulderresult_viewmodel.js"
-
 // @codekit-prepend "./desktop_settings_viewcontroller.js"
 // @codekit-prepend "./desktop_results_viewcontroller.js"
 // @codekit-prepend "./m-vm.js"
@@ -30,8 +28,13 @@ App.SuperVC = {
       m.component(App.PersonSelectorView, vm),
       m('span.result', vm.result),
       m('#tiles', [
-        vm.resArray.map(function(bloc) { 
-          return m.component(App.ResultsVC, { model: bloc, addFn: vm.sumResults.bind(vm) }) 
+        vm.resArray.map(function(bloc, i) {
+          var idx = "p"+ (i+1)
+          return m.component(App.ResultsVC, { 
+            id: idx, 
+            vm: vm, 
+            model: bloc
+          }) 
         })
       ]),
       m('button', { onclick : vm.save.bind(vm) }, 'Submit')

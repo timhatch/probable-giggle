@@ -171,64 +171,6 @@ App.PersonSelectorView = {
 //	CODEKIT DECLARATIONS
 //	-----------------------------------------------------
 /*global m                                            */
-
-var App = App || {}
-
-// Single Result Model / View
-//
-App.BoulderResultVM = function(id){
-  this.id           = 'p'+id
-  this.result       = {a:null,b:null,c:null}
-//  this.displayResult = ''
-}
-
-App.BoulderResultVM.prototype = {
-  
-  // Set the model parameters from a results string
-//  parse: function(result){
-//    this.result = result
-////    var t = str.match("t[0-9]{1,}") || null
-////      , b = str.match("b[0-9]{1,}") || null
-////      , a = str.match("a[0-9]{1,}") || null
-////    this.result.a     = a ? parseInt(a[0].slice(1),10) : null
-////    this.result.b     = b ? parseInt(b[0].slice(1),10) : null
-////    this.result.t     = t ? parseInt(t[0].slice(1),10) : null
-////    this.setResultString()
-//  },
-  
-  // Set the model parameters from a passed value
-  update: function(val){
-    switch (val) {
-    case 'b':
-      this.result.t = 0
-      this.result.a = this.result.a || 3
-      this.result.b = this.result.b || 3
-      break
-    case '1':
-    case '2':
-    case '3':
-      this.result.b = this.result.b || parseInt(val,10)
-      this.result.t = this.result.a = parseInt(val,10)
-      break
-    default:
-      this.result.t = this.result.b = this.result.a = 0
-    }
-//    this.setResultString()
-//  },
-//    
-//  setResultString: function(){
-//    var t = !!this.result.t ? 't'+this.result.t : ''
-//      , b = !!this.result.b ? 'b'+this.result.b : ''
-//      , a = !!this.result.a ? 'a'+this.result.a : ''
-//    this.displayResult = t + (b[0] || '')
-//    this.resultString  = a+b+t
-  }
-}
-
-//	-----------------------------------------------------
-//	CODEKIT DECLARATIONS
-//	-----------------------------------------------------
-/*global m                                            */
 /*global mx                                           */
 
 var App = App || {};
@@ -312,26 +254,10 @@ var App = App || {}
 App.ResultsVC = {
   // Controller, calling model and super's results aggregation function
   controller: function(params){
-    this.result = {a:null,b:null,c:null}    
-
     this.set = function(val){
-      switch (val) {
-      case 'b':
-        this.result.t = 0
-        this.result.a = this.result.a || 3
-        this.result.b = this.result.b || 3
-        break
-      case '1':
-      case '2':
-      case '3':
-        this.result.b = this.result.b || parseInt(val,10)
-        this.result.t = this.result.a = parseInt(val,10)
-        break
-      default:
-        this.result.t = this.result.b = this.result.a = 0
-      }      
+      params.model.update(val)
       // TODO: Save here!!!
-//      params.addFn()
+      params.vm.sumResults()
     }
   },  
   // View declaration  
@@ -339,13 +265,41 @@ App.ResultsVC = {
     var result = params.model.result
       , value  = result.t || (result.b ? 'b' : null)
     return m('.tile', [
-      m('span.bloc', params.model.id), 
+      m('span.bloc', params.id), 
       m('input[type=text].textbox', {
         value   : value,
         onchange: m.withAttr('value', ctrl.set.bind(ctrl))
       })
     ])
   }  
+}
+
+// Single Result Model / View
+//
+App.BoulderResultVM = function(id){
+  this.id           = 'p'+id
+  this.result       = {a:null,b:null,t:null}
+}
+
+App.BoulderResultVM.prototype = {
+  // Set the model parameters from a passed value
+  update: function(val){
+    switch (val) {
+    case 'b':
+      this.result.t = 0
+      this.result.a = this.result.a || 3
+      this.result.b = this.result.b || 3
+      break
+    case '1':
+    case '2':
+    case '3':
+      this.result.b = this.result.b || parseInt(val,10)
+      this.result.t = this.result.a = parseInt(val,10)
+      break
+    default:
+      this.result.t = this.result.b = this.result.a = 0
+    }
+  }
 }
 
 //	-----------------------------------------------------
@@ -357,6 +311,7 @@ var App = App || {}
 
 App.VM = function(model, sessiondata){
   return {
+    model       : model,
     ss          : sessiondata,
     // View-Model parameters and functions derived from the model
     //
@@ -370,6 +325,7 @@ App.VM = function(model, sessiondata){
     })(),
 
     sumResults: function(){
+      window.console.log("sumResults called")
 //      var x = 0, y = 0, xa = 0
 //      this.resArray.forEach(function(boulderModel){
 //        if (boulderModel.result.t) { x  += 1; xa += boulderModel.result.t }
@@ -379,12 +335,13 @@ App.VM = function(model, sessiondata){
     },
   
     parseModelData: function(model){
+      var o = {a:null,b:null,t:null} 
+      
       this.start_order = model.data.start_order
-      this.fullname    = model.data.lastname+', '+model.data.firstname
-        
+      this.fullname    = model.data.lastname+', '+model.data.firstname        
       this.resArray.forEach(function(boulderModel){
         var r = model.data.result_json[boulderModel.id]
-        if (!!r) boulderModel.result = r
+        boulderModel.result = (!!r) ? r : o
       }.bind(this)) 
 //      this.sumResults()
     },
@@ -456,6 +413,8 @@ App.VM = function(model, sessiondata){
   }
 }
 
+//for (var attrname in obj2) { obj1[attrname] = obj2[attrname]; }
+
 //	-----------------------------------------------------
 //	CODEKIT DECLARATIONS
 //	-----------------------------------------------------
@@ -465,8 +424,6 @@ App.VM = function(model, sessiondata){
 // @codekit-prepend "./personresult_model.js"
 // @codekit-prepend "./headerbar_viewcontroller.js"
 // @codekit-prepend "./personselector_viewcontroller.js"
-
-// @codekit-prepend "./boulderresult_viewmodel.js"
 
 // @codekit-prepend "./desktop_settings_viewcontroller.js"
 // @codekit-prepend "./desktop_results_viewcontroller.js"
@@ -488,8 +445,13 @@ App.SuperVC = {
       m.component(App.PersonSelectorView, vm),
       m('span.result', vm.result),
       m('#tiles', [
-        vm.resArray.map(function(bloc) { 
-          return m.component(App.ResultsVC, { model: bloc, addFn: vm.sumResults.bind(vm) }) 
+        vm.resArray.map(function(bloc, i) {
+          var idx = "p"+ (i+1)
+          return m.component(App.ResultsVC, { 
+            id: idx, 
+            vm: vm, 
+            model: bloc
+          }) 
         })
       ]),
       m('button', { onclick : vm.save.bind(vm) }, 'Submit')

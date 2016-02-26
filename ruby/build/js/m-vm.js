@@ -7,6 +7,7 @@ var App = App || {}
 
 App.VM = function(model, sessiondata){
   return {
+    model       : model,
     ss          : sessiondata,
     // View-Model parameters and functions derived from the model
     //
@@ -20,6 +21,7 @@ App.VM = function(model, sessiondata){
     })(),
 
     sumResults: function(){
+      window.console.log("sumResults called")
 //      var x = 0, y = 0, xa = 0
 //      this.resArray.forEach(function(boulderModel){
 //        if (boulderModel.result.t) { x  += 1; xa += boulderModel.result.t }
@@ -29,12 +31,13 @@ App.VM = function(model, sessiondata){
     },
   
     parseModelData: function(model){
+      var o = {a:null,b:null,t:null} 
+      
       this.start_order = model.data.start_order
-      this.fullname    = model.data.lastname+', '+model.data.firstname
-        
+      this.fullname    = model.data.lastname+', '+model.data.firstname        
       this.resArray.forEach(function(boulderModel){
         var r = model.data.result_json[boulderModel.id]
-        if (!!r) boulderModel.result = r
+        boulderModel.result = (!!r) ? r : o
       }.bind(this)) 
 //      this.sumResults()
     },
@@ -105,3 +108,5 @@ App.VM = function(model, sessiondata){
     }
   }
 }
+
+//for (var attrname in obj2) { obj1[attrname] = obj2[attrname]; }
