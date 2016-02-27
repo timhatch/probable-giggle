@@ -8,8 +8,9 @@ var App = App || {};
 
 App.PersonResult = { 
   //  Store the model directly as retrieved from the server (a plain JS object)
-  //
-  params      : {},
+  //  Set wet_id === 999 to guard against data being entered without a specified comp'
+  // 
+  params      : { wet_id: 999 },
   data        : {},
   
   //  Fetch a single set of results from the server
@@ -75,6 +76,7 @@ App.PersonResult = {
   //  window.console.log('save called')
     var params         = this.params
     params.result_json = jsonString
+    
     return m.request({
       method: 'PUT',
       url   : '/results/person',
@@ -176,69 +178,31 @@ App.PersonSelectorView = {
 var App = App || {};
 
 App.SettingsVC = {
-  // Chnage this to vm, as the sessiondata is callable from the vm...
-  controller: function(vm){
-    this.ss = vm.ss
-    
-    this.fetch = function(){
-      // Break if a required value has not been provided...
-      // Note that we're not validating date here...
-//      for (var prop in vm.ss) { if (vm.ss[prop] === null) return }
-
-      // If all values have been provided, then fetch the competition ID from the server
-      m.request({ 
-        method: 'GET', 
-        url   : '/competition',
-        data  : { wet_id: vm.ss.WetId }
-      })
-      .then(function(resp){
-        try {
-          vm.ss.WetNm = resp.title
-          vm.ss.State = true
-          App.sessionStorage.set('m-appstate', vm.ss)
-        }
-        catch (err) {
-          window.console.log('invalid response : '+err) 
-        }
-        vm.reset()
-      })
-      .then(function(){
-        App.connectionStatus(true)
-      })
-      .then(null, function(){
-        App.connectionStatus(false)
-      })
-    }
-  },
-  
-  view: function(ctrl){
+  view: function(ctrl, vm){
     return m("div#settings",[
-      m.component(App.ParamSV, ctrl, { key: 'WetId', text: "competition", pattern: "[0-9]" }),
-      m.component(App.ParamSV, ctrl, { key: 'Route', text: "round" }),
-      m.component(App.ParamSV, ctrl, { key: 'GrpId', text: "category" }),
+      m.component(App.ParamSV, { vm: vm, key: 'WetId', text: "competition" }),
+      m.component(App.ParamSV, { vm: vm, key: 'Route', text: "round" }),
+      m.component(App.ParamSV, { vm: vm, key: 'GrpId', text: "category" }),
     ])
   }
 };
 
 App.ParamSV = {
-  controller: function(ctrl, params){
-    this.params = params
-    this.ss     = ctrl.ss
+  controller: function(params){
     // Note that this stores all keys as strings...
     this.set = function(val){
-      ctrl.ss[params.key] = val.toUpperCase() || null
-      if (params.key === 'WetId') { ctrl.fetch() }
-      else { App.sessionStorage.set('m-appstate', ctrl.ss) }
+      params.vm.ss[params.key] = val.toUpperCase() || null
+      App.sessionStorage.set('m-appstate', params.vm.ss)
+      params.vm.reset()
     }
   },
   
-  view: function(ctrl){
+  view: function(ctrl, params){
     return m("div.modal", [
       m("input[type=text]", {
-        placeholder: ctrl.params.text,
+        placeholder: params.text,
         onchange: m.withAttr("value", ctrl.set.bind(ctrl)),
-        pattern : ctrl.params.pattern || null,
-        value   : ctrl.ss[ctrl.params.key] || m.trust('')
+        value   : params.vm.ss[params.key] || m.trust('')
       })
     ])
   }
@@ -256,6 +220,7 @@ App.ResultsVC = {
   controller: function(params){
     this.set = function(val){
       params.model.update(val)
+      params.vm.save(params.model)
       // TODO: Save here!!!
       params.vm.sumResults()
     }
@@ -265,7 +230,7 @@ App.ResultsVC = {
     var result = params.model.result
       , value  = result.t || (result.b ? 'b' : null)
     return m('.tile', [
-      m('span.bloc', params.id), 
+      m('span.bloc', params.model.id), 
       m('input[type=text].textbox', {
         value   : value,
         onchange: m.withAttr('value', ctrl.set.bind(ctrl))
@@ -297,7 +262,7 @@ App.BoulderResultVM.prototype = {
       this.result.t = this.result.a = parseInt(val,10)
       break
     default:
-      this.result.t = this.result.b = this.result.a = 0
+      this.result.t = this.result.b = this.result.a = null
     }
   }
 }
@@ -326,12 +291,12 @@ App.VM = function(model, sessiondata){
 
     sumResults: function(){
       window.console.log("sumResults called")
-//      var x = 0, y = 0, xa = 0
-//      this.resArray.forEach(function(boulderModel){
-//        if (boulderModel.result.t) { x  += 1; xa += boulderModel.result.t }
-//        if (boulderModel.result.t || boulderModel.result.b) { y  += 1 }
-//      })
-//      this.result = x+'t'+xa+' b'+y
+      var x = 0, y = 0, xa = 0
+      this.resArray.forEach(function(boulderModel){
+        if (boulderModel.result.t) { x += 13; xa += (3 * boulderModel.result.t) }
+        if (boulderModel.result.t || boulderModel.result.b) { y  += 1 }
+      })
+      this.result = (x - xa) + " b"+y
     },
   
     parseModelData: function(model){
@@ -341,9 +306,9 @@ App.VM = function(model, sessiondata){
       this.fullname    = model.data.lastname+', '+model.data.firstname        
       this.resArray.forEach(function(boulderModel){
         var r = model.data.result_json[boulderModel.id]
-        boulderModel.result = (!!r) ? r : o
+        boulderModel.result = (!!r) ? r : Object.assign({}, o)
       }.bind(this)) 
-//      this.sumResults()
+      this.sumResults()
     },
   
     // Construct query parameters from stored data on the competition, round and group
@@ -376,21 +341,18 @@ App.VM = function(model, sessiondata){
         .then(null, function(){ App.connectionStatus(false) })
     },
   
-    serialiseResults: function(){
-//      var tmp = {}
-//      this.resArray
-//        .filter(function(res){ return res.result.a !== null })
-//        .forEach(function(res){ tmp[res.id] = res.resultString })
-//      return JSON.stringify(tmp)
-    },
+    save: function(viewmodel){
+      var obj = { result: null }
+        , str = ""
 
-    save: function(){
-//      var json = this.serialiseResults()
-//        , promise
-//
-//      // Prevent a save occuring if no viewmodel has been instantiated
-//      if (!this.start_order) return
-//
+      for (var key in viewmodel.result){
+        if (viewmodel.result[key] !== null) str += (key+viewmodel.result[key])
+      }
+      obj.result = str
+            
+      str = JSON.stringify(obj)
+      str = str.replace("result",viewmodel.id)
+      model.save(str)
 //      promise = model.save(json)
 //      promise
 //        .then(function(){ App.connectionStatus(true) })
@@ -398,17 +360,13 @@ App.VM = function(model, sessiondata){
     },
   
     reset: function(){
-//      window.console.log('reset called')
-//      this.start_order = null
-//      this.fullname    = null
-//      this.result      = null
-//      
-//      model.data = {}
-//      this.resArray.forEach(function(boulder){
-//        boulder.result = {a:null,b:null,c:null}
-//        boulder.displayResult = ''
-//        boulder.resultString  = null
-//      })
+      this.start_order = null
+      this.fullname    = null
+      this.result      = null
+      
+      this.resArray.forEach(function(boulder){
+        boulder.result = Object.assign({},{a:null,b:null,c:null})
+      })
     }
   }
 }
@@ -421,13 +379,13 @@ App.VM = function(model, sessiondata){
 /* global m                                            */
 /* global mx                                           */
 
-// @codekit-prepend "./personresult_model.js"
-// @codekit-prepend "./headerbar_viewcontroller.js"
-// @codekit-prepend "./personselector_viewcontroller.js"
+// @codekit-prepend "./m/personresult_model.js"
+// @codekit-prepend "./m/headerbar_viewcontroller.js"
+// @codekit-prepend "./m/personselector_viewcontroller.js"
 
-// @codekit-prepend "./desktop_settings_viewcontroller.js"
-// @codekit-prepend "./desktop_results_viewcontroller.js"
-// @codekit-prepend "./m-vm.js"
+// @codekit-prepend "./m/desktop_settings_viewcontroller.js"
+// @codekit-prepend "./m/desktop_results_viewcontroller.js"
+// @codekit-prepend "./m/m-vm.js"
 
 var App = App || {}
 
@@ -446,15 +404,12 @@ App.SuperVC = {
       m('span.result', vm.result),
       m('#tiles', [
         vm.resArray.map(function(bloc, i) {
-          var idx = "p"+ (i+1)
           return m.component(App.ResultsVC, { 
-            id: idx, 
             vm: vm, 
             model: bloc
           }) 
         })
-      ]),
-      m('button', { onclick : vm.save.bind(vm) }, 'Submit')
+      ])
     ]
   }
 }

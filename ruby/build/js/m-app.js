@@ -4,13 +4,13 @@
 /* global m                                            */
 /* global mx                                           */
 
-// @codekit-prepend "./personresult_model.js"
-// @codekit-prepend "./headerbar_viewcontroller.js"
-// @codekit-prepend "./personselector_viewcontroller.js"
+// @codekit-prepend "./m/personresult_model.js"
+// @codekit-prepend "./m/headerbar_viewcontroller.js"
+// @codekit-prepend "./m/personselector_viewcontroller.js"
 
-// @codekit-prepend "./desktop_settings_viewcontroller.js"
-// @codekit-prepend "./desktop_results_viewcontroller.js"
-// @codekit-prepend "./m-vm.js"
+// @codekit-prepend "./m/desktop_settings_viewcontroller.js"
+// @codekit-prepend "./m/desktop_results_viewcontroller.js"
+// @codekit-prepend "./m/m-vm.js"
 
 var App = App || {}
 
@@ -29,15 +29,12 @@ App.SuperVC = {
       m('span.result', vm.result),
       m('#tiles', [
         vm.resArray.map(function(bloc, i) {
-          var idx = "p"+ (i+1)
           return m.component(App.ResultsVC, { 
-            id: idx, 
             vm: vm, 
             model: bloc
           }) 
         })
-      ]),
-      m('button', { onclick : vm.save.bind(vm) }, 'Submit')
+      ])
     ]
   }
 }

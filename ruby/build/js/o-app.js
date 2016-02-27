@@ -4,11 +4,11 @@
 /* global m                                            */
 /* global mx                                           */
 
-// @codekit-prepend "./routeresult_model.js"
-// @codekit-prepend "./_desktop_settings_viewcontroller.js"
-// @codekit-prepend "./_desktop_results_viewcontroller.js"
-// @codekit-prepend "./_personresult_model.js"
-// @codekit-prepend "./o-vm.js"
+// @codekit-prepend "./o/routeresult_model.js"
+// @codekit-prepend "./o/_desktop_settings_viewcontroller.js"
+// @codekit-prepend "./o/_desktop_results_viewcontroller.js"
+// @codekit-prepend "./o/_personresult_model.js"
+// @codekit-prepend "./o/o-vm.js"
 
 var App = App || {}
 

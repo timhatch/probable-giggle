@@ -22,12 +22,12 @@ App.VM = function(model, sessiondata){
 
     sumResults: function(){
       window.console.log("sumResults called")
-//      var x = 0, y = 0, xa = 0
-//      this.resArray.forEach(function(boulderModel){
-//        if (boulderModel.result.t) { x  += 1; xa += boulderModel.result.t }
-//        if (boulderModel.result.t || boulderModel.result.b) { y  += 1 }
-//      })
-//      this.result = x+'t'+xa+' b'+y
+      var x = 0, y = 0, xa = 0
+      this.resArray.forEach(function(boulderModel){
+        if (boulderModel.result.t) { x += 13; xa += (3 * boulderModel.result.t) }
+        if (boulderModel.result.t || boulderModel.result.b) { y  += 1 }
+      })
+      this.result = (x - xa) + " b"+y
     },
   
     parseModelData: function(model){
@@ -37,9 +37,9 @@ App.VM = function(model, sessiondata){
       this.fullname    = model.data.lastname+', '+model.data.firstname        
       this.resArray.forEach(function(boulderModel){
         var r = model.data.result_json[boulderModel.id]
-        boulderModel.result = (!!r) ? r : o
+        boulderModel.result = (!!r) ? r : Object.assign({}, o)
       }.bind(this)) 
-//      this.sumResults()
+      this.sumResults()
     },
   
     // Construct query parameters from stored data on the competition, round and group
@@ -72,21 +72,18 @@ App.VM = function(model, sessiondata){
         .then(null, function(){ App.connectionStatus(false) })
     },
   
-    serialiseResults: function(){
-//      var tmp = {}
-//      this.resArray
-//        .filter(function(res){ return res.result.a !== null })
-//        .forEach(function(res){ tmp[res.id] = res.resultString })
-//      return JSON.stringify(tmp)
-    },
+    save: function(viewmodel){
+      var obj = { result: null }
+        , str = ""
 
-    save: function(){
-//      var json = this.serialiseResults()
-//        , promise
-//
-//      // Prevent a save occuring if no viewmodel has been instantiated
-//      if (!this.start_order) return
-//
+      for (var key in viewmodel.result){
+        if (viewmodel.result[key] !== null) str += (key+viewmodel.result[key])
+      }
+      obj.result = str
+            
+      str = JSON.stringify(obj)
+      str = str.replace("result",viewmodel.id)
+      model.save(str)
 //      promise = model.save(json)
 //      promise
 //        .then(function(){ App.connectionStatus(true) })
@@ -94,17 +91,13 @@ App.VM = function(model, sessiondata){
     },
   
     reset: function(){
-//      window.console.log('reset called')
-//      this.start_order = null
-//      this.fullname    = null
-//      this.result      = null
-//      
-//      model.data = {}
-//      this.resArray.forEach(function(boulder){
-//        boulder.result = {a:null,b:null,c:null}
-//        boulder.displayResult = ''
-//        boulder.resultString  = null
-//      })
+      this.start_order = null
+      this.fullname    = null
+      this.result      = null
+      
+      this.resArray.forEach(function(boulder){
+        boulder.result = Object.assign({},{a:null,b:null,c:null})
+      })
     }
   }
 }

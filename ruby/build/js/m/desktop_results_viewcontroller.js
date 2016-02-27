@@ -10,6 +10,7 @@ App.ResultsVC = {
   controller: function(params){
     this.set = function(val){
       params.model.update(val)
+      params.vm.save(params.model)
       // TODO: Save here!!!
       params.vm.sumResults()
     }
@@ -19,7 +20,7 @@ App.ResultsVC = {
     var result = params.model.result
       , value  = result.t || (result.b ? 'b' : null)
     return m('.tile', [
-      m('span.bloc', params.id), 
+      m('span.bloc', params.model.id), 
       m('input[type=text].textbox', {
         value   : value,
         onchange: m.withAttr('value', ctrl.set.bind(ctrl))
@@ -51,7 +52,7 @@ App.BoulderResultVM.prototype = {
       this.result.t = this.result.a = parseInt(val,10)
       break
     default:
-      this.result.t = this.result.b = this.result.a = 0
+      this.result.t = this.result.b = this.result.a = null
     }
   }
 }

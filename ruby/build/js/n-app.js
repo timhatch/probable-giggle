@@ -4,13 +4,13 @@
 /*global m                                            */
 /*global mx                                           */
 
-// @codekit-prepend "./personresult_model.js"
-// @codekit-prepend "./headerbar_viewcontroller.js"
-// @codekit-prepend "./personselector_viewcontroller.js"
+// @codekit-prepend "./n/personresult_model.js"
+// @codekit-prepend "./n/headerbar_viewcontroller.js"
+// @codekit-prepend "./n/personselector_viewcontroller.js"
 
-// @codekit-prepend "./nexus_results_viewcontroller.js"
-// @codekit-prepend "./nexus_settings_viewcontroller.js"
-// @codekit-prepend "./n-vm.js"
+// @codekit-prepend "./n/nexus_results_viewcontroller.js"
+// @codekit-prepend "./n/nexus_settings_viewcontroller.js"
+// @codekit-prepend "./n/n-vm.js"
 
 var App = App || {}
 // Store the connection status (in-memory)

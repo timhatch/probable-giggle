@@ -80,9 +80,9 @@ module Perseus
       resp = set_result_single(params)
       
       # Simple hack to dump results data to a csv file
-      what = Perseus::MediaInterface.trim_params(params)
-      data = get_result(what, order_by:"start_order").all
-      Perseus::MediaInterface.write_to_csvfile(what, data)
+#      what = Perseus::MediaInterface.trim_params(params)
+#      data = get_result(what, order_by:"start_order").all
+#      Perseus::MediaInterface.write_to_csvfile(what, data)
       
       resp
     end

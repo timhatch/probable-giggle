@@ -17,18 +17,18 @@ App.PersonResult.prototype = {
   //  - wet_id, route, grp_id and start_order 
   //  - wet_id, route, per_id
   //
-  // TODO: Untested!!
+  // TODO: Untested!! THink this.params = params doesn't work as 
   fetch: function(params){
-    this.params = params
-    return m.request({
-      method : 'GET',
-      url    : '/results/person',
-      data   : params
-    })
-    .then(function(resp){
-      this.data = resp
-      this.objectifyResults()
-    }.bind(this))
+//    this.params = Object.assign({}, params)
+//    return m.request({
+//      method : 'GET',
+//      url    : '/results/person',
+//      data   : params
+//    })
+//    .then(function(resp){
+//      this.data = resp
+//      this.objectifyResults()
+//    }.bind(this))
   },
   
   update: function(result){
