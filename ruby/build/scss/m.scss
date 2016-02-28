@@ -1,0 +1,81 @@
+@import 'mixins';
+@import 'variables';
+@import 'reset';
+@import 'typography';
+@import 'forms';
+@import 'buttons';
+@import 'fontello';
+
+/* =Application / mixins and variables 
+-----------------------------------------------------------------------------*/
+
+$body-width      : 96.0rem;
+$row-height      :  2.4rem;
+
+@mixin flex() {
+  &.flex {
+    display       : flex;
+    flex-flow     : row wrap;
+    justify-content: space-around;
+  }
+}
+
+html {
+}
+
+body {
+  margin        : 0 auto;
+  width         : $body-width;
+//  line-height   : $base-line/12 + 0em;
+  input[type=text] {
+    width     : 7.2rem;
+    
+    font          : 1.2rem sans-serif;
+    line-height   : 2.0rem;
+  }
+  
+  label {
+    display   : inline;
+    margin    : 0 0 0 1.8rem;
+    width     : 0.65 * $body-width;
+
+    text-transform: uppercase;
+    font-size : $font-size-btn-upper-normal;
+    line-height: $row-height;    
+  }
+}
+
+/* =Application / settings panel
+-----------------------------------------------------------------------------*/
+#settings {
+  margin: $row-height/2; 
+}
+
+/* =Application / personresults panel
+-----------------------------------------------------------------------------*/
+#person { 
+  margin: $row-height/2; 
+
+  .details {
+    display       : inline-block;
+    width         : 21.4rem;
+    margin-left   : 1.8rem;
+    
+    font-size     : 1.4rem;
+    line-height   : 1.4rem;
+    font-weight   : bold;
+  }
+}
+
+/* =Application / Results (Tiles) panel
+-----------------------------------------------------------------------------*/
+#tiles {
+  display       : flex;
+  flex-flow     : row wrap;
+  justify-content: space-around; 
+  
+  label {
+    display   : inline-block;
+    width     : 2rem;
+  }
+}
