@@ -47,15 +47,11 @@ module Perseus
     end
     
     # Legacy CWIF Qualification interface
-    get '/legacy/m' do
-      redirect '/legacy_display/results-m.html'
+    get '/cwif' do
+      redirect '/cwif_display/results.html'
     end
-    
-    get '/legacy/f' do
-      redirect '/legacy_display/results-f.html'
-    end
-    
-    get '/legacy/results' do
+
+    get '/cwif/results' do
       get_legacy_results(params)
     end
     

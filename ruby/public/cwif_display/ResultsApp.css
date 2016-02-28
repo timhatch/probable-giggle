@@ -184,18 +184,7 @@ border-spacing: 0
 -webkit-box-sizing: border-box;
 box-sizing: border-box
 }
-#outer {
-background: #000
-}
-#wrapper {
-display: inline-block;
-width: 100%;
-margin: 0 auto;
-background-color: #eee
-}
-.resultslistview {
-display: inline-block
-}
+
 @font-face {
 font-family: 'SourceSansBold';
 font-style: normal;
@@ -214,13 +203,35 @@ font-style: normal;
 font-weight: 300;
 src: local('?'),url('fonts/SourceSansPro-Light.otf') format('opentype')
 }
-.resultslistview {
-position: absolute;
-width: 100%;
-top: 0
+body {
+  background: #444  
 }
+#outer {
+background: #444;
+display       : flex;
+flex-flow     : row wrap;
+justify-content: space-around;
+
+}
+.wrapper {
+width: 50%; 
+margin: 0 auto;
+}
+
+.resultslistview {
+display: block;
+width: 100%;
+margin-left: auto;
+margin-right: auto;
+/* 
+position: absolute;
+top: 0
+*/
+}
+
+
 ul {
-margin: 0;
+margin: 0 auto;
 padding: 0
 }
 .resultslistview li {

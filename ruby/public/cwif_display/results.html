@@ -9,7 +9,8 @@
 </head>
 <body id='outer'>
   <!-- Structural Content -->
-  <div id='wrapper'></div>
+  <div id='wrapper-m' class='wrapper'></div>
+  <div id='wrapper-f' class='wrapper'></div>
   <!-- Backbone View Templates -->
   <!-- ClimberView template -->
   <script id='climber_template' type='text/html'>
@@ -32,6 +33,7 @@
   <script>
     $(document).ready(function(){
     	new App.ResultsListView({ cat : 'm' })
+    	new App.ResultsListView({ cat : 'f' })
     });
   </script>
 </body>
