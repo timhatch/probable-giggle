@@ -33,17 +33,19 @@ App.PersonSelectorView = {
   },
   
   view: function(ctrl, vm){
-    return m("div.search",[
+    return m("#person",[
+      m("label", "Competitor "),
       m("input[type=text]", {
         pattern : '[0-9]',
         onchange: m.withAttr('value', vm.fetch.bind(vm)),
         value   : vm.start_order
       }),
       m("span.details", vm.fullname || m.trust('&nbsp;')),
-      m("button", {
-        square  : true,
-        onclick : ctrl.incrementStarter.bind(ctrl)
-      }, m.trust('&#8594;'))
+      m('input[type=text]', {
+        style    : "color:red",
+        disabled : true,
+        value    : vm.result
+      })
     ])
   }
 }

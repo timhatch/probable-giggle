@@ -11,7 +11,7 @@ App.PersonResult = {
   //  Set wet_id === 999 to guard against data being entered without a specified comp'
   // 
   params      : { wet_id: 999 },
-  data        : {},
+  data        : { result_json: {} },
   
   //  Fetch a single set of results from the server
   //  params can take the form of:
@@ -89,40 +89,6 @@ App.PersonResult = {
 //	CODEKIT DECLARATIONS
 //	-----------------------------------------------------
 /*global m                                            */
-/*global mx                                           */
-
-var App = App || {};
-
-App.HeaderVC = {
-  controller: function(vm){    
-    this.toggleSettings = function(){      
-      // Disable toggling if a required value has not been provided...
-      for (var prop in vm.ss) { if (vm.ss[prop] === null) return }
-      
-      // Change the view state
-      var state = vm.ss.State
-      vm.ss.State = (!!state) ? false : true
-    }
-  },
-  
-  view: function(ctrl, vm){
-    var title = (vm.ss.Route || "-")+" / "+(vm.ss.GrpId || "-")+" / "+(vm.ss.BlcNr || "-")
-    return m("header", { 
-        className: App.connectionStatus() ? 'connected' : 'disconnected' 
-      }, [
-      m("button", {
-        onclick: ctrl.toggleSettings,
-        square: true
-      }, m.trust('=')),
-      m("span.details", title || m.trust('&nbsp;'))
-    ])
-  }
-};
-
-//	-----------------------------------------------------
-//	CODEKIT DECLARATIONS
-//	-----------------------------------------------------
-/*global m                                            */
 
 var App = App || {}
 
@@ -154,17 +120,19 @@ App.PersonSelectorView = {
   },
   
   view: function(ctrl, vm){
-    return m("div.search",[
+    return m("#person",[
+      m("label", "Competitor "),
       m("input[type=text]", {
         pattern : '[0-9]',
         onchange: m.withAttr('value', vm.fetch.bind(vm)),
         value   : vm.start_order
       }),
       m("span.details", vm.fullname || m.trust('&nbsp;')),
-      m("button", {
-        square  : true,
-        onclick : ctrl.incrementStarter.bind(ctrl)
-      }, m.trust('&#8594;'))
+      m('input[type=text]', {
+        style    : "color:red",
+        disabled : true,
+        value    : vm.result
+      })
     ])
   }
 }
@@ -198,9 +166,9 @@ App.ParamSV = {
   },
   
   view: function(ctrl, params){
-    return m("div.modal", [
+    return m("span.modal", [
+      m("label", params.text),
       m("input[type=text]", {
-        placeholder: params.text,
         onchange: m.withAttr("value", ctrl.set.bind(ctrl)),
         value   : params.vm.ss[params.key] || m.trust('')
       })
@@ -215,55 +183,69 @@ App.ParamSV = {
 
 var App = App || {}
 
-App.ResultsVC = {
-  // Controller, calling model and super's results aggregation function
+App.ResultsViewController = {
+  view: function(ctrl, params){
+    var createResultCells = function(x, y){
+      for (var i = x, a = []; i <= x+y; i++){
+        a.push(m.component(App.ResultCell, { vm: params.vm, key: "p"+i }))
+      }
+      return a
+    }
+    return m("div", [ 
+      createResultCells(params.colstart, params.rows), 
+      // m("div", "partial result")
+    ])
+  }
+}
+
+App.ResultCell = {
   controller: function(params){
+    this.parse = function(val){
+      var result = {a:null,b:null,t:null}
+      switch (val) {
+      case 'b':
+        result.t = 0
+        result.a = result.a || 3
+        result.b = result.b || 3
+        break
+      case '1':
+      case '2':
+      case '3':
+        result.b = result.b || parseInt(val,10)
+        result.t = result.a = parseInt(val,10)
+        break
+      default:
+        result.t = result.b = result.a = null
+      }
+      return result
+    },
+    
     this.set = function(val){
-      params.model.update(val)
-      params.vm.save(params.model)
-      // TODO: Save here!!!
+      var temp   = {}
+        , target = params.vm.model.data.result_json
+        , json
+      Object.defineProperty(temp, params.key, { value : null })
+      Object.assign(target, temp)
+      target[params.key] = this.parse(val)
+      
+      json = params.vm.model.stringifySingleResult(params.key)
+      params.vm.model.save(json)
       params.vm.sumResults()
     }
-  },  
-  // View declaration  
+  },
+  
   view: function(ctrl, params){
-    var result = params.model.result
-      , value  = result.t || (result.b ? 'b' : null)
-    return m('.tile', [
-      m('span.bloc', params.model.id), 
-      m('input[type=text].textbox', {
+    var resultsArray = params.vm.model.data.result_json
+      , result       = (typeof resultsArray[params.key] === "undefined") ? 
+        {a:null,b:null,t:null} : resultsArray[params.key]
+      , value        = result.t || (result.b ? "b" : null)
+    return m("div.resultrow", [
+      m("label", params.key),
+      m("input[type=text]", { 
         value   : value,
-        onchange: m.withAttr('value', ctrl.set.bind(ctrl))
+        onchange: m.withAttr("value", ctrl.set.bind(ctrl))
       })
     ])
-  }  
-}
-
-// Single Result Model / View
-//
-App.BoulderResultVM = function(id){
-  this.id           = 'p'+id
-  this.result       = {a:null,b:null,t:null}
-}
-
-App.BoulderResultVM.prototype = {
-  // Set the model parameters from a passed value
-  update: function(val){
-    switch (val) {
-    case 'b':
-      this.result.t = 0
-      this.result.a = this.result.a || 3
-      this.result.b = this.result.b || 3
-      break
-    case '1':
-    case '2':
-    case '3':
-      this.result.b = this.result.b || parseInt(val,10)
-      this.result.t = this.result.a = parseInt(val,10)
-      break
-    default:
-      this.result.t = this.result.b = this.result.a = null
-    }
   }
 }
 
@@ -282,33 +264,17 @@ App.VM = function(model, sessiondata){
     //
     start_order : null, 
     fullname    : null, 
-    result      : null,          
-
-    resArray    : (function(){
-      for (var i = 1, a = []; i <= 30; i++) { a.push(new App.BoulderResultVM(i)) }
-      return a
-    })(),
+    result      : null,
 
     sumResults: function(){
       window.console.log("sumResults called")
       var x = 0, y = 0, xa = 0
-      this.resArray.forEach(function(boulderModel){
-        if (boulderModel.result.t) { x += 13; xa += (3 * boulderModel.result.t) }
-        if (boulderModel.result.t || boulderModel.result.b) { y  += 1 }
-      })
+        , results = model.data.result_json
+      for (var prop in results){
+        if (results[prop].t) { x += 13; xa += (3 * results[prop].t) }
+        if (results[prop].t || results[prop].b) { y  += 1 }  
+      }
       this.result = (x - xa) + " b"+y
-    },
-  
-    parseModelData: function(model){
-      var o = {a:null,b:null,t:null} 
-      
-      this.start_order = model.data.start_order
-      this.fullname    = model.data.lastname+', '+model.data.firstname        
-      this.resArray.forEach(function(boulderModel){
-        var r = model.data.result_json[boulderModel.id]
-        boulderModel.result = (!!r) ? r : Object.assign({}, o)
-      }.bind(this)) 
-      this.sumResults()
     },
   
     // Construct query parameters from stored data on the competition, round and group
@@ -334,39 +300,23 @@ App.VM = function(model, sessiondata){
     
       promise
         .then(function(){
-          try { this.parseModelData(model) } 
-          catch (err) { window.console.log(err) }      
+          try { 
+            this.start_order = model.data.start_order
+            this.fullname    = model.data.lastname+', '+model.data.firstname
+            this.sumResults()
+          } 
+          catch (err) { this.reset() }      
         }.bind(this))
         .then(function(){ App.connectionStatus(true) })
         .then(null, function(){ App.connectionStatus(false) })
     },
   
-    save: function(viewmodel){
-      var obj = { result: null }
-        , str = ""
-
-      for (var key in viewmodel.result){
-        if (viewmodel.result[key] !== null) str += (key+viewmodel.result[key])
-      }
-      obj.result = str
-            
-      str = JSON.stringify(obj)
-      str = str.replace("result",viewmodel.id)
-      model.save(str)
-//      promise = model.save(json)
-//      promise
-//        .then(function(){ App.connectionStatus(true) })
-//        .then(null, function(){ App.connectionStatus(false) })
-    },
-  
     reset: function(){
-      this.start_order = null
-      this.fullname    = null
-      this.result      = null
-      
-      this.resArray.forEach(function(boulder){
-        boulder.result = Object.assign({},{a:null,b:null,c:null})
-      })
+      this.start_order  = null
+      this.fullname     = null
+      this.result       = null
+      this.model.data   = { result_json: {} }
+      this.model.params = { wet_id: 999 }
     }
   }
 }
@@ -380,7 +330,6 @@ App.VM = function(model, sessiondata){
 /* global mx                                           */
 
 // @codekit-prepend "./m/personresult_model.js"
-// @codekit-prepend "./m/headerbar_viewcontroller.js"
 // @codekit-prepend "./m/personselector_viewcontroller.js"
 
 // @codekit-prepend "./m/desktop_settings_viewcontroller.js"
@@ -398,17 +347,15 @@ App.SuperVC = {
   // View declaration  
   view: function(ctrl, vm){
     return [
-      m.component(App.HeaderVC, vm),
       m.component(App.SettingsVC, vm),
       m.component(App.PersonSelectorView, vm),
-      m('span.result', vm.result),
       m('#tiles', [
-        vm.resArray.map(function(bloc, i) {
-          return m.component(App.ResultsVC, { 
-            vm: vm, 
-            model: bloc
-          }) 
-        })
+        m.component(App.ResultsViewController, { vm: vm, colstart:  1, rows: 4 }),
+        m.component(App.ResultsViewController, { vm: vm, colstart:  6, rows: 4 }),
+        m.component(App.ResultsViewController, { vm: vm, colstart: 11, rows: 4 }),
+        m.component(App.ResultsViewController, { vm: vm, colstart: 16, rows: 4 }),
+        m.component(App.ResultsViewController, { vm: vm, colstart: 21, rows: 4 }),
+        m.component(App.ResultsViewController, { vm: vm, colstart: 26, rows: 4 })
       ])
     ]
   }

@@ -27,9 +27,9 @@ App.ParamSV = {
   },
   
   view: function(ctrl, params){
-    return m("div.modal", [
+    return m("span.modal", [
+      m("label", params.text),
       m("input[type=text]", {
-        placeholder: params.text,
         onchange: m.withAttr("value", ctrl.set.bind(ctrl)),
         value   : params.vm.ss[params.key] || m.trust('')
       })

@@ -11,7 +11,7 @@ App.PersonResult = {
   //  Set wet_id === 999 to guard against data being entered without a specified comp'
   // 
   params      : { wet_id: 999 },
-  data        : {},
+  data        : { result_json: {} },
   
   //  Fetch a single set of results from the server
   //  params can take the form of:

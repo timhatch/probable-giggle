@@ -5,7 +5,6 @@
 /* global mx                                           */
 
 // @codekit-prepend "./m/personresult_model.js"
-// @codekit-prepend "./m/headerbar_viewcontroller.js"
 // @codekit-prepend "./m/personselector_viewcontroller.js"
 
 // @codekit-prepend "./m/desktop_settings_viewcontroller.js"
@@ -23,17 +22,15 @@ App.SuperVC = {
   // View declaration  
   view: function(ctrl, vm){
     return [
-      m.component(App.HeaderVC, vm),
       m.component(App.SettingsVC, vm),
       m.component(App.PersonSelectorView, vm),
-      m('span.result', vm.result),
       m('#tiles', [
-        vm.resArray.map(function(bloc, i) {
-          return m.component(App.ResultsVC, { 
-            vm: vm, 
-            model: bloc
-          }) 
-        })
+        m.component(App.ResultsViewController, { vm: vm, colstart:  1, rows: 4 }),
+        m.component(App.ResultsViewController, { vm: vm, colstart:  6, rows: 4 }),
+        m.component(App.ResultsViewController, { vm: vm, colstart: 11, rows: 4 }),
+        m.component(App.ResultsViewController, { vm: vm, colstart: 16, rows: 4 }),
+        m.component(App.ResultsViewController, { vm: vm, colstart: 21, rows: 4 }),
+        m.component(App.ResultsViewController, { vm: vm, colstart: 26, rows: 4 })
       ])
     ]
   }
