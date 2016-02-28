@@ -15,3 +15,4 @@ map('/')            { run Perseus::ApplicationController }
 map('/statistics')  { run Perseus::StatisticsController }
 map('/registration'){ run Perseus::RegistrationController }
 map('/startlist')   { run Perseus::StartlistController }
+map('/displays')    { run Perseus::DisplayController }

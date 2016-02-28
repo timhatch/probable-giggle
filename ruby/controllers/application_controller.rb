@@ -19,11 +19,6 @@ module Perseus
     set :views, File.expand_path('../../views', __FILE__)
     set :public_folder, File.expand_path('../../public', __FILE__)
     
-    # EGroupware interface
-    get '/egw' do
-      redirect '/ifsc_display/index.boulder.html'
-    end
-    
     get '/' do
       haml :index
     end
