@@ -79,7 +79,7 @@ App.PersonResult = {
     
     return m.request({
       method: 'PUT',
-      url   : '/results/person',
+      url   : '/results/person_nomedia',
       data  : params
     })
   }
