@@ -5,7 +5,7 @@ module Perseus
   class ResultsController < ApplicationController
     
     # HELPERS
-    helpers Perseus::MediaInterface
+    helpers Perseus::MediaRunner
 
     # Interrogate in individual result string to construct a result
     #
@@ -80,13 +80,18 @@ module Perseus
       resp = set_result_single(params)
       
       # Simple hack to dump results data to a csv file
-#      what = Perseus::MediaInterface.trim_params(params)
-#      data = get_result(what, order_by:"start_order").all
-#      Perseus::MediaInterface.write_to_csvfile(what, data)
-      
+      Perseus::MediaRunner.export_consolidated_results({
+        wet_id: params["wet_id"], grp_id: params["grp_id"]
+      })
       resp
     end
-
+    
+    # Update a simple result (but don't update the media file)
+    #
+    put '/person_nomedia' do
+      resp = set_result_single(params)
+    end
+    
     # Fetch __multiple__ results (i.e. for a route)
     get '/route' do
       get_result(params).all.to_json

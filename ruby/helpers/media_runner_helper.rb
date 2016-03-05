@@ -38,7 +38,8 @@ module Perseus
       Sequel.pg_array_op(:sort_values)[1].desc(:nulls=>:last),
       Sequel.pg_array_op(:sort_values)[2],
       Sequel.pg_array_op(:sort_values)[3].desc,
-      Sequel.pg_array_op(:sort_values)[4]
+      Sequel.pg_array_op(:sort_values)[4],
+      :rank_prev_heat
     ]
     end
   end  
@@ -58,7 +59,7 @@ module Perseus
     #
     def self.qualification_results params
       params = Hash[params.map{ |(k,v)| [k.to_sym,v.to_i] }]
-      params[:route] = 2
+      params[:route] = 0
 #      p params
       
       DB[:Results]
@@ -194,9 +195,9 @@ module Perseus
     end
   end
 end
-params = {wet_id: 1, grp_id: 5}
+#params = {wet_id: 99, grp_id: 5}
 #p Perseus::MediaRunner.run(params)
 #p Perseus::MediaRunner.update_consolidated_results(params)
-Perseus::MediaRunner.export_consolidated_results(params)
+#p Perseus::MediaRunner.export_consolidated_results(params)
 
 #p Perseus::MediaRunner.export_consolidated_results(params)
