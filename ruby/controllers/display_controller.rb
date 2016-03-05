@@ -4,15 +4,21 @@
 module Perseus
   class DisplayController < ApplicationController
 
-    def self.rank_generator
+    # Return a Sequel order query to sort on the basis of points (10/7/4) amd then bonuses 
+    #
+    def self.cwif_rank_generator
       t  = Sequel.pg_array_op(:sort_values)[1] * 13
       ta = Sequel.pg_array_op(:sort_values)[2] * 3
       b  = Sequel.pg_array_op(:sort_values)[3]
     
-      [(t - ta).desc, b.desc]
+      [(t - ta).desc(:nulls => :last), b.desc]
     end    
     
-    def get_legacy_results params
+    # Interrogate the Results database table, fetching a sorted dataset and then returning a
+    # JSON formatted object continaing the parameters expected by the legacy CWIF display
+    # @params: "cat" with expected values "m" or "f"
+    #
+    def get_cwif_results params
       cat_ip = params.delete("cat")
       params[:wet_id] = 0
       params[:route]  = 0
@@ -24,7 +30,9 @@ module Perseus
         .join(:Climbers, :per_id => :per_id)
         .select(:lastname, :firstname, :nation)
         .select_append(:start_order, :sort_values)
-        .select_append{rank.function.over(order: DisplayController.rank_generator).as(:rank)}
+        .select_append{rank.function
+          .over(order: DisplayController.cwif_rank_generator)
+          .as(:rank)}
         .all
       
       # Convert the qurey result into the form assumed by the legacy page 
@@ -41,18 +49,25 @@ module Perseus
       data.to_json  
     end
 
-    # EGroupware interface
+    # Interface to the "legacy" eGroupware display. Some minor modifications have been made to
+    # the egroupware display to get this to run - we can reverse those out however
+    #
     get '/egw' do
       redirect '/ifsc_display/index.boulder.html'
     end
     
-    # Legacy CWIF Qualification interface
+    # Interface to the "legacy" CWIF Qualification interface. As above
     get '/cwif' do
       redirect '/cwif_display/results.html'
     end
-
+    
+    # Instead of fetching results through the ResultsController, do that here (because of the
+    # various custom modifications needed to the output JSON format). 
+    # Again, we can migrate this in the future...
+    #
+    # TODO: 
     get '/cwif/results' do
-      get_legacy_results(params)
+      get_cwif_results(params)
     end
     
   end

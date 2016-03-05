@@ -9,17 +9,24 @@
     / %link{ rel: 'stylesheet', href: './stylesheets/r.css' }
 
   %body#inner
-    %h2 Link reminder...
+    %h2 Results Links
     %div
       %a{ title: "registration", href: "/registration" } Registration (WIP)
+    
     %div
-      %a{ title: "results", href: "/results" } Results
+      %a{ title: "results", href: "/results" } Group Result UI
     %div
-      %a{ title: "qualification results", href: "/results/f" } Qualification Results (WIP)
+      %a{ title: "mobile results", href: "/results/f" } Boulder Result UI
     %div
-      %a{ title: "mobile results", href: "/results/m" } Mobile Results
+      %a{ title: "mobile results", href: "/results/m" } Tablet Result UI
+    
+    %h2 Display Links
     %div
-      %a{ title: "eGroupware results", href: "/egw" } eGroupware Display Format
+      The following two links work, but require manual assignment of the wet_id parameter within code. Check this before use. </br></br>Specifically, line 2283 in THBoulderApp.min.js will need to be modified to introduce the correct competition for the eGroupware display and line 17 of display_controller.rb will need to be modified to introduce the correct competition for the CWIF qualification results display. Both of these manual amends can be eliminated, but that's a job for the future.</br></br>
+    %div
+      %a{ title: "eGroupware Display", href: "/displays/egw" } eGroupware Display.
+    %div
+      %a{ title: "CWIF Qualification Display", href: "/displays/cwif" } Qualification Display
     
     %br
     %h2 Non-display paths
