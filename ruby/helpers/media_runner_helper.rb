@@ -58,11 +58,11 @@ module Perseus
     # @params: wet_id, grp_id
     #
     def self.qualification_results params
-      params = Hash[params.map{ |(k,v)| [k.to_sym,v.to_i] }]
+      args         = Hash[params.map{ |(k,v)| [k.to_sym,v.to_i] }]
       args[:route] = 1
       
       DB[:Results]
-      .where(params)
+      .where(args)
       .select(:per_id)
       .select_append(
         Sequel.pg_array_op(:sort_values)[1].as(:q_t),
@@ -70,6 +70,7 @@ module Perseus
         Sequel.pg_array_op(:sort_values)[3].as(:q_b))
       .select_append{
         rank.function.over(
+          partition: [:wet_id, :grp_id, :route],
           order: Perseus::CWIFResultsModus.rank_generator
         ).as(:q_rank)
       }
@@ -91,6 +92,7 @@ module Perseus
         Sequel.as(:result_json, :s_rjson))
       .select_append{
         rank.function.over(
+          partition: [:wet_id, :grp_id, :route],
           order: Perseus::IFSCResultsModus.rank_generator
         ).as(:s_rank)
       }
@@ -170,7 +172,7 @@ module Perseus
     # @return: csv file
     #
     def export_consolidated_results params
-      filename = "results_"<< params[:wet_id].to_s<< "_"<< params[:grp_id].to_s<< ".csv"
+      filename = "results_#{params[:wet_id].to_s}_#{params[:grp_id].to_s}.csv"
       
       File.new(filename, "w") unless File.exists?(filename)
       File.open(filename,"w") do |file|
@@ -192,11 +194,38 @@ module Perseus
         end
       end
     end
+    
+    # Export Qualification Results 
+    # NOTE: Put this here temporarily : Outputs a CSV file of qualification results
+    # for one category (gender) and a defined age range
+    # Need to think about the architecture of this - in theory this works around having separate
+    # age groups.
+    #
+    def export_results params, max_age: 99, min_age: 10
+      filename = "results_#{params[:grp_id].to_s}_age_#{max_age}.csv"
+
+      File.new(filename, "w") unless File.exists?(filename)
+      File.open(filename,"w") do |file|
+        year = Sequel.cast(Date.today, DateTime).extract(:year).cast(Integer)        
+        data = DB[:Results]
+        .where(params)
+        .where{birthyear > year - max_age}
+        .select(:lastname, :firstname, :nation)
+        .select_append(
+          Sequel.pg_array_op(:sort_values)[1].as(:q_t),
+          Sequel.pg_array_op(:sort_values)[2].as(:q_ta),
+          Sequel.pg_array_op(:sort_values)[3].as(:q_b))
+        .select_append{
+          rank.function.over(order: Perseus::CWIFResultsModus.rank_generator)
+        }
+        .join(:Climbers, :per_id => :per_id)
+        
+        data.all.each { |row| file.write(row.values.to_csv) }           
+      end
+    end
+
   end
 end
-#params = {wet_id: 99, grp_id: 5}
-#p Perseus::MediaRunner.run(params)
-#p Perseus::MediaRunner.update_consolidated_results(params)
-#p Perseus::MediaRunner.export_consolidated_results(params)
 
-#p Perseus::MediaRunner.export_consolidated_results(params)
+params = {wet_id: 98, grp_id: 5, route: 1}
+p Perseus::MediaRunner.export_results params, max_age: 28
