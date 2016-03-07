@@ -59,8 +59,7 @@ module Perseus
     #
     def self.qualification_results params
       params = Hash[params.map{ |(k,v)| [k.to_sym,v.to_i] }]
-      params[:route] = 0
-#      p params
+      args[:route] = 1
       
       DB[:Results]
       .where(params)
