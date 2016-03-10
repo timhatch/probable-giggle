@@ -24,7 +24,8 @@ JOIN "Climbers" USING (per_id)
 
 
 # Add a column havng integer Array type
-ALTER TABLE "Results" ADD COLUMN "sort_array" INTEGER[4]
+ALTER TABLE "Results" ADD COLUMN "sort_values" INTEGER[4]
+ALTER TABLE "Results" ADD COLUMN "result_json" TEXT DEFAULT '{}'
 
 # Triggers in POSTGRESQL use functions, like so...
 CREATE OR REPLACE FUNCTION test_function()
