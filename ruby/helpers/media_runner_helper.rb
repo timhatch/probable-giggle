@@ -227,5 +227,5 @@ module Perseus
   end
 end
 
-params = {wet_id: 98, grp_id: 5, route: 1}
-p Perseus::MediaRunner.export_results params, max_age: 28
+#params = {wet_id: 98, grp_id: 5, route: 1}
+#p Perseus::MediaRunner.export_results params, max_age: 28
