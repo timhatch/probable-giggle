@@ -20,8 +20,8 @@ module Perseus
     #
     def get_cwif_results params
       cat_ip = params.delete("cat")
-      params[:wet_id] = 0
-      params[:route]  = 0
+      params[:wet_id] = 2
+      params[:route]  = 1
       params[:grp_id] = (cat_ip === 'm') ? 6 : 5
       
       # Fetch the relevant results and assign a rank to each 
