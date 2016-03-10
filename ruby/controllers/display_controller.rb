@@ -18,6 +18,10 @@ module Perseus
     # JSON formatted object continaing the parameters expected by the legacy CWIF display
     # @params: "cat" with expected values "m" or "f"
     #
+    # NOTE: The .exclude(:sort_values) line has the effect of excluding any competitors who 
+    # have no result. This is fine, other than that it means no climbers will be displayed 
+    # until results have been entered for at least one competitor
+    # 
     def get_cwif_results params
       cat_ip = params.delete("cat")
       params[:wet_id] = 2
@@ -27,6 +31,7 @@ module Perseus
       # Fetch the relevant results and assign a rank to each 
       data = DB[:Results]
         .where(params)
+        .exclude(sort_values: nil)
         .join(:Climbers, :per_id => :per_id)
         .select(:lastname, :firstname, :nation)
         .select_append(:start_order, :sort_values)
