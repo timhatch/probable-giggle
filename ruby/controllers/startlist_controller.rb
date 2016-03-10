@@ -4,7 +4,7 @@
 require 'csv'
 
 module Perseus
-  class StartlistController < ApplicationController
+  class StartlistController < Perseus::ApplicationController
   
     defaults = { wet_id: 0, route: 0, grp_id: 0 }
     

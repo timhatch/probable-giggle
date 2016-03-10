@@ -1,8 +1,9 @@
 # Handlers for '/statistics' routes 
 #
+require_relative './application_controller.rb'
 
 module Perseus
-  class StatisticsController < ApplicationController
+  class StatisticsController < Perseus::ApplicationController
 
     def forecast_best_result results, b_number
       results.map do |result|

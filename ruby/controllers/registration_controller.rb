@@ -3,7 +3,7 @@
 require 'csv'
 
 module Perseus
-  class RegistrationController < ApplicationController
+  class RegistrationController < Perseus::ApplicationController
     
     # Insert a single person into the database. 
     # required params: per_id

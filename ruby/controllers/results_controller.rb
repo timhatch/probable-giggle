@@ -2,7 +2,7 @@
 #
 
 module Perseus
-  class ResultsController < ApplicationController
+  class ResultsController < Perseus::ApplicationController
     
     # HELPERS
     helpers Perseus::MediaRunner

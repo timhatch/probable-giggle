@@ -2,7 +2,7 @@
 #
 
 module Perseus
-  class DisplayController < ApplicationController
+  class DisplayController < Perseus::ApplicationController
 
     # Return a Sequel order query to sort on the basis of points (10/7/4) amd then bonuses 
     #

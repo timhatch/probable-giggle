@@ -2,7 +2,7 @@
 #
 
 module Perseus
-  class CompetitionController < ApplicationController
+  class CompetitionController < Perseus::ApplicationController
 
     get '/' do
       hash = Hash[params.map{|(k,v)| [k.to_sym,v.to_i]}]
