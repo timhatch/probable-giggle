@@ -30,8 +30,12 @@
     
     %br
     %h2 Non-display paths
-    %div POST /startlist { wet_id, grp_id, route, next_route, quota }
     %div GET /statistics/boulder { wet_id, route, boulder, [grp_id, data]}
     %div GET /statistics/round { wet_id, route, [grp_id, data]}
     %div GET /statistics/forecast { wet_id, route, grp_id }
+    %div GET /competition { wet_id }
+    %div GET /results/person { wet_id, grp_id, route, [start_order || per_id] }
+    %div GET /results/route { wet_id, grp_id, route }
+    <br/>
+    %div POST /startlist { wet_id, grp_id, route, next_route, quota }
     
