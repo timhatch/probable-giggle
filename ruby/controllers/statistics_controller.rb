@@ -5,16 +5,19 @@ require_relative './application_controller.rb'
 module Perseus
   class StatisticsController < Perseus::ApplicationController
 
+    # HELPERS
+    helpers Perseus::IFSCResultsModus
+
     def forecast_best_result results, b_number
       results.map do |result|
         # TODO: b_completed as currently defined simply picks up how many boulders have 
         # been attempted, but it presumes that 
         b_completed  = JSON.parse(result.delete(:result_json)).length
-        forecast_best_result = Array.new(4, b_number - b_completed)
-        forecast_best_result.map.with_index { |x,i| forecast_best_result[i] += result[:sort_values][i] }
+        forecast_best = Array.new(4, b_number - b_completed)
+        forecast_best.map.with_index { |x,i| forecast_best[i] += result[:sort_values][i] }
     
         result[:result_min] = result.delete(:sort_values)
-        result.merge({ result_max: forecast_best_result })
+        result.merge({ result_max: forecast_best })
       end
     end
 
@@ -24,18 +27,13 @@ module Perseus
       DB[:Forecast]
       .select(:start_order, :sort_values, :rank_prev_heat)
       .select_more{rank.function
-      .over(order: [
-        Sequel.desc(Sequel.pg_array_op(:sort_values)[1]),
-        Sequel.pg_array_op(:sort_values)[2],
-        Sequel.desc(Sequel.pg_array_op(:sort_values)[3]),
-        Sequel.pg_array_op(:sort_values)[3],
-        :rank_prev_heat
-      ])}
+      .over(order: Perseus::IFSCResultsModus.rank_generator
+      )}
       .all
     end
 
     # Set or reset the sort_values in the sorting table
-    def forecast_set_sort_values starter, result
+    def set_sort_values starter, result
       DB[:Forecast]
       .where(start_order: starter)
       .update(sort_values: Sequel.pg_array(result))
@@ -45,19 +43,19 @@ module Perseus
       # Figure out whether we're calculating the highest or lowest achieveable rankings
       param = (test_key === :result_min) ? :rank_min : :rank_max
       # Set the sort values
-      results.each { |result| forecast_set_sort_values(result[:start_order], result[base_key]) }
+      results.each { |result| set_sort_values(result[:start_order], result[base_key]) }
 
       # For each result, insert the "test" result in the sorting database, 
       # generate a ranking forecast, storing that ranking in the result, and then 
       # re-set the sorting database before proceeding to the next result
       results.each do |result|
-        forecast_set_sort_values(result[:start_order], result[test_key])
+        set_sort_values(result[:start_order], result[test_key])
   
         result[param] = forecast_ifsc_ranking
                         .select { |a| a[:start_order] == result[:start_order] }
                         .first[:rank]
   
-        forecast_set_sort_values(result[:start_order], result[base_key])
+        set_sort_values(result[:start_order], result[base_key])
       end
     end
     
