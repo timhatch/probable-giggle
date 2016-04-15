@@ -49,6 +49,7 @@ module Perseus
   module MediaRunner
     # Instantiate database access
     DB = Sequel.connect(ENV['DATABASE_URL'] || "postgres://timhatch@localhost:5432/test")
+#    DB = Sequel.connect(ENV['DATABASE_URL'] || "postgres://postgres@melody.local:5432/test")
     DB.extension :pg_array          # Needed to insert arrays
     Sequel.extension :pg_array_ops  # Needed to query stored arrays
   
@@ -223,9 +224,8 @@ module Perseus
         data.all.each { |row| file.write(row.values.to_csv) }           
       end
     end
-
   end
 end
 
-#params = {wet_id: 98, grp_id: 5, route: 1}
-#p Perseus::MediaRunner.export_results params, max_age: 28
+#params = {wet_id: 2, grp_id: 5, route: 1}
+#p Perseus::MediaRunner.export_results params, max_age: 19
