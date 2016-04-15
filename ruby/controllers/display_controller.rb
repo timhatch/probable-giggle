@@ -1,11 +1,26 @@
-# Handlers for '/competition' routes 
-#
+# Module  Perseus                 - The namespace for all application code
+# Class   DisplayController       - Subclasses ApplicationController
+# 
+# DisplayController manages interactions between the results database and results displays 
+# Currently implements: 
+# - An interface to a legacy display originally developed for the CONTEST format of the CWIF, q.v.
+# - An interface to *load* the results display developed for the IFSC. Results updates are done by
+#   calling ResultsController.
 
+#
+# TODO: Consider the architectural issues around this class 
+# - should all results fetching be done from this class?, 
+# - should setting/getting results alwat be delegated to the ResultsController class? 
+# - Should getting/setting results be put into one or more helper modules
+#
 module Perseus
   class DisplayController < Perseus::ApplicationController
 
     # Return a Sequel order query to sort on the basis of points (10/7/4) amd then bonuses 
-    #
+    # @params - none
+    # @returns  - An array containing Sequel parameters used to set the order of rows returned
+    # within a Postgres window::rank function call.
+    # 
     def self.cwif_rank_generator
       t  = Sequel.pg_array_op(:sort_values)[1] * 13
       ta = Sequel.pg_array_op(:sort_values)[2] * 3
@@ -19,9 +34,14 @@ module Perseus
     # @params: "cat" with expected values "m" or "f"
     #
     # NOTE: The .exclude(:sort_values) line has the effect of excluding any competitors who 
-    # have no result. This is fine, other than that it means no climbers will be displayed 
-    # until results have been entered for at least one competitor
-    # 
+    # have no result. However in some instances we want to display all *starters* so the
+    # exclude would be inappropriate,an in this case we'd need to figure out either on the client
+    # side or here how to allocate a rank (I think the cwif_rank_generator method will fail if 
+    # the sort_values field is empty...)
+    # Check the IFSC results display code to see how it is handled there
+    #
+    # TODO: Refactor the CWIF results client code to do away with most or all of this...
+    #
     def get_cwif_results params
       cat_ip = params.delete("cat")
       params[:wet_id] = 2
@@ -77,4 +97,3 @@ module Perseus
     
   end
 end
-
