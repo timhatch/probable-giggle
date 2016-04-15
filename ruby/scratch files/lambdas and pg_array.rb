@@ -62,31 +62,31 @@ arr = [1,2,3,3]
 #def gen_times factor
 
   #THREE METHODS FOR ORDERING IN SEQUEL
-  p DB[:Forecast]
-  .select(:start_order, :sort_values, :rank_prev_heat)
-  .reverse(Sequel.pg_array_op(:sort_values)[1])
-  .order_more(Sequel.pg_array_op(:sort_values)[2]).reverse
-  .order_more(Sequel.pg_array_op(:sort_values)[3]).reverse
-  .order_more([Sequel.pg_array_op(:sort_values)[4], :rank_prev_heat])
-  .all
- # Reset the data ahead of the next comparison 
-
-  p DB[:Forecast]
-  .select(:start_order, :sort_values, :rank_prev_heat)
-  .order(Sequel.desc(Sequel.pg_array_op(:sort_values)[1]))
-  .order_more(Sequel.asc(Sequel.pg_array_op(:sort_values)[2]))
-  .order_more(Sequel.desc(Sequel.pg_array_op(:sort_values)[3]))
-  .order_more(Sequel.asc(Sequel.pg_array_op(:sort_values)[4]))
-  .order_more(Sequel.asc(:rank_prev_heat))
-  .all
-
-  DB[:Forecast]
-  .select(:start_order, :sort_values, :rank_prev_heat)
-  .order(
-    Sequel.desc(Sequel.pg_array_op(:sort_values)[1]),
-    Sequel.asc(Sequel.pg_array_op(:sort_values)[2]),
-    Sequel.desc(Sequel.pg_array_op(:sort_values)[3]),
-    Sequel.asc(Sequel.pg_array_op(:sort_values)[4]),
-    Sequel.asc(:rank_prev_heat)
-  )
-  .all
+#  p DB[:Forecast]
+#  .select(:start_order, :sort_values, :rank_prev_heat)
+#  .reverse(Sequel.pg_array_op(:sort_values)[1])
+#  .order_more(Sequel.pg_array_op(:sort_values)[2]).reverse
+#  .order_more(Sequel.pg_array_op(:sort_values)[3]).reverse
+#  .order_more([Sequel.pg_array_op(:sort_values)[4], :rank_prev_heat])
+#  .all
+# # Reset the data ahead of the next comparison 
+#
+#  p DB[:Forecast]
+#  .select(:start_order, :sort_values, :rank_prev_heat)
+#  .order(Sequel.desc(Sequel.pg_array_op(:sort_values)[1]))
+#  .order_more(Sequel.asc(Sequel.pg_array_op(:sort_values)[2]))
+#  .order_more(Sequel.desc(Sequel.pg_array_op(:sort_values)[3]))
+#  .order_more(Sequel.asc(Sequel.pg_array_op(:sort_values)[4]))
+#  .order_more(Sequel.asc(:rank_prev_heat))
+#  .all
+#
+#  DB[:Forecast]
+#  .select(:start_order, :sort_values, :rank_prev_heat)
+#  .order(
+#    Sequel.desc(Sequel.pg_array_op(:sort_values)[1]),
+#    Sequel.asc(Sequel.pg_array_op(:sort_values)[2]),
+#    Sequel.desc(Sequel.pg_array_op(:sort_values)[3]),
+#    Sequel.asc(Sequel.pg_array_op(:sort_values)[4]),
+#    Sequel.asc(:rank_prev_heat)
+#  )
+#  .all
