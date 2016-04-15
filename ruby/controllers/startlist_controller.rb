@@ -1,7 +1,10 @@
-# Handlers for '/startlist' routes 
-#
-
 require 'csv'
+
+# Module  Perseus                 - The namespace for all application code
+# Class   StartlistController     - Subclasses ApplicationController
+# 
+# StartlistController manages interactions creating/updating/deleting startlist data 
+#
 
 module Perseus
   class StartlistController < Perseus::ApplicationController
@@ -12,10 +15,16 @@ module Perseus
     helpers Perseus::CWIFResultsModus
     helpers Perseus::IFSCResultsModus
 
-    # Move to the next round, delete any existing startlist and [re-]create
-    # Not the 
+    # Create a new startlist within the results. Deletes any existing startlist for the specified 
+    # competition, round and category and then creates a new list
+    # @params - wet_id, grp_id, route,
+    #         - dataset (an ordered list of competitors)
     def create_startlist params, dataset
+      # Delete any existing startlist
       DB[:Results].where(params).delete
+      
+      # Loop through the ordered list of competitors and create a new startlist, either using
+      # predefined start_order data or by using the positional index of the competitor
       dataset.each.with_index(1) do |person, i|
         person.merge!(params)
         person[:start_order] ||= i
@@ -27,10 +36,14 @@ module Perseus
     # was calculated using the CWIF 10/7/4/b modus  
     # @params: wet_id, grp_id, route, quota
     #
+    # NOTE
+    # This method outputs creates a startlist in rank reverse order 
+    # (i.e. highest rank starts last)
     def create_from_cwif_results params
       quota = params[:quota] || 1
       
-      # Fetch the results of the previous round
+      # Fetch the results of the previous round, ordered reverse to the calculated rank in the
+      # previous heat (i.e. lowest ranked first)
       dataset = DB[:Results]
       .where(params)
       .select(:per_id)
@@ -40,7 +53,8 @@ module Perseus
       .reverse_order(:rank_prev_heat)
       .all
       
-      # Apply the quota and call the create_startlist method 
+      # Discard any competitors whose rank is greater than the quota and create the
+      # startlist   
       dataset.keep_if { |row| row[:rank_prev_heat] <= quota }
       params[:route] += 1
       create_startlist(params, dataset)
@@ -50,10 +64,14 @@ module Perseus
     # was calculated using the IFSC T/TA/B/BA modus  
     # @params: wet_id, grp_id, route, quota
     #
+    # TODO
+    # Figure out how/whether we can pass in the required rank_generator rather than
+    # use two separate functions
     def create_from_ifsc_results params
       quota = params[:quota] || 1
       
-      # Fetch the results of the previous round
+      # Fetch the results of the previous round, ordered reverse to the calculated rank in the
+      # previous heat (i.e. lowest ranked first)
       dataset = DB[:Results]
       .where(params)
       .select(:per_id)
@@ -63,7 +81,8 @@ module Perseus
       .reverse_order(:rank_prev_heat)
       .all
       
-      # Apply the quota and call the create_startlist method 
+      # Discard any competitors whose rank is greater than the quota and create the
+      # startlist   
       dataset.keep_if { |row| row[:rank_prev_heat] <= quota }
       params[:route] += 1
       create_startlist(params, dataset)
@@ -99,17 +118,18 @@ module Perseus
       200
     end
     
+    # Create a startlist from existing results - see create_from_cwif_results for arguments
     post '/cwif' do
       args = defaults.merge Hash[params.map{ |(k,v)| [k.to_sym,v.to_i] }]
       create_from_cwif_results(args)
       200
     end
     
+    # Create a startlist from existing results - see create_from_ifsc_results for arguments
     post  '/ifsc' do
       args = defaults.merge Hash[params.map{ |(k,v)| [k.to_sym,v.to_i] }]
       create_from_ifsc_results(args)
       200
     end
-      
   end
 end

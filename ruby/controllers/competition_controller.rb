@@ -1,6 +1,8 @@
-# Handlers for '/competition' routes 
+# Module  Perseus                 - The namespace for all application code
+# Class   CompetitionController   - Subclasses ApplicationController
+# 
+# CompetitionController manages routes calling for information on any specific competition: 
 #
-
 module Perseus
   class CompetitionController < Perseus::ApplicationController
 
