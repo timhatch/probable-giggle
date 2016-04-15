@@ -1,4 +1,11 @@
-# Handlers for '/registration' routes 
+# Module  Perseus                 - The namespace for all application code
+# Class   RegistrationController  - Subclasses ApplicationController
+# 
+# RegistrationController manages interactions between the results database and results displays 
+# Currently implements: 
+# - An interface to a legacy display originally developed for the CONTEST format of the CWIF, q.v.
+# - An interface to *load* the results display developed for the IFSC. Results updates are done by
+#   calling ResultsController.
 #
 require 'csv'
 
