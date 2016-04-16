@@ -1,6 +1,15 @@
-# Handlers for '/results' routes 
+# Module  Perseus                 - The namespace for all application code
+# Class   ResultsController   - Subclasses ApplicationController
+# 
+# ResultsController manages routes Requesting/Updating/Deleting results in the
+# database 
+# Currently implements: 
+# - Getting/Setting a single result (i.e. for one climber and one boulder)
+# - Setting a singe result and outputting to a CSV file (as a ninterface to livestream)
+# - Gettting multiple results (e.g. for a climber, or for all climbers in a round) 
+# - Routes serving web pages for data input via tablet, for a flash qualification
+#   format and for the "classic" IFSC format.
 #
-
 module Perseus
   class ResultsController < Perseus::ApplicationController
     
@@ -97,15 +106,19 @@ module Perseus
       get_result(params).all.to_json
     end
     
-    # placeholder - will need to be renamed
+    # Serve a data input sheet formatted for a Nexus Tablet, IFSC scoring format
+    # 
     get '/m' do
       haml :nexus
     end
-    # placeholder - will need to be renamed
+    # Serve a data input sheet for a single climber, assuming the "old school"
+    # CWIF scramble/jam format.
     get '/f' do
       haml :mithril
     end
-    # placeholder - may need to be renamed
+    
+    # Serve a data input sheet shwoining the startlist, results list and judging sheet
+    #
     get '/' do
       haml :results
     end
