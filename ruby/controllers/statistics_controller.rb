@@ -99,6 +99,10 @@ module Perseus
       hash       = Hash[params.map{ |(k,v)| [k.to_sym,v] }]
       type_regex = generate_regex(hash.delete(:data) || "t")
       index      = hash[:route] || 0
+      
+      #
+      # TODO: Change this at is picking up a fixed competition not necessarily the one we're interested in...
+      #
       n_boulders = JSON.parse(DB[:Competitions].first[:format])[index.to_s]
 
       # Interrogate the database
