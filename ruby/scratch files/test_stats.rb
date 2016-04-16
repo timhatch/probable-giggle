@@ -21,7 +21,7 @@ Sequel.extension :pg_array_ops  # Needed to query stored arrays
 
 params = {wet_id: 2, route: 1, grp_id: 5 }
 
-# USE A FILTER TO SCREEN OUT JUNIOES (CWIF)
+# USE A FILTER TO SCREEN OUT JUNIORS (CWIF)
 
 # date = Sequel.cast(Date.today,DateTime)
 # year = Sequel.extract(:year, date).cast(Integer)
