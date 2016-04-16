@@ -1,4 +1,14 @@
-# Handlers for '/statistics' routes 
+# Module  Perseus                 - The namespace for all application code
+# Class   StatisticsController    - Subclasses ApplicationController
+# 
+# StatisticsController manages routes interrogating the results database and generating
+# statistics on the results...
+# Currently implements: 
+# - Getting a summary of tops/bonuses/attempts for aach boulder in a round
+# - Forecasting the highest/loeest rank that a competitor can in theory achieve
+# - Getting multiple results (e.g. for a climber, or for all climbers in a round) 
+# - Getting s list of competitors who have topped/bonuses any specified boulder in the 
+#   round
 #
 require_relative './application_controller.rb'
 
