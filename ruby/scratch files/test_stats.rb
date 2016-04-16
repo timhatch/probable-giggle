@@ -105,4 +105,3 @@ p instance.get_results params, method
 #RB = Sequel.connect("postgres://postgres@melody.local:5432/test")
 
 #p RB.drop_table(:Params)
-
