@@ -1,10 +1,13 @@
-require 'csv'
-
 # Module  Perseus                 - The namespace for all application code
 # Class   StartlistController     - Subclasses ApplicationController
 # 
 # StartlistController manages interactions creating/updating/deleting startlist data 
+# Currently implements: 
+# - A Setter to import a new startlist from a formatted UTF-8 CSV file
+# - A Setter creating a new startlist from the results of a previous round (CWIF scramble format)
+# - A Setter creating a new startlist from the results of a previous round (IFSC format)
 #
+require 'csv'
 
 module Perseus
   class StartlistController < Perseus::ApplicationController

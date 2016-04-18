@@ -2,6 +2,8 @@
 # Class   CompetitionController   - Subclasses ApplicationController
 # 
 # CompetitionController manages routes calling for information on any specific competition: 
+# Currently implements: 
+# - A single Getter retruning the first matchingcompettion
 #
 module Perseus
   class CompetitionController < Perseus::ApplicationController

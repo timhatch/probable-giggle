@@ -1,4 +1,5 @@
 # Module  Perseus                 - The namespace for all application code
+
 # Class   StatisticsController    - Subclasses ApplicationController
 # 
 # StatisticsController manages routes interrogating the results database and generating
@@ -10,6 +11,7 @@
 # - Getting s list of competitors who have topped/bonuses any specified boulder in the 
 #   round
 #
+
 require_relative './application_controller.rb'
 
 module Perseus
