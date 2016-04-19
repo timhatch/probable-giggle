@@ -1,8 +1,5 @@
 # Module  Perseus                 - The namespace for all application code
 # Class   CWIFResultsModus        - Helper functions to calculate results (CWIF contest mode)
-
-
-
 # Class   IFSCResultsModus        - Helper functions to calculate results (IFSC standard mode)
 # Class   MediaRunner             - Helper methids to output data for live streaming
 #
