@@ -28,5 +28,5 @@ module Perseus
     get '/' do
       haml :index
     end
-  end  
+  end
 end
