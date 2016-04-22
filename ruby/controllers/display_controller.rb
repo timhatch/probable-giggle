@@ -15,19 +15,8 @@
 #
 module Perseus
   class DisplayController < Perseus::ApplicationController
-
-    # Return a Sequel order query to sort on the basis of points (10/7/4) amd then bonuses 
-    # @params - none
-    # @returns  - An array containing Sequel parameters used to set the order of rows returned
-    # within a Postgres window::rank function call.
-    # 
-    def self.cwif_rank_generator
-      t  = Sequel.pg_array_op(:sort_values)[1] * 13
-      ta = Sequel.pg_array_op(:sort_values)[2] * 3
-      b  = Sequel.pg_array_op(:sort_values)[3]
-    
-      [(t - ta).desc(:nulls => :last), b.desc]
-    end    
+ 
+    helpers Perseus::CWIFResultsModus
     
     # Interrogate the Results database table, fetching a sorted dataset and then returning a
     # JSON formatted object continaing the parameters expected by the legacy CWIF display
@@ -56,7 +45,7 @@ module Perseus
         .select(:lastname, :firstname, :nation)
         .select_append(:start_order, :sort_values)
         .select_append{rank.function
-          .over(order: DisplayController.cwif_rank_generator)
+          .over(order: Perseus::CWIFResultsModus.rank_generator)
           .as(:rank)}
         .all
       
