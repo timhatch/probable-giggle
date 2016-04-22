@@ -7,8 +7,6 @@ Dir.glob('./{helpers,controllers}/*.rb').each { |file| require file }
 #\ --host 0.0.0.0 
 use Rack::PostBodyContentTypeParser
 
-ENV['DATABASE_URL'] = "postgres://timhatch@localhost:5432/test"
-
 #run Perseus::App
 map('/')            { run Perseus::ApplicationController }
 map('/competition') { run Perseus::CompetitionController }
