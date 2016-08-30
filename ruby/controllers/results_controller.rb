@@ -111,6 +111,7 @@ module Perseus
     get '/m' do
       haml :nexus
     end
+    
     # Serve a data input sheet for a single climber, assuming the "old school"
     # CWIF scramble/jam format.
     get '/f' do
