@@ -16,3 +16,6 @@ map('/statistics')  { run Perseus::StatisticsController }
 map('/registration'){ run Perseus::RegistrationController }
 map('/startlist')   { run Perseus::StartlistController }
 map('/displays')    { run Perseus::DisplayController }
+
+# Add a test controller to support Server-Side Events for real live updates
+map('/live')         { run Perseus::EventController }

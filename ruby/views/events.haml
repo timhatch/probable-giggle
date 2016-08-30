@@ -1,0 +1,25 @@
+!!!
+%html
+  %head
+  %body
+    :javascript
+      var source = new EventSource('/live');
+
+      // source.onmessage = function(e){
+      //   window.console.log(e.data || "keep-alive")
+      // }
+
+      source.addEventListener('message', function(e){
+        window.console.log(e.data)
+      }, false);
+
+
+      source.addEventListener('open', function(e) {
+        window.console.log('open connection')
+      }, false);
+      source.addEventListener('error', function(e) {
+        console.log('connection error')
+        if (e.readyState == EventSource.CLOSED) {
+          window.console.log('connection closed')
+        }
+      }, false);
