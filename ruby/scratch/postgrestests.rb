@@ -1,6 +1,6 @@
 require 'sequel'
 require 'pg'
-#require 'json'
+require 'json'
 
 # Interrogate a hash 
 def get_attempts type, result, arr
@@ -29,10 +29,11 @@ tops = gen_attempts "t"
 p tops["a3b1t3"]
 
 def set_overall result_json
-  tarr = [0,0]; barr = [0,0]
+  tarr = [0,0]
+  barr = [0,0]
   result_json.each do |key,value|
     get_attempts "t", value, tarr
-    get_attempts "b", value, barr
+    get_attempts "b", value, bar
   end
   tarr + barr
 end
@@ -42,20 +43,34 @@ end
 
 DB = Sequel.connect(ENV['DATABASE_URL'] || "postgres://timhatch@localhost:5432/test")
 DB.extension :pg_array          # Needed to insert arrays
+DB.extension :pg_json
 Sequel.extension :pg_array_ops  # Needed to query stored arrays?
+Sequel.extension :pg_json
+
 
 dataset = DB[:Results]
-  .where({per_id: 1030, route: 2})
+  .where({wet_id: 99, per_id: 1030, route: 1})
 
-#p dataset.first
+p JSON.parse dataset.first[:result_json]
+
+testhash = { title: { a: 1, b: 1, t: 1 } }
+p testhash
+testjson = testhash.to_json
+p testjson
+
+dataset = DB[:books]
+  .where({id: 1})
+  .update({
+    datab: Sequel.pg_jsonb(testhash)
+  })
 
 #dataset.update(result: "4t4 4b4")
 #pg_arr = Sequel.pg_array(resArray)
 #dataset.update(sort_values: Sequel.pg_array(resArray))
 
-def update_result arr
-  arr[0].to_s << 't' << arr[1].to_s << ' ' << arr[2].to_s << 'b' << arr[3].to_s
-end
+# def update_result arr
+#   arr[0].to_s << 't' << arr[1].to_s << ' ' << arr[2].to_s << 'b' << arr[3].to_s
+# end
 
 arr = [1,2,3,3]
 #p update_result arr
