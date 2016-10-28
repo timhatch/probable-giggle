@@ -15,9 +15,9 @@ require 'csv'
 #ENV['DATABASE_URL'] = "postgres://postgres@melody.local:5432/test"
 
 DB = Sequel.connect(ENV['DATABASE_URL'] || "postgres://timhatch@localhost:5432/test")
-DB.extension :pg_array      # Needed to insert arrays
-Sequel.extension :pg_array_ops  # Needed to query stored arrays
-
+DB.extension :pg_array, :pg_json  # Needed to insert arrays
+Sequel.extension :pg_array_ops    # Needed to query stored arrays
+Sequel.extension :pg_json
 
 params = {wet_id: 2, route: 1, grp_id: 5 }
 

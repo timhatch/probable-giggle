@@ -15,9 +15,9 @@ module Perseus
     # All sub-classes inherit this common database reference
     #
     DB = Sequel.connect(ENV['DATABASE_URL'] || "postgres://timhatch@localhost:5432/test")
-    DB.extension :pg_array          # Needed to insert arrays
-    Sequel.extension :pg_array_ops  # Needed to query stored arrays
-    
+    DB.extension :pg_array, :pg_json # Needed to insert arrays, json/jsonb
+    Sequel.extension :pg_array_ops   # Needed to query stored arrays
+    Sequel.extension :pg_json
     # Set the path to views, public, etc.
     #
     set :views, File.expand_path('../../views', __FILE__)

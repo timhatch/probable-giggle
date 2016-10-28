@@ -26,7 +26,7 @@ def gen_attempts type
 end
 
 tops = gen_attempts "t"
-p tops["a3b1t3"]
+#p tops["a3b1t3"]
 
 def set_overall result_json
   tarr = [0,0]
@@ -42,27 +42,38 @@ end
 #resArray = set_overall obj
 
 DB = Sequel.connect(ENV['DATABASE_URL'] || "postgres://timhatch@localhost:5432/test")
-DB.extension :pg_array          # Needed to insert arrays
-DB.extension :pg_json
+DB.extension :pg_array, :pg_json
 Sequel.extension :pg_array_ops  # Needed to query stored arrays?
 Sequel.extension :pg_json
 
 
-dataset = DB[:Results]
-  .where({wet_id: 99, per_id: 1030, route: 1})
+#dataset = DB[:Results]
+#  .where({wet_id: 99, per_id: 1030, route: 1})
 
-p JSON.parse dataset.first[:result_json]
+#p JSON.parse dataset.first[:result_json]
 
-testhash = { title: { a: 1, b: 1, t: 1 } }
-p testhash
-testjson = testhash.to_json
-p testjson
+#testhash = { title: { a: 1, b: 1, t: 1 } }
+#p testhash
+#testjson = testhash.to_json
+#p testjson
 
-dataset = DB[:books]
-  .where({id: 1})
-  .update({
-    datab: Sequel.pg_jsonb(testhash)
-  })
+#dataset = DB[:books]
+#  .where({id: 1})
+#  .update({
+#    datab: Sequel.pg_jsonb(testhash)
+#  })
+
+# Copy all strongified results from result_json into result_jsonb as actual json objects
+dataset = DB[:Results]#.where({per_id: 1030})
+
+dataset.each do |item|
+  id   = item[:per_id]
+  hash = JSON.parse item[:result_json]
+
+  dataset.where({ per_id: id }).update({ result_jsonb: Sequel.pg_jsonb(hash) })
+end
+
+
 
 #dataset.update(result: "4t4 4b4")
 #pg_arr = Sequel.pg_array(resArray)
@@ -72,7 +83,7 @@ dataset = DB[:books]
 #   arr[0].to_s << 't' << arr[1].to_s << ' ' << arr[2].to_s << 'b' << arr[3].to_s
 # end
 
-arr = [1,2,3,3]
+#arr = [1,2,3,3]
 #p update_result arr
 #def gen_times factor
 
