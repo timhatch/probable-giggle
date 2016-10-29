@@ -10,7 +10,7 @@
 
 // @codekit-prepend "./n/nexus_results_viewcontroller.js"
 // @codekit-prepend "./n/nexus_settings_viewcontroller.js"
-// @codekit-prepend "./n/n-vm.js"
+// @codekit-prepend "./n/nexus-viewmodel.js"
 
 var App = App || {}
 // Store the connection status (in-memory)
