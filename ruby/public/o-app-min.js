@@ -1,1 +1,503 @@
-var App=App||{};App.RouteResult={params:{},data:[],fetch:function(t){return this.params=t,m.request({method:"GET",url:"/results/route",data:t}).then(function(e){try{this.data=e.map(function(e){var r=new App.PersonResult(e.start_order);return r.params=Object.assign({start_order:e.start_order},t),r.data=e,r.objectifyResults(),r})}catch(t){window.console.log(t)}}.bind(this))},updateResults:function(){var t=this.params;return m.request({method:"GET",url:"/results/route",data:t}).then(function(t){try{t.forEach(function(t){this.data.find(function(e){return e.data.per_id===t.per_id}).update(t)}.bind(this))}catch(t){window.console.log(t)}}.bind(this))},save:function(){}};var App=App||{};App.SettingsVC={view:function(t,e){return m("div#settings",[m("header",{className:App.connectionStatus()?"connected":"disconnected"},e.ss.comp.title||m.trust("&nbsp;")),m.component(App.ParamSV,{vm:e,key:"WetId",text:"competition"}),m.component(App.ParamSV,{vm:e,key:"Route",text:"round"}),m.component(App.ParamSV,{vm:e,key:"GrpId",text:"category"})])}},App.ParamSV={controller:function(t){this.set=function(e){switch(t.vm.ss[t.key]=e.toUpperCase()||null,t.key){case"WetId":t.vm.fetchCompetition();break;case"GrpId":t.vm.fetch();break;default:App.sessionStorage.set("o-appstate",t.vm.ss)}}},view:function(t,e){return m("span.modal",[m("label",e.text),m("input[type=text]",{onchange:m.withAttr("value",t.set.bind(t)),pattern:e.pattern||null,value:e.vm.ss[e.key]||m.trust("")})])}};var App=App||{};App.TableViewController={controller:function(){this.delete=function(){alert("starter deletion not yet implemented")},this.sorts=function(t){return{onclick:function(e){var r=e.target.getAttribute("data-sort-by");if(r){var n=t[0];t.sort(function(t,e){return t.data[r]>e.data[r]?1:t.data[r]<e.data[r]?-1:0}),n===t[0]&&t.reverse()}}}}},view:function(t,e){var r=e.vm.rd.data,n=e.vm.blocs;return m("table",t.sorts(r),[App[e.type].createHeaderRow(n),r.map(function(r){var n={vm:e.vm,person:r};return App[e.type].createContentRow(t,n)})])}},App.Results={createHeaderRow:function(t){return m("tr",[m("th[data-sort-by=result_rank]","Rk"),m("th[data-sort-by=lastname].w12.left","Lastname"),m("th[data-sort-by=firstname].w09.left","Firstname"),m("th[data-sort-by=nation]","IOC "),m("th[data-sort-by=start_order]","Sn "),m("th.w48.flex",[t.map(function(t){return m(".bloc",m.trust("p"+t))})]),m("th.w09","Result")])},createContentRow:function(t,e){var r=e.vm,n=e.person.data;return m("tr",[m("td",n.result_rank||m.trust(""),{result_rank:n.result_rank}),m("td.w12.left",n.lastname),m("td.w09.left",n.firstname),m("td",n.nation),m("td",n.start_order),m("td.w48.flex",[r.blocs.map(function(t){var a="p"+t,s=e.person;return m(".bloc",{key:n.per_id+"."+t},[m.component(this.AttemptsSubView,{vm:r,person:s,id:a,datatype:"b"}),m.component(this.AttemptsSubView,{vm:r,person:s,id:a,datatype:"t"})])}.bind(this))]),m("td.w09",n.result)])},AttemptsSubView:{controller:function(t){this.responseStatus=m.prop(!0),this.getPropertyValue=function(e,r){var n=t.person.data.result_json;return n[e]?n[e][r]:null},this.set=function(e){var r,n,a,s=t.person.data.result_json;s[t.id]||(s[t.id]={a:0}),r=parseInt(e,10),r=isNaN(r)?null:r,s[t.id][t.datatype]=this.prop=r,s[t.id].a=Math.max(s[t.id].a,this.prop),n=t.person.stringifySingleResult(t.id),a=t.person.save(n),a.then(function(){t.vm.rd.updateResults(),this.responseStatus(!0)}.bind(this)).then(null,function(){this.responseStatus(!1)}.bind(this))}},view:function(t,e){var r=e.person.data,n=t.getPropertyValue(e.id,e.datatype);return m("input[type=text]",{key:r.per_id+"."+e.id+e.datatype,placeholder:e.datatype,value:isNaN(n)?m.trust(""):n,className:t.responseStatus()?"connected":"disconnected",onchange:m.withAttr("value",t.set.bind(t))})}}},App.Starters={createHeaderRow:function(){return m("tr",[m("th[data-sort-by=start_order]","Sn"),m("th[data-sort-by=lastname].w12.left","Lastname"),m("th[data-sort-by=firstname].w09.left","Firstname"),m("th[data-sort-by=nation]","IOC"),m("th[data-sort-by=per_id]","ID"),m("th[data-sort-by=rank_prev_heat]","Prev Heat"),m("th",m.trust(""))])},createContentRow:function(t,e){var r=e.person,n=e.person.data;return m("tr",[m("td",n.start_order),m("td.w12.left",n.lastname),m("td.w09.left",n.firstname),m("td",n.nation),m("td",n.per_id),m("td",n.rank_prev_heat||m.trust("NA")),m("td",[m("button[outline=true].icon-trash-empty",{onclick:t.delete.bind(r)})])])}},App.Scores={createHeaderRow:function(){return m("tr",[m("th[data-sort-by=start_order]","Sn"),m("th.w12.left","Lastname"),m("th.w09.left","Firstname"),m("th","IOC"),m("th.w48","Score"),m("th.w09","Result")])},createContentRow:function(t,e){var r=e.person.data;return m("tr",[m("td",r.start_order),m("td.w12.left",r.lastname),m("td.w09.left",r.firstname),m("td",r.nation),m("td.w48"),m("td.w09")])}};var App=App||{};App.PersonResult=function(t){this.id=t,this.params={},this.data={}},App.PersonResult.prototype={fetch:function(t){},update:function(t){this.data.result=t.result,this.data.result_rank=t.result_rank,this.data.sort_values=t.sort_values,this.data.result_json=t.result_json,this.objectifyResults()},objectifyResults:function(){var t=this.data.result_json;try{var e=JSON.parse(t),r,n;for(var a in e){var s={a:null,b:null,t:null};for(var o in s)r=o+"[0-9]{1,}",n=e[a].match(r),s[o]=n?parseInt(n[0].slice(1),10):null;e[a]=s}this.data.result_json=e}catch(t){window.console.log(t)}},stringifySingleResult:function(t){var e=this.data.result_json[t],r={},n="";for(var a in e)null!==e[a]&&(n+=a+e[a]);return r[t]=n,JSON.stringify(r)},save:function(t){var e=this.params;return e.result_json=t,m.request({method:"PUT",url:"/results/person",data:e})}};var App=App||{};App.connectionStatus=m.prop(!0),App.sessionStorage=mx.storage("session",mx.SESSION_STORAGE),App.SuperVC={view:function(t,e){return[m.component(App.SettingsVC,e.vm),m.component(App.RouterVC),m.component(App.TableViewController,{vm:e.vm,type:e.type})]}},App.RouterVC={view:function(){return m("#routes",[m("a[href='/']",{config:m.route},"Startlist"),m("a[href='/re']",{config:m.route},"Resultlist"),m("a[href='/sc']",{config:m.route},"Scoresheet")])}},App.init=function(){var t=App.RouteResult,e={WetId:null,Route:null,comp:{title:null}},r=App.sessionStorage.get("o-appstate");r||(r=e,App.sessionStorage.set("o-appstate",e));var n=new App.VM(t,r);m.route.mode="hash",m.route(document.body,"/",{"/":m.component(App.SuperVC,{vm:n,type:"Starters"}),"/re":m.component(App.SuperVC,{vm:n,type:"Results"}),"/sc":m.component(App.SuperVC,{vm:n,type:"Scores"})})}();
+// TODO:  Note that the only difference between PersonResult and RouteResult is the url
+//        May be possible to unify the code base
+//	-----------------------------------------------------
+//	CODEKIT DECLARATIONS
+//	-----------------------------------------------------
+/*global m                                            */
+/*global mx                                           */
+
+var App = App || {};
+
+App.RouteResult = { 
+  //  Store the model directly as retrieved from the server (a plain JS object)
+  //
+  params      : {},
+  data        : [],
+  
+  //  Fetch a single set of results from the server
+  //  params can take the form of:
+  //  - wet_id, route, grp_id and start_order 
+  //  - wet_id, route, per_id
+  //
+  fetch: function(params){
+    this.params = params
+
+    return m.request({
+      method : 'GET',
+      url    : '/results/route',
+      data   : params
+    })
+    .then(function(resp){
+      try {
+        this.data = resp.map(function(result){
+          var person    = new App.PersonResult(result.start_order)
+          person.params = Object.assign({start_order: result.start_order}, params)
+          person.data   = result
+          return person
+        })
+      }
+      catch (err) { window.console.log(err) }
+    }.bind(this))
+  },
+  
+  updateResults: function(){
+    var params = this.params   
+    return m.request({
+      method : 'GET',
+      url    : '/results/route',
+      data   : params
+    })
+    .then(function(resp){
+      try {
+        resp.forEach(function(result){
+          this.data.find(function(res){ return (res.data.per_id === result.per_id) })
+          .update(result)
+        }.bind(this))
+      }
+      catch (err) { window.console.log(err) }
+    }.bind(this))
+  },
+    
+
+  //
+  save: function(){
+
+  }
+};
+
+
+//	-----------------------------------------------------
+//	CODEKIT DECLARATIONS
+//	-----------------------------------------------------
+/*global m                                            */
+/*global mx                                           */
+
+var App = App || {};
+
+App.SettingsVC = {
+  // Chnage this to vm, as the sessiondata is callable from the vm...
+  view: function(ctrl, vm){
+    return m("div#settings",[
+      m("header", { className: App.connectionStatus() ? 'connected' : 'disconnected' }, 
+        vm.ss.comp.title || m.trust('&nbsp;')
+      ),
+      m.component(App.ParamSV, { vm: vm, key: 'WetId', text: "competition" }),
+      m.component(App.ParamSV, { vm: vm, key: 'Route', text: "round" }),
+      m.component(App.ParamSV, { vm: vm, key: 'GrpId', text: "category" })
+    ])
+  }
+};
+
+App.ParamSV = {
+  controller: function(params){
+    // Note that this stores all keys as strings...
+    this.set = function(val){
+      params.vm.ss[params.key] = val.toUpperCase() || null
+      switch (params.key) {
+      case 'WetId':
+        params.vm.fetchCompetition()
+        break
+      case 'GrpId':
+        params.vm.fetch()
+        break
+      default:
+        App.sessionStorage.set('o-appstate', params.vm.ss)
+      }
+    }
+  },
+  
+  view: function(ctrl, params){
+    return m("span.modal", [
+      m("label", params.text),
+      m("input[type=text]", {
+        onchange: m.withAttr("value", ctrl.set.bind(ctrl)),
+        pattern : params.pattern || null,
+        value   : params.vm.ss[params.key] || m.trust('')
+      })
+    ])
+  }
+}
+
+//	-----------------------------------------------------
+//	CODEKIT DECLARATIONS
+//	-----------------------------------------------------
+/*global m                                            */
+
+var App = App || {}
+
+App.TableViewController = {
+  controller: function(){
+        
+    this.delete = function(){
+      alert('starter deletion not yet implemented')
+    }
+    
+    this.sorts = function(list){
+      return {
+        onclick: function(e){
+          var prop = e.target.getAttribute("data-sort-by")
+          if (!!prop) {
+            var first = list[0]
+            list.sort(function(a,b){
+              return a.data[prop] > b.data[prop] ? 1 : a.data[prop] < b.data[prop] ? -1 : 0
+            })
+            if (first === list[0]) list.reverse()
+          }
+        }
+      }
+    }
+  },
+  
+  view: function(ctrl, params){
+    var list  = params.vm.rd.data
+      , blocs = params.vm.blocs
+    return m("table", ctrl.sorts(list), [
+      App[params.type].createHeaderRow(blocs),
+      list.map(function(person){
+        var _params = {vm: params.vm, person: person }
+        return App[params.type].createContentRow(ctrl, _params)
+      })
+    ])
+  }
+}
+
+App.Results = {
+  createHeaderRow: function(blocs){
+    return m("tr", [
+      m("th[data-sort-by=result_rank]", "Rk"),
+      m("th[data-sort-by=lastname].w12.left", "Lastname"),
+      m("th[data-sort-by=firstname].w09.left", "Firstname"),
+      m("th[data-sort-by=nation]", "IOC "),
+      m("th[data-sort-by=start_order]", "Sn "),
+//      m("th[data-sort-by=per_id]", "UUID"),
+      m("th.w48.flex", [
+        blocs.map(function(bloc_nr){
+          return m(".bloc", m.trust("p"+bloc_nr))
+        })        
+      ]),
+      m("th.w09", "Result"),
+    ])
+  },
+
+  createContentRow: function(ctrl, _params){
+    var vm   = _params.vm
+      , data = _params.person.data
+    return m("tr", [
+      m("td", data.result_rank || m.trust(''), { result_rank: data.result_rank }),
+      m("td.w12.left", data.lastname),
+      m("td.w09.left", data.firstname),
+      m("td", data.nation),
+      m("td", data.start_order),
+//      m("td", data.per_id),
+      m("td.w48.flex",[
+        vm.blocs.map(function(bloc_nr){
+          var id  ='p'+bloc_nr
+            , who = _params.person
+          return m(".bloc", { key: data.per_id+"."+bloc_nr }, [
+            m.component(this.AttemptsSubView, { vm: vm, person: who, id: id, datatype: "b" }),
+            m.component(this.AttemptsSubView, { vm: vm, person: who, id: id, datatype: "t" })
+          ]
+        )}.bind(this))       
+      ]),
+      m("td.w09", data.result)
+    ])
+  },
+  
+  AttemptsSubView: {
+    controller: function(params){
+      this.responseStatus   = m.prop(true)
+      // For a given boulder ("id") get the value of an associated property
+      // e.g. attempts/bonus/top ("prop")
+      this.getPropertyValue = function(id, prop){
+        var result = params.person.data.result_jsonb
+        return (!!result[id]) ? result[id][prop] : null
+      }
+      
+      // Reset the result value when a change is made. Show it again when the server is updated
+      // Create the result if it doesnt already exist
+      // TODO - Highlight changes by adjusting the color of the 
+      this.set = function(value){
+        var intValue, promise
+          , result = params.person.data.result_jsonb
+        
+        // If there is no  pre-existing result, create one
+        if (!result[params.id]) { 
+          result[params.id] = {a:0} 
+        }
+        
+        // Discard non-numeric inputs
+        intValue = parseInt(value,10)
+        intValue = isNaN(intValue) ? null : intValue
+        
+        // Update the results
+        result[params.id][params.datatype] = this.prop = intValue        
+        result[params.id].a = Math.max(result[params.id].a, this.prop)
+
+        // Stringify and then save the result
+        promise   = params.person.save()
+                
+        // If we successfully saved the response, update the results data
+        promise
+          .then(function(){
+            params.vm.rd.updateResults()
+            this.responseStatus(true)
+          }.bind(this))
+          .then(null,function(){this.responseStatus(false)}.bind(this))
+      }
+    },
+  
+    view: function(ctrl, params){
+      var data = params.person.data
+        , val  = ctrl.getPropertyValue(params.id, params.datatype)
+      return m("input[type=text]", {
+        key        : data.per_id+"."+params.id+params.datatype,
+        placeholder: params.datatype, 
+        value      : isNaN(val) ? m.trust("") : val,
+        className  : ctrl.responseStatus() ? "connected" : "disconnected",
+        onchange   : m.withAttr("value", ctrl.set.bind(ctrl)) 
+      })
+    }
+  }
+}
+
+App.Starters = {
+  createHeaderRow: function(){
+    return m("tr", [
+      m("th[data-sort-by=start_order]", "Sn"),
+      m("th[data-sort-by=lastname].w12.left", "Lastname"),
+      m("th[data-sort-by=firstname].w09.left", "Firstname"),
+      m("th[data-sort-by=nation]", "IOC"),
+      m("th[data-sort-by=per_id]", "ID"),
+      m("th[data-sort-by=rank_prev_heat]", "Prev Heat"),
+      m("th", m.trust(""))      
+    ])
+  },
+
+  createContentRow: function(ctrl, _params){
+    var who  = _params.person
+      , data = _params.person.data
+    return m("tr", [
+      m("td", data.start_order),
+      m("td.w12.left", data.lastname),
+      m("td.w09.left", data.firstname),
+      m("td", data.nation),
+      m("td", data.per_id),
+      m("td", data.rank_prev_heat || m.trust("NA")),
+      m("td", [ m("button[outline=true].icon-trash-empty", { onclick: ctrl.delete.bind(who) }) ])
+    ])
+  }  
+}
+
+App.Scores = {
+  createHeaderRow: function(){
+    return m("tr", [
+      m("th[data-sort-by=start_order]", "Sn"),
+      m("th.w12.left", "Lastname"),
+      m("th.w09.left", "Firstname"),
+      m("th", "IOC"),
+//      m("th", "UUID"),
+      m("th.w48", "Score"),
+      m("th.w09", "Result")      
+    ])
+  },
+
+  createContentRow: function(ctrl, _params){
+    var data = _params.person.data
+    return m("tr", [
+      m("td", data.start_order),
+      m("td.w12.left", data.lastname),
+      m("td.w09.left", data.firstname),
+      m("td", data.nation),
+//      m("td", data.per_id),
+      m("td.w48"),
+      m("td.w09")
+    ])
+  }  
+}
+
+
+//	-----------------------------------------------------
+//	CODEKIT DECLARATIONS
+//	-----------------------------------------------------
+/*global m                                            */
+
+var App = App || {}
+
+App.PersonResult = function(uuid){
+  this.id     = uuid
+  this.params = {}
+  this.data   = {}
+} 
+
+App.PersonResult.prototype = {
+  //  Fetch a single set of results from the server
+  //  params can take the form of:
+  //  - wet_id, route, grp_id and start_order 
+  //  - wet_id, route, per_id
+  //
+  // TODO: Untested!! THink this.params = params doesn't work as 
+  fetch: function(){
+
+  },
+  
+  update: function(result){
+    this.data.result       = result.result
+    this.data.result_rank  = result.result_rank
+    this.data.sort_values  = result.sort_values
+    this.data.result_jsonb = result.result_jsonb
+  },
+  
+  //  Save results for a single person
+  //  jsonString is a stringified JSON object in the form:
+  //  "{\"p2\":\"a2\",\"p1\":\"a3b1t3\"}"
+  //
+  save: function(){
+    var params          = this.params
+    params.result_jsonb = this.data.result_jsonb
+    
+    return m.request({
+      method: 'PUT',
+      url   : '/results/person',
+      data  : params
+    })
+  }
+}
+
+
+//	-----------------------------------------------------
+//	CODEKIT DECLARATIONS
+//	-----------------------------------------------------
+/* global m                                            */
+
+var App = App || {}
+
+App.VM = function(model, sessiondata){
+  return {
+    ss          : sessiondata,
+    rd          : model,
+    blocs       : [1,2,3,4],
+    // View-Model parameters and functions derived from the model
+    //
+    params      : {},
+    // Construct query parameters from stored data on the competition, round and group
+    // plus the provided start_order
+    composeURLParams: function(){
+      var rounds = {"QA":0, "QB":1,"S":2,"F":3,"SF":4}
+        , groups = {"M":6,"F":5,"MJ":84,"FJ":81,"MA":82,"FA":79,"MB":83,"FB":80}
+
+      return {
+        wet_id : parseInt(sessiondata.WetId, 10) || 0,
+        route  : rounds[sessiondata.Route] || 0,
+        grp_id : groups[sessiondata.GrpId] || 1
+      }
+    },
+
+    //
+    //
+    fetch: function(val){
+      //this.reset()
+      var params  = this.composeURLParams(val)
+        , promise = this.rd.fetch(params)
+    
+      promise
+        .then(function(){ App.connectionStatus(true) })
+        .then(null, function(){ App.connectionStatus(false) })
+    },
+  
+    fetchCompetition: function(){
+      var w = this.ss.WetId
+      m.request({ 
+        method: 'GET', 
+        url   : '/competition',
+        data  : { wet_id: w }
+      })
+      .then(function(resp){
+        try {
+          this.ss.comp  = resp
+          App.sessionStorage.set('o-appstate', this.ss)          
+        }
+        catch (err) { window.console.log('invalid response : '+err) }
+        this.reset()
+      }.bind(this))
+      .then(function(){ App.connectionStatus(true) })
+      .then(null, function(){ App.connectionStatus(false) })
+    },
+  
+    reset: function(){
+
+    }
+  }
+}
+
+
+//	-----------------------------------------------------
+//	CODEKIT DECLARATIONS
+//	-----------------------------------------------------
+/* global m                                            */
+/* global mx                                           */
+
+// @codekit-prepend "./o/routeresult_model.js"
+// @codekit-prepend "./o/_desktop_settings_viewcontroller.js"
+// @codekit-prepend "./o/_desktop_results_viewcontroller.js"
+// @codekit-prepend "./o/_personresult_model.js"
+// @codekit-prepend "./o/desktop_viewmodel.js"
+
+var App = App || {}
+
+// Store the connection status (in-memory)
+App.connectionStatus = m.prop(true)
+// Use session storage to contain view model parameters
+App.sessionStorage   = mx.storage( 'session' , mx.SESSION_STORAGE )
+
+App.SuperVC = {
+  // View declaration  
+  view: function(ctrl, params){
+    return [
+      m.component(App.SettingsVC, params.vm),
+      m.component(App.RouterVC),
+      m.component(App.TableViewController, { vm: params.vm, type: params.type })
+    ]
+  }
+}
+
+App.RouterVC = {
+  view: function(){
+    return m("#routes", [
+      m("a[href='/']", { config: m.route }, "Startlist"),
+      m("a[href='/re']", { config: m.route }, "Resultlist"),     
+      m("a[href='/sc']", { config: m.route }, "Scoresheet")
+    ])
+  }
+}
+
+// Initialise the application
+App.init = function(){
+  // Initialise a model  
+  var model    = App.RouteResult
+  
+  // Initialise default values for the stored application state
+  var defaults = {
+        WetId : null, Route : null,
+        comp  : {title: null}, 
+      }
+  
+  // Fetch (or initialise) sessionStorage
+  var ss  = App.sessionStorage.get('o-appstate')
+  if (!ss) {
+    ss = defaults
+    App.sessionStorage.set('o-appstate', defaults)
+  }
+  
+  // Create a new viewmodel object
+  var vm = new App.VM(model, ss)
+  
+  // Render the mithril route tree
+  m.route.mode = "hash"
+  m.route(document.body, "/", {
+    "/": m.component(App.SuperVC, { vm: vm, type: "Starters"}),
+    "/re": m.component(App.SuperVC, { vm: vm, type: "Results"}),
+    "/sc": m.component(App.SuperVC, { vm: vm, type: "Scores"})
+  })
+}()
+
+

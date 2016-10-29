@@ -89,7 +89,7 @@ App.Results = {
       // For a given boulder ("id") get the value of an associated property
       // e.g. attempts/bonus/top ("prop")
       this.getPropertyValue = function(id, prop){
-        var result = params.person.data.result_json
+        var result = params.person.data.result_jsonb
         return (!!result[id]) ? result[id][prop] : null
       }
       
@@ -97,8 +97,8 @@ App.Results = {
       // Create the result if it doesnt already exist
       // TODO - Highlight changes by adjusting the color of the 
       this.set = function(value){
-        var intValue, resString, promise
-          , result = params.person.data.result_json
+        var intValue, promise
+          , result = params.person.data.result_jsonb
         
         // If there is no  pre-existing result, create one
         if (!result[params.id]) { 
@@ -114,8 +114,7 @@ App.Results = {
         result[params.id].a = Math.max(result[params.id].a, this.prop)
 
         // Stringify and then save the result
-        resString = params.person.stringifySingleResult(params.id)
-        promise   = params.person.save(resString)
+        promise   = params.person.save()
                 
         // If we successfully saved the response, update the results data
         promise

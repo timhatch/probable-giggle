@@ -58,17 +58,7 @@ App.VM = function(model, sessiondata){
     },
   
     reset: function(){
-//      window.console.log('reset called')
-//      this.start_order = null
-//      this.fullname    = null
-//      this.result      = null
-//      
-//      model.data = {}
-//      this.resArray.forEach(function(boulder){
-//        boulder.result = {a:null,b:null,c:null}
-//        boulder.displayResult = ''
-//        boulder.resultString  = null
-//      })
+
     }
   }
 }
