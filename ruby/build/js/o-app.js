@@ -8,7 +8,7 @@
 // @codekit-prepend "./o/_desktop_settings_viewcontroller.js"
 // @codekit-prepend "./o/_desktop_results_viewcontroller.js"
 // @codekit-prepend "./o/_personresult_model.js"
-// @codekit-prepend "./o/o-vm.js"
+// @codekit-prepend "./o/desktop_viewmodel.js"
 
 var App = App || {}
 
