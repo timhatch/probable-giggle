@@ -39,23 +39,23 @@ App.VM = function(model, sessiondata){
   
     // Construct query parameters from stored data on the competition, round and group
     // plus the provided start_order
-    composeURLParams: function(val){
+    composeURLParams: function(query){
       var rounds = {"QA":0, "QB":1,"S":2,"F":3,"SF":4}
         , groups = {"M":6,"F":5,"MJ":84,"FJ":81,"MA":82,"FA":79,"MB":83,"FB":80}
-
-      return {
-        wet_id     : parseInt(sessiondata.WetId, 10),
-        route      : rounds[sessiondata.Route],
-        grp_id     : groups[sessiondata.GrpId],
-        start_order: parseInt(val, 10) || 1          
-      }
+        , params = {
+            wet_id     : parseInt(sessiondata.WetId, 10),
+            route      : rounds[sessiondata.Route],
+            grp_id     : groups[sessiondata.GrpId]
+        }
+      
+      return Object.assign(params, query) 
     },
     
     fetch: function(val){
-      var params  = this.composeURLParams(val)
-        , promise = model.fetch(params)
-    
-      promise.then(function(){
+      var params  = this.composeURLParams({ start_order: parseInt(val, 10) || 1 })
+      
+      model.fetch(params)
+      .then(function(){
         try {
           var key          = 'p' + String(parseInt(sessiondata.BlcNr, 10))
           this.result      = model.data.result_jsonb[key] || {a: null,b: null,t: null}
