@@ -10,9 +10,7 @@ App.VM = function(model, sessiondata){
     ss          : sessiondata,
     rd          : model,
     blocs       : [1,2,3,4],
-    // View-Model parameters and functions derived from the model
-    //
-    params      : {},
+    
     // Construct query parameters from stored data on the competition, round and group
     // plus the provided start_order
     composeURLParams: function(){
@@ -29,13 +27,11 @@ App.VM = function(model, sessiondata){
     //
     //
     fetch: function(val){
-      //this.reset()
-      var params  = this.composeURLParams(val)
-        , promise = this.rd.fetch(params)
-    
-      promise
-        .then(function(){ App.connectionStatus(true) })
-        .then(null, function(){ App.connectionStatus(false) })
+      var params = this.composeURLParams()
+      
+      this.rd.fetch(params)
+      .then(function(){ App.connectionStatus(true) })
+      .then(null, function(){ App.connectionStatus(false) })
     },
   
     fetchCompetition: function(){

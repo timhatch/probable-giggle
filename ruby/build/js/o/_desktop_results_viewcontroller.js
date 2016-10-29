@@ -97,8 +97,8 @@ App.Results = {
       // Create the result if it doesnt already exist
       // TODO - Highlight changes by adjusting the color of the 
       this.set = function(value){
-        var intValue, promise
-          , result = params.person.data.result_jsonb
+        var intValue 
+        var result = params.person.data.result_jsonb
         
         // If there is no  pre-existing result, create one
         if (!result[params.id]) { 
@@ -112,17 +112,14 @@ App.Results = {
         // Update the results
         result[params.id][params.datatype] = this.prop = intValue        
         result[params.id].a = Math.max(result[params.id].a, this.prop)
-
+        
         // Stringify and then save the result
-        promise   = params.person.save()
-                
-        // If we successfully saved the response, update the results data
-        promise
-          .then(function(){
-            params.vm.rd.updateResults()
-            this.responseStatus(true)
-          }.bind(this))
-          .then(null,function(){this.responseStatus(false)}.bind(this))
+        params.person.save(params.id, result[params.id])
+        .then(function(){
+          params.vm.rd.updateResults()
+          this.responseStatus(true)
+        }.bind(this))
+        .then(null,function(){this.responseStatus(false)}.bind(this))
       }
     },
   

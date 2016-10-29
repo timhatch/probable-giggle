@@ -30,13 +30,16 @@ App.PersonResult.prototype = {
   },
   
   //  Save results for a single person
-  //  jsonString is a stringified JSON object in the form:
-  //  "{\"p2\":\"a2\",\"p1\":\"a3b1t3\"}"
   //
-  save: function(){
-    var params          = this.params
-    params.result_jsonb = this.data.result_jsonb
-    
+  save: function(key, value){
+    var params = {
+      wet_id: this.data.wet_id,
+      grp_id: this.data.grp_id,
+      route:  this.data.route,
+      per_id: this.data.per_id,
+      result_jsonb: { [key]: value }
+    }
+    window.console.log(params)
     return m.request({
       method: 'PUT',
       url   : '/results/person',

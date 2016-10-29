@@ -217,8 +217,8 @@ App.Results = {
       // Create the result if it doesnt already exist
       // TODO - Highlight changes by adjusting the color of the 
       this.set = function(value){
-        var intValue, promise
-          , result = params.person.data.result_jsonb
+        var intValue 
+        var result = params.person.data.result_jsonb
         
         // If there is no  pre-existing result, create one
         if (!result[params.id]) { 
@@ -232,17 +232,14 @@ App.Results = {
         // Update the results
         result[params.id][params.datatype] = this.prop = intValue        
         result[params.id].a = Math.max(result[params.id].a, this.prop)
-
+        
         // Stringify and then save the result
-        promise   = params.person.save()
-                
-        // If we successfully saved the response, update the results data
-        promise
-          .then(function(){
-            params.vm.rd.updateResults()
-            this.responseStatus(true)
-          }.bind(this))
-          .then(null,function(){this.responseStatus(false)}.bind(this))
+        params.person.save(params.id, result[params.id])
+        .then(function(){
+          params.vm.rd.updateResults()
+          this.responseStatus(true)
+        }.bind(this))
+        .then(null,function(){this.responseStatus(false)}.bind(this))
       }
     },
   
@@ -348,13 +345,16 @@ App.PersonResult.prototype = {
   },
   
   //  Save results for a single person
-  //  jsonString is a stringified JSON object in the form:
-  //  "{\"p2\":\"a2\",\"p1\":\"a3b1t3\"}"
   //
-  save: function(){
-    var params          = this.params
-    params.result_jsonb = this.data.result_jsonb
-    
+  save: function(key, value){
+    var params = {
+      wet_id: this.data.wet_id,
+      grp_id: this.data.grp_id,
+      route:  this.data.route,
+      per_id: this.data.per_id,
+      result_jsonb: { [key]: value }
+    }
+    window.console.log(params)
     return m.request({
       method: 'PUT',
       url   : '/results/person',
@@ -376,9 +376,7 @@ App.VM = function(model, sessiondata){
     ss          : sessiondata,
     rd          : model,
     blocs       : [1,2,3,4],
-    // View-Model parameters and functions derived from the model
-    //
-    params      : {},
+    
     // Construct query parameters from stored data on the competition, round and group
     // plus the provided start_order
     composeURLParams: function(){
@@ -395,13 +393,11 @@ App.VM = function(model, sessiondata){
     //
     //
     fetch: function(val){
-      //this.reset()
-      var params  = this.composeURLParams(val)
-        , promise = this.rd.fetch(params)
-    
-      promise
-        .then(function(){ App.connectionStatus(true) })
-        .then(null, function(){ App.connectionStatus(false) })
+      var params = this.composeURLParams()
+      
+      this.rd.fetch(params)
+      .then(function(){ App.connectionStatus(true) })
+      .then(null, function(){ App.connectionStatus(false) })
     },
   
     fetchCompetition: function(){
