@@ -69,20 +69,18 @@ App.VM = function(model, sessiondata){
     },
   
     save: function(){
-      var promise, key = 'p' + String(parseInt(sessiondata.BlcNr, 10))
+      var params = this.composeURLParams({ per_id: model.data.per_id })
+      var key    = 'p' + String(parseInt(sessiondata.BlcNr, 10))
       
-      model.data.result_jsonb[key] = this.result
-      
-    //  // TODO: Add code here to save the model (if it has changed, in particular setting "b0")
-
-    //  // Prevent a save occuring if no viewmodel has been instantiated
+      // Prevent a save occuring if no viewmodel has been instantiated
       if (!this.start_order) return
 
-    //  // Otherwise save any results data
-       promise = model.save()
-    //  promise
-    //  .then(function(){ App.connectionStatus(true) })
-    //  .then(null, function(){ App.connectionStatus(false) })
+      model.data.result_jsonb[key] = this.result
+      params.result_jsonb          = { [key] : this.result }
+      
+      model.save(params) 
+      .then(function(){ App.connectionStatus(true) })
+      .then(null, function(){ App.connectionStatus(false) })
     },
     
     reset: function(){
