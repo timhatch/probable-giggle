@@ -19,8 +19,6 @@ App.PersonResult = {
   //  - wet_id, route, per_id
   //
   fetch: function(params){
-    window.console.log("called with ")
-    window.console.log(params)
     this.params = params
     return m.request({
       method : 'GET',
@@ -31,55 +29,22 @@ App.PersonResult = {
       try {
         window.console.log(resp)
         this.data = resp
-        this.objectifyResults()              
       } catch  (err) { 
         window.console.log(resp)
       }
     }.bind(this))
   },
   
-  // Parse the results_json object from the string form returned (we're not using the 
-  // Postgresql JSON extensions yet) into an actual JS object
-  objectifyResults: function(){
-    var json = this.data.result_json
-//    window.console.log(json)
-    try {
-      var obj = JSON.parse(json)
-        , str, val
-      for (var boulder in obj) {
-        var res = {a:null,b:null,t:null}
-        for (var key in res) {
-          str = key + "[0-9]{1,}"
-          val = obj[boulder].match(str)
-          res[key] = val ? parseInt(val[0].slice(1),10) : null
-        }
-        obj[boulder] = res
-      }
-      this.data.result_json = obj
-      //return obj
-    }
-    catch (err) { window.console.log(err) }
-  },
-
-  stringifySingleResult: function(resID){
-    var res = this.data.result_json[resID]
-      , obj = {}, str = ""
-    for (var key in res){
-      if (res[key] !== null) str += (key+res[key])
-    }
-    obj[resID] = str
-    return JSON.stringify(obj)
-  },
-    
   //  Save results for a single person
   //  jsonString is a stringified JSON object in the form:
   //  "{\"p2\":\"a2\",\"p1\":\"a3b1t3\"}"
   //
-  save: function(jsonString){
+  save: function(){
   //  window.console.log('save called')
-    var params         = this.params
-    params.result_json = jsonString
+    var params          = this.params
+    params.result_jsonb = this.data.result_jsonb
     
+    //window.console.log(params)
     return m.request({
       method: 'PUT',
       url   : '/results/person',
@@ -182,41 +147,46 @@ App.PersonSelectorView = {
 var App = App || {};
 
 App.ResultsVC = {
-  controller: function(vm){
+  controller: function(tablet_vm){
     
     this.changeAttempts = function(e){
       var i    = (e.type === 'swipedown') ? 1 : -1
-        , atts = vm.result.a + i
-      
-      vm.result.a = (atts >= 0) ? atts : 0
-      vm.save()
+      var atts = tablet_vm.result.a + i
+
+      tablet_vm.result.a = (atts > 0) ? atts : null 
+      tablet_vm.save()
       m.redraw(true)
     }
   },
   
-  view: function(ctrl, vm){
+  view: function(ctrl, tablet_vm){
     return m("div#results", {
       config  : m.touchHelper({
         'swipedown' : ctrl.changeAttempts.bind(ctrl),
         'swipeup'   : ctrl.changeAttempts.bind(ctrl)
       })
     }, [
-      m.component(App.PersonSelectorView, vm),
-      m.component(App.AttemptsView, { vm: vm, text: "Tops" }),
-      m.component(App.AttemptsView, { vm: vm, text: "Bonus" }),
-      m.component(App.AttemptsView, { vm: vm, text: "Attempts" })
+      m.component(App.PersonSelectorView, tablet_vm),
+      m.component(App.AttemptsView, { vm: tablet_vm, text: "Tops" }),
+      m.component(App.AttemptsView, { vm: tablet_vm, text: "Bonus" }),
+      m.component(App.AttemptsView, { vm: tablet_vm, text: "Attempts" })
     ])
   }
 }
 
+// View module for a touch-driven scorer
+// Comprises a top level div element which respons to swipe left and right events
+// with two sub-views, one containing a descriptor and the second a display div
+// displaying the number of attempts
+//
 App.AttemptsView = {
   controller: function(params){
     
     this.changeValue = function(e){
       var prop = params.text[0].toLowerCase()
-      // TODO: Disable swipefleft on attepts field...
-      if (e.type === 'swiperight') { params.vm.setResult(prop) }
-      if (e.type === 'swipeleft')  { params.vm.resetValues(prop) }
+
+      if (e.type === 'swiperight') { params.vm.setValue(prop) }
+      if (e.type === 'swipeleft')  { params.vm.clearValue(prop) }
       
       params.vm.save()
       m.redraw(true)
@@ -225,7 +195,7 @@ App.AttemptsView = {
   
   view: function(ctrl, params){
     var prop = params.text[0].toLowerCase()
-      , val  = params.vm.result[prop]
+    var val  = params.vm.result[prop]
 
     return m("div.row", {
       config: m.touchHelper({
@@ -238,6 +208,7 @@ App.AttemptsView = {
     ])
   }
 }
+
 
 //	-----------------------------------------------------
 //	CODEKIT DECLARATIONS
@@ -318,17 +289,25 @@ App.VM = function(model, sessiondata){
     fullname    : null, 
     result      : {a: null,b: null,t: null},
     
-    setResult: function(attr){
+    // Set or unset results
+    
+    // setValue allows a result attribute to be set only once, i.e.
+    // if the existing value is null (or zero), set the value of the attribute to
+    // equal the current number of attempts.
+    // If the attribute in question is a "top" and no "bonus" has been recorded, then
+    // automatically set the bonus as well
+    //
+    setValue: function(attr){
       if (!this.result[attr]) {
         this.result[attr] = this.result.a
-        if (attr === 't' && !this.result.b) this.result.b = this.result.a
+        if (attr === 't' && !this.result.b) {
+          this.result.b = this.result.a
+        }
       }
     },
-  
-    resetValues: function(attr){
-      if (attr === 'a') return
-      // Not sure the if test is needed?
-      if (!!this.result[attr]) this.result[attr] = 0
+    // clearValue() unsets any existing data 
+    clearValue: function(attr){
+      if (!!this.result[attr]) this.result[attr] = null
     },
   
     // Construct query parameters from stored data on the competition, round and group
@@ -352,7 +331,7 @@ App.VM = function(model, sessiondata){
       promise.then(function(){
         try {
           var key          = 'p' + String(parseInt(sessiondata.BlcNr, 10))
-          this.result      = model.data.result_json[key] || {a: null,b: null,t: null}
+          this.result      = model.data.result_jsonb[key] || {a: null,b: null,t: null}
           this.start_order = model.data.start_order
           this.fullname    = model.data.lastname+', '+model.data.firstname 
         }
@@ -362,34 +341,21 @@ App.VM = function(model, sessiondata){
       .then(null, function(){ App.connectionStatus(false) })      
     },
   
-    serialiseResults: function(){
-      var key = 'p' + String(parseInt(sessiondata.BlcNr, 10))
-        , obj = {}, str = ''
-       
-      for (var prop in this.result) {
-        if (this.result[prop] !== null) str += (prop+this.result[prop])
-      }
-      window.console.log(str)
-      obj[key] = str
-      return JSON.stringify(obj)
-    },
-
     save: function(){
-      var key = 'p' + String(parseInt(sessiondata.BlcNr, 10))
-      model.data.result_json[key] = this.result
+      var promise, key = 'p' + String(parseInt(sessiondata.BlcNr, 10))
       
-      // TODO: Add code here to save the model (if it has changed, in particular setting "b0")
-      var json    = this.serialiseResults()
-        , promise
+      model.data.result_jsonb[key] = this.result
+      
+    //  // TODO: Add code here to save the model (if it has changed, in particular setting "b0")
 
-      // Prevent a save occuring if no viewmodel has been instantiated
+    //  // Prevent a save occuring if no viewmodel has been instantiated
       if (!this.start_order) return
 
-      // Otherwise save any results data
-      promise = model.save(json)
-      promise
-      .then(function(){ App.connectionStatus(true) })
-      .then(null, function(){ App.connectionStatus(false) })
+    //  // Otherwise save any results data
+       promise = model.save()
+    //  promise
+    //  .then(function(){ App.connectionStatus(true) })
+    //  .then(null, function(){ App.connectionStatus(false) })
     },
     
     reset: function(){

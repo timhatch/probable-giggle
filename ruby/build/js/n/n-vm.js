@@ -16,17 +16,25 @@ App.VM = function(model, sessiondata){
     fullname    : null, 
     result      : {a: null,b: null,t: null},
     
-    setResult: function(attr){
+    // Set or unset results
+    
+    // setValue allows a result attribute to be set only once, i.e.
+    // if the existing value is null (or zero), set the value of the attribute to
+    // equal the current number of attempts.
+    // If the attribute in question is a "top" and no "bonus" has been recorded, then
+    // automatically set the bonus as well
+    //
+    setValue: function(attr){
       if (!this.result[attr]) {
         this.result[attr] = this.result.a
-        if (attr === 't' && !this.result.b) this.result.b = this.result.a
+        if (attr === 't' && !this.result.b) {
+          this.result.b = this.result.a
+        }
       }
     },
-  
-    resetValues: function(attr){
-      if (attr === 'a') return
-      // Not sure the if test is needed?
-      if (!!this.result[attr]) this.result[attr] = 0
+    // clearValue() unsets any existing data 
+    clearValue: function(attr){
+      if (!!this.result[attr]) this.result[attr] = null
     },
   
     // Construct query parameters from stored data on the competition, round and group
@@ -50,7 +58,7 @@ App.VM = function(model, sessiondata){
       promise.then(function(){
         try {
           var key          = 'p' + String(parseInt(sessiondata.BlcNr, 10))
-          this.result      = model.data.result_json[key] || {a: null,b: null,t: null}
+          this.result      = model.data.result_jsonb[key] || {a: null,b: null,t: null}
           this.start_order = model.data.start_order
           this.fullname    = model.data.lastname+', '+model.data.firstname 
         }
@@ -60,34 +68,21 @@ App.VM = function(model, sessiondata){
       .then(null, function(){ App.connectionStatus(false) })      
     },
   
-    serialiseResults: function(){
-      var key = 'p' + String(parseInt(sessiondata.BlcNr, 10))
-        , obj = {}, str = ''
-       
-      for (var prop in this.result) {
-        if (this.result[prop] !== null) str += (prop+this.result[prop])
-      }
-      window.console.log(str)
-      obj[key] = str
-      return JSON.stringify(obj)
-    },
-
     save: function(){
-      var key = 'p' + String(parseInt(sessiondata.BlcNr, 10))
-      model.data.result_json[key] = this.result
+      var promise, key = 'p' + String(parseInt(sessiondata.BlcNr, 10))
       
-      // TODO: Add code here to save the model (if it has changed, in particular setting "b0")
-      var json    = this.serialiseResults()
-        , promise
+      model.data.result_jsonb[key] = this.result
+      
+    //  // TODO: Add code here to save the model (if it has changed, in particular setting "b0")
 
-      // Prevent a save occuring if no viewmodel has been instantiated
+    //  // Prevent a save occuring if no viewmodel has been instantiated
       if (!this.start_order) return
 
-      // Otherwise save any results data
-      promise = model.save(json)
-      promise
-      .then(function(){ App.connectionStatus(true) })
-      .then(null, function(){ App.connectionStatus(false) })
+    //  // Otherwise save any results data
+       promise = model.save()
+    //  promise
+    //  .then(function(){ App.connectionStatus(true) })
+    //  .then(null, function(){ App.connectionStatus(false) })
     },
     
     reset: function(){
