@@ -48,7 +48,13 @@ module Perseus
       tarr + barr
     end
     
-   
+    # Update the aggregate result
+    def merge_jsonb dataset, result
+      dataset
+        .first[:result_jsonb]
+        .merge(result)
+    end
+    
     # Set a __single__ result on the server
     # 
     def set_result_single params
@@ -58,10 +64,11 @@ module Perseus
       dataset = DB[:Results].where(hash)
 
       # Update results values
-      new_param  = set_sort_values(result)
+      new_result = merge_jsonb(dataset, result)
+      new_params = set_sort_values(new_result)
       resp = dataset.update({
-        sort_values:  Sequel.pg_array(new_param),
-        result_jsonb: Sequel.pg_jsonb(result) 
+        sort_values:  Sequel.pg_array(new_params),
+        result_jsonb: Sequel.pg_jsonb(new_result) 
       })
     #  # Return success/error
       resp ? 200 : 501
