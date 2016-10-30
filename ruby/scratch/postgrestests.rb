@@ -11,7 +11,7 @@ def gen_attempts type
   end
 end
 
-tops = gen_attempts "t"
+#tops = gen_attempts "t"
 #p tops["a3b1t3"]
 
 
@@ -23,19 +23,10 @@ DB.extension :pg_array, :pg_json
 Sequel.extension :pg_array_ops
 Sequel.extension :pg_json
 
-# ruby "nil" is automatically translated into JSON "null"
-testhash = { title: { a: 1, b: nil, t: nil } }
-
-dataset = DB[:books]
-  .where({id: 1})
-  .update({
-    datab: Sequel.pg_jsonb(testhash)
-  })
-
 # TEST JOINING TWO TABLES VIA A COMMON PARAMETER
 # Get some test data
 dataset = DB[:Results].join(:Climbers, [:per_id]).where({per_id: 1030})
-p dataset.first
+#p dataset.first
 
 # COPY A JSON OBJECT STORED AS A STRING ACROSS INTO A JSONB COLUMN
 # Copy all strongified results from result_json into result_jsonb as actual json objects
@@ -48,9 +39,7 @@ p dataset.first
 # end
 
 
-
-
-  #THREE METHODS FOR ORDERING IN SEQUEL
+#THREE METHODS FOR ORDERING IN SEQUEL
 #  p DB[:Forecast]
 #  .select(:start_order, :sort_values, :rank_prev_heat)
 #  .reverse(Sequel.pg_array_op(:sort_values)[1])
