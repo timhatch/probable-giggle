@@ -15,82 +15,9 @@ module Perseus
     defaults = { wet_id: 0, route: 0, grp_id: 0 }
     
     # HELPERS
-    helpers Perseus::CWIFResultsModus
-    helpers Perseus::IFSCResultsModus
+    helpers Perseus::EGroupwarePublicAPI
+    helpers Perseus::LANStorageAPI
 
-    # Create a new startlist within the results. Deletes any existing startlist for the specified
-    # competition, round and category and then creates a new list
-    # @params - wet_id, grp_id, route,
-    #         - dataset (an ordered list of competitors)
-    def create_startlist params, dataset
-      # Delete any existing startlist
-      DB[:Results].where(params).delete
-      
-      # Loop through the ordered list of competitors and create a new startlist, either using
-      # predefined start_order data or by using the positional index of the competitor
-      dataset.each.with_index(1) do |person, i|
-        person.merge!(params)
-        person[:start_order] ||= i
-        DB[:Results].insert(person)
-      end
-    end
-    
-    # Create a startlist from results for a previous round where the ranking for that round
-    # was calculated using the CWIF 10/7/4/b modus
-    # @params: wet_id, grp_id, route, quota
-    #
-    # NOTE
-    # This method outputs creates a startlist in rank reverse order
-    # (i.e. highest rank starts last)
-    def create_from_cwif_results params
-      quota = params[:quota] || 1
-      
-      # Fetch the results of the previous round, ordered reverse to the calculated rank in the
-      # previous heat (i.e. lowest ranked first)
-      dataset = DB[:Results]
-      .where(params)
-      .select(:per_id)
-      .select_append{
-        rank.function.over(order: CWIFResultsModus.rank_generator)
-        .as(:rank_prev_heat)}
-      .reverse_order(:rank_prev_heat)
-      .all
-      
-      # Discard any competitors whose rank is greater than the quota and create the
-      # startlist
-      dataset.keep_if { |row| row[:rank_prev_heat] <= quota }
-      params[:route] += 1
-      create_startlist(params, dataset)
-    end
-    
-    # Create a startlist from results for a previous round where the ranking for that round
-    # was calculated using the IFSC T/TA/B/BA modus
-    # @params: wet_id, grp_id, route, quota
-    #
-    # TODO
-    # Figure out how/whether we can pass in the required rank_generator rather than
-    # use two separate functions
-    def create_from_ifsc_results params
-      quota = params[:quota] || 1
-      
-      # Fetch the results of the previous round, ordered reverse to the calculated rank in the
-      # previous heat (i.e. lowest ranked first)
-      dataset = DB[:Results]
-      .where(params)
-      .select(:per_id)
-      .select_append{
-        rank.function.over(order: IFSCResultsModus.rank_generator)
-        .as(:rank_prev_heat)}
-      .reverse_order(:rank_prev_heat)
-      .all
-      
-      # Discard any competitors whose rank is greater than the quota and create the
-      # startlist
-      dataset.keep_if { |row| row[:rank_prev_heat] <= quota }
-      params[:route] += 1
-      create_startlist(params, dataset)
-    end
-    
     # Parse a csv file containing (as a minimum) per_id and start_order pairs
     # creating (for each line) a hash corresponding to the data and return an
     # array of these hashes
@@ -113,26 +40,20 @@ module Perseus
     # Thie method assumes that wet_id, grp_id and route parameters are also provided
     # which are merged into the default object and passed to the create_startlist method
     #
-    post '/import' do
-      list = parse_csv_file({ file: params.delete("file") })
-      
+    post '/file' do
+      data = parse_csv_file({ file: params.delete("file") })
       args = defaults.merge Hash[params.map{ |(k,v)| [k.to_sym,v] }]
-      create_startlist(args, list)
-      200
+      
+      LANStorageAPI.insert_startlist(args[:wet_id], args[:grp_id], args[:route], data)
     end
     
-    # Create a startlist from existing results - see create_from_cwif_results for arguments
-    post '/cwif' do
+    # Create a startlist from existing results
+    # Expects as a minimum the 
+    post '/ifsc' do
       args = defaults.merge Hash[params.map{ |(k,v)| [k.to_sym,v.to_i] }]
-      create_from_cwif_results(args)
-      200
-    end
-    
-    # Create a startlist from existing results - see create_from_ifsc_results for arguments
-    post  '/ifsc' do
-      args = defaults.merge Hash[params.map{ |(k,v)| [k.to_sym,v.to_i] }]
-      create_from_ifsc_results(args)
-      200
+      data = EGroupwarePublicAPI.get_results(args[:wet_id], args[:grp_id], args[:route])
+      
+      LANStorageAPI.insert_startlist(args[:wet_id], args[:grp_id], args[:route], data)
     end
   end
 end
