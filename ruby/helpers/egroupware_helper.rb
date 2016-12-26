@@ -34,9 +34,16 @@ module Perseus
     # module_function
 
     # Fetch the list of competitors/team officials registered for the competition
-    def get_starters wetid, grpid
+    # Use a default value for grpid (to return the full dataset if no category is supplied)
+    def get_starters wetid=0, grpid=0
       data = _get_json(comp: wetid, type: 'starters')
-      data['athletes'].select! { |x| x['cat'].to_i == grpid } unless data.nil?
+      unless data.nil? 
+        if grpid > 0
+          data['athletes'].select! { |x| x['cat'].to_i == grpid }
+        else
+          data['athletes']
+        end
+      end
     end
 
     # Fetch the startlist/resultslist for a given round
