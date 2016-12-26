@@ -16,13 +16,26 @@ module Perseus
     # HELPERS
     helpers Perseus::EGroupwarePublicAPI
     helpers Perseus::LANStorageAPI
-    
+    helpers Perseus::CSVParser
+
     # Route handling
     #
     get '/' do
       haml :registration
     end
 
+    # Create a startlist from a CSV formatted file
+    # Assume that the CSV file contains the following data:
+    # per_id, start_order
+    # Thie method assumes that wet_id, grp_id and route parameters are also provided
+    # which are merged into the default object and passed to the create_startlist method
+    #
+    post '/file' do
+      data = CSVParser.parse_csv_file({ file: params.delete("file") })
+      
+      LANStorageAPI.insert_registrants(data)
+    end
+    
     post '/ifsc' do
       args = defaults.merge Hash[params.map{ |(k,v)| [k.to_sym,v.to_i] }]
       data = EGroupwarePublicAPI.get_starters(args[:wet_id])

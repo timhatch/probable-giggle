@@ -7,7 +7,6 @@
 # - A Setter creating a new startlist from the results of a previous round (CWIF scramble format)
 # - A Setter creating a new startlist from the results of a previous round (IFSC format)
 #
-require 'csv'
 
 module Perseus
   class StartlistController < Perseus::ApplicationController
@@ -17,23 +16,8 @@ module Perseus
     # HELPERS
     helpers Perseus::EGroupwarePublicAPI
     helpers Perseus::LANStorageAPI
+    helpers Perseus::CSVParser
 
-    # Parse a csv file containing (as a minimum) per_id and start_order pairs
-    # creating (for each line) a hash corresponding to the data and return an
-    # array of these hashes
-    #
-    def parse_csv_file params
-      array = []
-      if params[:file]
-        file = params[:file][:tempfile]
-        
-        CSV.foreach(file, { headers: true, converters: :numeric }) do |row|
-          array << Hash[row.to_hash.map{|(k,v)| [k.to_sym,v]}]
-        end
-      end
-      array
-    end
-    
     # Create a startlist from a CSV formatted file
     # Assume that the CSV file contains the following data:
     # per_id, start_order
@@ -41,7 +25,7 @@ module Perseus
     # which are merged into the default object and passed to the create_startlist method
     #
     post '/file' do
-      data = parse_csv_file({ file: params.delete("file") })
+      data = CSVParser.parse_csv_file({ file: params.delete("file") })
       args = defaults.merge Hash[params.map{ |(k,v)| [k.to_sym,v] }]
       
       LANStorageAPI.insert_startlist(args[:wet_id], args[:grp_id], args[:route], data)
