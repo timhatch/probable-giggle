@@ -48,7 +48,7 @@ module Perseus
 
     # Fetch the startlist/resultslist for a given round
     # (gives the general result is route = -1030)
-    def get_results wetid, grpid, route
+    def get_results wetid=0, grpid=0, route=-1
       data = _get_json(comp: wetid, cat: grpid, route: route)
       data['participants'] unless data.nil?
     end
