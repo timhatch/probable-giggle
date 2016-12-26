@@ -2,6 +2,7 @@
 # Module  EGroupwarePublicAPI     - Helper functions to access the eGroupware Public API
 # Module  EGroupwarePrivateAPI    - Helper functions to access the eGroupware Private API
 #
+require 'httparty'
 require 'json'
 require 'date'
 
@@ -95,15 +96,25 @@ module Perseus
     #
     def compose_boulder_measurement_data params
       result = params.delete('result_jsonb')
-      key    = result.keys.first
-      data   = {
-        WetId: params['wet_id'], GrpId: params['grp_id'], route: params['route'],
-        PerId: params['per_id'],
-        boulder: key.slice(1).to_i,
-        try: result[key]['a'], bonus: result[key]['b'], top: result[key]['t'],
-        updated: DateTime.now.new_offset(Rational(0, 24)).to_s
-      }
-      Hash[request: { parameters: [data] }]
+      data   = capitalize_params(params)
+               .merge(flatten_results(result))
+               .merge('updated' => DateTime.now.new_offset(Rational(0, 24)).to_s)
+      Hash['request' => { 'parameters' => [data] }]
+    end
+
+    # Wet_id, grp_id, per_id parameters need to be converted to CamelCase
+    def capitalize_params params
+      route = params.delete('route')
+      Hash[params.map { |k, v| [k.split('_').map(&:capitalize).join, v] }]
+        .merge('route' => route)
+    end
+
+    # eGroupware requires results in a flattened format
+    def flatten_results result
+      mapping = { 'a' => 'try', 'b' => 'bonus', 't' => 'top' }
+      key = result.keys.first
+      Hash[result[key].map { |k, v| [mapping[k], v] }]
+        .merge('boulder' => key[1..-1].to_i)
     end
 
     # Helper function to format a data object containing results for a complete round (for one
@@ -138,7 +149,7 @@ module Perseus
     # Publish data to the ranking.ranking_boulder_measurement.ajax_protocol_update API point
     # (submits data for a single climber / single boulder)
     # See compose_boulder_measurement_data for @params
-    # @params - authorisation (typically a hash continaint either basic authorisation or
+    # @params - authorisation, typically a hash containing either basic authorisation or
     #           sessionid credentials:
     #           auth = { 'Cookie' => 'sessionid=qo5tji64a1cvobtkddnjktlth0' }
     #           auth = { 'Authorization' => 'Basic dGltOm1vY2twbzIwMTQ=' }
@@ -186,4 +197,5 @@ end
 #   "result_jsonb"=>{"p2"=>{"a"=>4,"b"=>2,"t"=>nil}}
 # }
 
-# p Perseus::EGroupwarePrivateAPI.compose_boulder_measurement_data(params)
+#puts Perseus::EGroupwarePublicAPI.get_starters(5759,81)
+#puts Perseus::EGroupwarePublicAPI.get_results(5759, 81, 2)
