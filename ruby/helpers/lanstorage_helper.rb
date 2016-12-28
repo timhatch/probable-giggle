@@ -13,6 +13,8 @@ module Perseus
     DB.extension :pg_array, :pg_json  # Needed to insert arrays
     Sequel.extension :pg_array_ops    # Needed to query stored arrays
     Sequel.extension :pg_json
+    
+    @default_route = { wet_id: 0, grp_id: 0, route: 0 }
 
     module_function
 
@@ -56,9 +58,8 @@ module Perseus
     # TODO: Fix the params
     #
     def insert_startlist params
-      default_route = { wet_id: 0, grp_id: 0, route: 0 }
-      args          = Hash[default_route.map { |k, v| [k, params[k].to_i || v] }]
-      competitors   = params[:competitors]
+      args        = Hash[@default_route.map { |k, v| [k, params[k].to_i || v] }]
+      competitors = params[:competitors]
       # delete any existing results data for the round
       delete_results(args)
       # Load the starters, converting any 'PerId' parameter (e.g. from eGroupware) into the
@@ -100,15 +101,14 @@ module Perseus
     end
 
     def check_person params
-      default_route = { wet_id: 0, grp_id: 0, route: 0 }
-      args          = Hash[default_route.map { |k, v| [k, params[k].to_i || v] }]
-      id            = params[:per_id].nil? ? :start_order : :per_id
+      args = Hash[@default_route.map { |k, v| [k, params[k].to_i || v] }]
+      id   = params[:per_id].nil? ? :start_order : :per_id
       args.merge(id => params[id].to_i)
     end
 
     def get_result_person params
       args = check_person(params)
-      get_result(args)
+      get_result(args).first.to_json
     end
 
     # Fetch results for a collection of results (i.e. for a route)
@@ -116,9 +116,8 @@ module Perseus
     # of results abd call the general accessor get_result
     #
     def get_result_route params
-      default_route = { wet_id: 0, grp_id: 0, route: 0 }
-      args          = Hash[default_route.map { |k, v| [k, params[k].to_i || v] }]
-      get_result(args)
+      args = Hash[@default_route.map { |k, v| [k, params[k].to_i || v] }]
+      get_result(args).all.to_json
     end
 
     # Update results for a __single__ competitor
