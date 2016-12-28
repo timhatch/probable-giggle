@@ -4,19 +4,17 @@ require 'json'
 
 # Use a lambda instead of a function
 def gen_attempts type
-  regex    = Regexp.new "#{type}([0-9]{1,})"
+  regex = Regexp.new "#{type}([0-9]{1,})"
   lambda do |result|
     matched = regex.match result
     matched.captures.to_a.first.to_i unless matched.nil?
   end
 end
 
-#tops = gen_attempts "t"
-#p tops["a3b1t3"]
+# tops = gen_attempts "t"
+# p tops["a3b1t3"]
 
-
-# TEST PG_ARRAY AND PG_JSON EXTENSIONS FOR SEQUEL 
-# 
+# TEST PG_ARRAY AND PG_JSON EXTENSIONS FOR SEQUEL
 #
 DB = Sequel.connect(ENV['DATABASE_URL'] || "postgres://timhatch@localhost:5432/test")
 DB.extension :pg_array, :pg_json
@@ -25,8 +23,8 @@ Sequel.extension :pg_json
 
 # TEST JOINING TWO TABLES VIA A COMMON PARAMETER
 # Get some test data
-dataset = DB[:Results].join(:Climbers, [:per_id]).where({per_id: 1030})
-#p dataset.first
+dataset = DB[:Results].join(:Climbers, [:per_id]).where(per_id: 1030)
+# p dataset.first
 
 # COPY A JSON OBJECT STORED AS A STRING ACROSS INTO A JSONB COLUMN
 # Copy all strongified results from result_json into result_jsonb as actual json objects
@@ -34,12 +32,11 @@ dataset = DB[:Results].join(:Climbers, [:per_id]).where({per_id: 1030})
 # dataset.each do |item|
 #   id   = item[:per_id]
 #   hash = JSON.parse item[:result_json]
-# 
+#
 #   dataset.where({ per_id: id }).update({ result_jsonb: Sequel.pg_jsonb(hash) })
 # end
 
-
-#THREE METHODS FOR ORDERING IN SEQUEL
+# THREE METHODS FOR ORDERING IN SEQUEL
 #  p DB[:Forecast]
 #  .select(:start_order, :sort_values, :rank_prev_heat)
 #  .reverse(Sequel.pg_array_op(:sort_values)[1])
@@ -47,7 +44,7 @@ dataset = DB[:Results].join(:Climbers, [:per_id]).where({per_id: 1030})
 #  .order_more(Sequel.pg_array_op(:sort_values)[3]).reverse
 #  .order_more([Sequel.pg_array_op(:sort_values)[4], :rank_prev_heat])
 #  .all
-# # Reset the data ahead of the next comparison 
+# # Reset the data ahead of the next comparison
 #
 #  p DB[:Forecast]
 #  .select(:start_order, :sort_values, :rank_prev_heat)
