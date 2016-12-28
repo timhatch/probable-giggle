@@ -47,17 +47,5 @@ module Perseus
     get '/m' do
       haml :nexus
     end
-    
-    # Serve a data input sheet for a single climber, assuming the "old school"
-    # CWIF scramble/jam format.
-    get '/f' do
-      haml :mithril
-    end
-    
-    # Serve a data input sheet shwoining the startlist, results list and judging sheet
-    #
-    get '/' do
-      haml :results
-    end
   end
 end
