@@ -21,10 +21,10 @@ module Perseus
     # Returns a JSON object (with keys represented as strings not symbols)
     # @params - Hash object containing variables (see the EGroupware API reference for options
     #
-    def _get_json args
+    def _get_json params
       url = 'http://egw.ifsc-climbing.org/egw/ranking/json.php'
       begin
-        response = HTTParty.get(url, query: args)
+        response = HTTParty.get(url, query: params)
         response.code == 200 ? JSON.parse(response.body) : nil
       rescue
         puts 'Exception raised in EGroupwarePublicAPI:get_json'
@@ -36,8 +36,9 @@ module Perseus
 
     # Fetch the list of competitors/team officials registered for the competition
     # Use a default value for grpid (to return the full dataset if no category is supplied)
-    def get_starters wetid=0, grpid=0
-      data = _get_json(comp: wetid, type: 'starters')
+    def get_starters params
+      grpid = params[:grp_id].to_i || 0
+      data  = _get_json(comp: params[:wet_id].to_i || 0, type: 'starters')
       unless data.nil? 
         if grpid > 0
           data['athletes'].select! { |x| x['cat'].to_i == grpid }
@@ -48,13 +49,23 @@ module Perseus
     end
 
     # Fetch the startlist/resultslist for a given round
-    # (gives the general result is route = -1030)
-    def get_results wetid=0, grpid=0, route=-1
-      data = _get_json(comp: wetid, cat: grpid, route: route)
+    # (gives the general result is route = -1)
+    def get_results params
+      args = { 
+        comp: params[:wet_id].to_i || 0, 
+        cat:  params[:grp_id].to_i || 0, 
+        route: params[:route].to_i || -1 
+      }
+      
+      data = _get_json(args)
       data['participants'] unless data.nil?
     end
   end
 end
+
+#puts Perseus::EGroupwarePublicAPI.get_starters(wet_id: 5759, grp_id: 81)
+#puts Perseus::EGroupwarePublicAPI.get_results(wet_id: 5759, grp_id: 81, route: 2)
+#puts Perseus::EGroupwarePublicAPI.get_starters(wet_id: 1572,  grp_id: 284)
 
 #
 # PRIVATE API
@@ -197,6 +208,3 @@ end
 #   "wet_id"=>99,"grp_id"=>5,"route"=>2,"per_id"=>6326,
 #   "result_jsonb"=>{"p2"=>{"a"=>4,"b"=>2,"t"=>nil}}
 # }
-
-#puts Perseus::EGroupwarePublicAPI.get_starters(5759,81)
-#puts Perseus::EGroupwarePublicAPI.get_results(5759, 81, 2)

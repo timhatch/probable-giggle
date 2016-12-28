@@ -5,102 +5,41 @@
 # database 
 # Currently implements: 
 # - Getting/Setting a single result (i.e. for one climber and one boulder)
-# - Setting a singe result and outputting to a CSV file (as a ninterface to livestream)
-# - Gettting multiple results (e.g. for a climber, or for all climbers in a round) 
-# - Routes serving web pages for data input via tablet, for a flash qualification
-#   format and for the "classic" IFSC format.
+#   (In theory the relevant method in LANStorageAPI will cope with multiple boulders being updated
+#   but the corresponding eGroupware method has not been implemented
+# - Getting multiple results (e.g. for all climbers in a round) 
 #
 module Perseus
   class ResultsController < Perseus::ApplicationController
     
     # HELPERS
-    helpers Perseus::MediaRunner
-
-     # Prepare a Sequel query to get __single__ or __multiple__ results
-    # 
-    def get_result params, order_by: "result_rank"
-      hash = Hash[params.map{ |(k,v)| [k.to_sym,v] }]
-      DB[:Results].join(:Climbers, [:per_id])
-        .where(hash)
-      #  .order(order_by.to_sym)
-    end
+    helpers Perseus::LANStorageAPI
     
-    # Interrogate in individual result string to construct a result
+    # symbolize route paramaters (deliberately non-recursive)
     #
-    def parse_attempts results_hash, key, arr
-      if (results_hash.has_key?(key) && !results_hash[key].nil?)
-        arr[0] += 1
-        arr[1] += results_hash[key]
-      end
+    before do
+      params.keys.each{ |k| params[k.to_sym] = params.delete(k) }
     end
     
-    # Parse the provided results string to create a results array
-    # in the form [t,ta,b,ba]
-    #
-    def set_sort_values result_json
-      tarr = [0,0]
-      barr = [0,0]
-
-      result_json.each do |key,result|
-        parse_attempts(result, "t", tarr)
-        parse_attempts(result, "b", barr)
-      end
-      tarr + barr
-    end
-    
-    # Update the aggregate result
-    def merge_jsonb dataset, result
-      dataset
-        .first[:result_jsonb]
-        .merge(result)
-    end
-    
-    # Set a __single__ result on the server
-    # 
-    def set_result_single params
-      # Process the input parameters
-      result  = params.delete("result_jsonb")
-      hash    = Hash[params.map{|(k,v)| [k.to_sym,v.to_i]}]
-      dataset = DB[:Results].where(hash)
-
-      # Update results values
-      new_result = merge_jsonb(dataset, result)
-      new_params = set_sort_values(new_result)
-      resp = dataset.update({
-        sort_values:  Sequel.pg_array(new_params),
-        result_jsonb: Sequel.pg_jsonb(new_result) 
-      })
-    #  # Return success/error
-      resp ? 200 : 501
-    end
-    
-    # ROUTING
-    #
     # Fetch a __single__ result
+    # Convert the received parameters into hash symbols and call LANStorageAPI.get_result_person
+    # 
     get '/person' do
-      get_result(params).first.to_json
-    end
-    
-    # Update a single result
-    put '/person' do
-      resp = set_result_single(params)
-      
-      # Simple hack to dump results data to a csv file
-      #Perseus::MediaRunner.export_consolidated_results({
-      #  wet_id: params["wet_id"], grp_id: params["grp_id"]
-      #})
-      #resp
-    end
-    
-    # Update a simple result (but don't update the media file)
-    #
-    put '/person_nomedia' do
-      resp = set_result_single(params)
+      LANStorageAPI.get_result_person(params).first.to_json
     end
     
     # Fetch __multiple__ results (i.e. for a route)
+    # Convert the received parameters into hash symbols and call LANStorageAPI.get_result_route
+    # 
     get '/route' do
-      get_result(params).all.to_json
+      LANStorageAPI.get_result_route(params).all.to_json
+    end
+    
+    # Update a __single__ result
+    # Convert the received parameters into hash symbols and call LANStorageAPI.set_result_single
+    #
+    put '/person' do
+      LANStorageAPI.set_result_person(params) ? 200 : 501
     end
     
     # Serve a data input sheet formatted for a Nexus Tablet, IFSC scoring format

@@ -11,33 +11,34 @@
 module Perseus
   class StartlistController < Perseus::ApplicationController
   
-    defaults = { wet_id: 0, route: 0, grp_id: 0 }
-    
     # HELPERS
     helpers Perseus::EGroupwarePublicAPI
     helpers Perseus::LANStorageAPI
     helpers Perseus::CSVParser
 
+    # symbolize route paramaters (deliberately non-recursive)
+    #
+    before do
+      params.keys.each{ |k| params[k.to_sym] = params.delete(k) }
+    end
+
     # Create a startlist from a CSV formatted file
+    # @params = { wet_id: 1572, grp_id: 5, route: 2 }
     # Assume that the CSV file contains the following data:
-    # per_id, start_order
-    # Thie method assumes that wet_id, grp_id and route parameters are also provided
-    # which are merged into the default object and passed to the create_startlist method
+    # - wet_id, grp_id, route, per_id, start_order
     #
     post '/file' do
-      data = CSVParser.parse_csv_file({ file: params.delete("file") })
-      args = defaults.merge Hash[params.map{ |(k,v)| [k.to_sym,v] }]
-      
-      LANStorageAPI.insert_startlist(args[:wet_id], args[:grp_id], args[:route], data)
+      params[:competitors] = CSVParser.parse_csv_file({ file: params.delete(:file) })
+      LANStorageAPI.insert_startlist(params)
     end
     
-    # Create a startlist from existing results
-    # Expects as a minimum the 
+    # Import a startlist for some given competition/category/round from eGroupware
+    # @params = { wet_id: 1572, grp_id: 5, route: 2 }
+    # 
     post '/ifsc' do
-      args = defaults.merge Hash[params.map{ |(k,v)| [k.to_sym,v.to_i] }]
-      data = EGroupwarePublicAPI.get_results(args[:wet_id], args[:grp_id], args[:route])
-      
-      LANStorageAPI.insert_startlist(args[:wet_id], args[:grp_id], args[:route], data)
+      params[:competitors] = EGroupwarePublicAPI.get_results(params)
+      LANStorageAPI.insert_startlist(params)
     end
   end
 end
+
