@@ -11,7 +11,7 @@ FROM "Results"
 JOIN "Climbers" USING (per_id)
 
 # Query whether it would be more efficient to calculate the rank() in a sequel query
-# i.e. the calculation is performed for set paramaters
+# i.e. the calculation is performed for set parameters
 .where(params)
 .select{rank.function
   .over(:order => [
@@ -23,7 +23,7 @@ JOIN "Climbers" USING (per_id)
   ])}
 
 
-# Add a column havng integer Array type
+# Add a column having integer Array type
 ALTER TABLE "Results" ADD COLUMN "sort_values" INTEGER[4]
 ALTER TABLE "Results" ADD COLUMN "result_json" TEXT DEFAULT '{}'
 
