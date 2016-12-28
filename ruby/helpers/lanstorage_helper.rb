@@ -35,14 +35,16 @@ module Perseus
       competitors.each do |person|
         person['per_id'] = person['PerId'] unless person['PerId'].nil?
         record = DB[:Climbers].where(per_id: person['per_id'].to_i)
-        record.insert(
-          per_id:    person['per_id'].to_i,
-          lastname:  person['lastname'],
-          firstname: person['firstname'],
-          club:      person['federation'],
-          nation:    person['nation'],
-          birthyear: person['birthyear'].to_i
-        ) unless record.first
+        unless record.first
+          record.insert(
+            per_id:    person['per_id'].to_i,
+            lastname:  person['lastname'],
+            firstname: person['firstname'],
+            club:      person['federation'],
+            nation:    person['nation'],
+            birthyear: person['birthyear'].to_i
+          )
+        end
       end
     end
 
@@ -55,14 +57,13 @@ module Perseus
     #
     def insert_startlist params
       default_route = { wet_id: 0, grp_id: 0, route: 0 }
-      args          = Hash[default_route.map{ |k,v| [k, params[k].to_i || v] }]
-      competitors   = params[:competitors] 
-      
+      args          = Hash[default_route.map { |k, v| [k, params[k].to_i || v] }]
+      competitors   = params[:competitors]
       # delete any existing results data for the round
       delete_results(args)
-      # Load the starters, converting any 'PerId' parameter (e.g. from eGroupware) into the snake_case
-      # format expected here
-      unless competitors.nil?
+      # Load the starters, converting any 'PerId' parameter (e.g. from eGroupware) into the
+      # snake_case format expected here
+      begin
         competitors.each do |person|
           person['per_id'] = person['PerId'] unless person['PerId'].nil?
           hash = args.merge(
@@ -72,7 +73,9 @@ module Perseus
           )
           DB[:Results].insert(hash)
         end
-      end 
+      rescue
+        puts 'nil response'
+      end
     end
 
     # Return a sequel object to fetch either __single__ or __multiple__ results
@@ -82,12 +85,12 @@ module Perseus
     # AND IF WE'RE COING TO USE A VIEW THEN WE MAY BE ABLE TO DISPENSE WITH SOME OF THIS
     # ALSO WE NEED TO DEAL WITH THE GENERAL RESULT
     #
-    def get_result params, order_by: "result_rank"
-      
-      DB[:Results].join(:Climbers, [:per_id])
+    def get_result params, order_by: 'result_rank'
+      DB[:Results]
+        .join(:Climbers, [:per_id])
         .where(params)
         .select(:per_id, :lastname, :firstname, :nation, :start_order, :sort_values, :result_jsonb)
-        .select_append{
+        .select_append {
           rank.function.over(
             partition: [:wet_id, :grp_id, :route],
             order: Perseus::IFSCBoulderModus.rank_generator
