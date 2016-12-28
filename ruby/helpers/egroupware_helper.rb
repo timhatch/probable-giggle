@@ -93,6 +93,7 @@ module Perseus
     # NOTE: The native JSON feed into eGroupware treats all values as strings rather than integers
     #       or nulls (so a "" is provided in place of a null) however it seems to accept both
     #       integers and nulls in testing
+    # TODO: Check all hash parameters - think these need all to be converted to symbols
     #
     def compose_boulder_measurement_data params
       result = params.delete('result_jsonb')
