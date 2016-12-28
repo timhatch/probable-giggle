@@ -99,9 +99,15 @@ module Perseus
         .order(order_by.to_sym)
     end
 
+    def check_person params
+      default_route = { wet_id: 0, grp_id: 0, route: 0 }
+      args          = Hash[default_route.map { |k, v| [k, params[k].to_i || v] }]
+      id            = params[:per_id].nil? ? :start_order : :per_id
+      args.merge(id => params[id].to_i)
+    end
+
     def get_result_person params
-      default_person = { wet_id: 0, grp_id: 0, route: 0, per_id: 0 }
-      args           = Hash[default_person.map{ |k,v| [k, params[k].to_i || v] }]
+      args = check_person(params)
       get_result(args)
     end
 
@@ -125,9 +131,8 @@ module Perseus
     # }
     #
     def set_result_person params
-      default_person = { wet_id: 0, grp_id: 0, route: 0, per_id: 0 }
-      args           = Hash[default_person.map{ |k,v| [k, params[k].to_i || v] }]
-      data           = params[:result_jsonb] || {}
+      args = check_person(params)
+      data = params[:result_jsonb] || {}
 
       query = DB[:Results].where(args)
 
