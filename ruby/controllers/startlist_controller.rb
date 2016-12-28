@@ -37,7 +37,7 @@ module Perseus
     # 
     post '/ifsc' do
       params[:competitors] = EGroupwarePublicAPI.get_results(params)
-      LANStorageAPI.insert_startlist(params)
+      LANStorageAPI.insert_startlist(params) ? 200 : 501
     end
   end
 end

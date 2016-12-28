@@ -32,7 +32,7 @@ module Perseus
     #
     post '/file' do
       data = CSVParser.parse_csv_file({ file: params.delete(:file) })
-      LANStorageAPI.insert_registrants(data)
+      LANStorageAPI.insert_registrants(data) ? 200 : 501
     end
     
     # Fetch a list of climbers from eGroupware (actually fetches the list of climbers registered
@@ -44,7 +44,7 @@ module Perseus
     #
     post '/ifsc' do
       data = EGroupwarePublicAPI.get_starters(params)
-      LANStorageAPI.insert_registrants(data)
+      LANStorageAPI.insert_registrants(data) ? 200 : 501
     end
   end
 end
