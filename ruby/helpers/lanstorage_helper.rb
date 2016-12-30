@@ -1,10 +1,12 @@
 # Module  Perseus                 - The namespace for all application code
 # Module  LANStorageAPI           - Helper methods to access the LAN database
-#                                   LANStorageAPI methods are broken into a series of blocks (we may
-#                                   at some stage convert these into individual sub-modules, but that 
-#                                   seems like overkill at present. 
+#                                   LANStorageAPI methods are broken into a series of blocks (we
+#                                   may at some stage convert these into individual sub-modules,
+#                                   but that seems like overkill at present.
 #                                   1) At the head of this file, the base module declaration
 #                                   2) Results Accessor methods
+#                                   3) Competition Accessor methods
+#                                   4) Session Accessor methods
 #
 require 'sequel'
 require 'pg'
@@ -27,14 +29,10 @@ end
 #
 module Perseus
   module LANStorageAPI
-
+    # Default route parameters
     @default_route = { wet_id: 0, grp_id: 0, route: 0 }
 
     module_function
-
-    def delete_competition params
-      DB[:Competitions].where(params).delete
-    end
 
     def delete_results params
       DB[:Results].where(params).delete
@@ -160,27 +158,58 @@ module Perseus
   end
 end
 
+# Competition data getter/setters
+#
+module Perseus
+  module LANStorageAPI
+
+    @default_comp = { wet_id: 0, city: 'Längenfeld', date: '2017-01-01', type: 'B',
+                      title: 'Test Competition' }
+
+    module_function
+
+    # Get the "active" competition
+    #
+    def get_active_competition
+      DB[:Competitions].join(:Session, [:wet_id]).first
+    end
+
+    # Insert a new competition (or overwrite an existing competition)
+    #
+    def insert_competition params
+      args = Hash[@default_comp.map { |k, v| [k, params[k] || v] }]
+      args[:wet_id] = args[:wet_id].to_i
+      DB[:Competitions].where(wet_id: args[:wet_id]).delete
+      DB[:Competitions].insert(args)
+    end
+  end
+end
+
+# Check delete_competition function
+# Perseus::LANStorageAPI.delete_competition(wet_id: 120)
+# puts Perseus::LANStorageAPI.get_active_competition
+# Perseus::LANStorageAPI.insert_competition(wet_id: 999)
+
 # Session data getter/setters
 # The Session table contains only one entry by design
 #
 module Perseus
   module LANStorageAPI
-      
     module_function
-    
+
     # Get the session data
     #
     def get_session_data
       DB[:Session].first
     end
-    
+
     # Set the active competition
     #
     def set_active_competition params
-      args = Hash[{ wet_id: 0}.map { |k, v| [k, params[k].to_i || v] }]
+      args = Hash[{ wet_id: 0 }.map { |k, v| [k, params[k].to_i || v] }]
       DB[:Session].update(args)
     end
-    
+
     # Store an eGroupware authorisation hash
     #
     def set_authorisation params
@@ -202,7 +231,6 @@ end
 
 module Perseus
   module IFSCBoulderModus
-    
     module_function
 
     def rank_generator
@@ -243,7 +271,6 @@ end
 # params = { wet_id: 99, grp_id: 5, route: 2 }
 # puts Perseus::LANStorageAPI.get_result_route(params).all
 # puts Perseus::LANStorageAPI.delete_route(wet_id: 0)
-# puts Perseus::LANStorageAPI.delete_competition(21)
 # puts Perseus::LANStorageAPI.delete_person(99,1030)
 # puts Perseus::LANStorageAPI.get_result(wet_id: 99, route: 2, grp_id: 5).all
 
@@ -265,9 +292,6 @@ end
 # h2 = { 'wet' => 3, 'rte' => { "p1" => { "a" => 1, "b" => 1 }}}
 # p Hash[h1.map { |k,v| [k, h2[k.to_s] || v]}]
 # p h2
-
-# Check delete_competition function
-# Perseus::LANStorageAPI.delete_competition(wet_id: 120)
 
 # Check delete_results function
 # Perseus::LANStorageAPI.delete_results(wet_id: 1572)
