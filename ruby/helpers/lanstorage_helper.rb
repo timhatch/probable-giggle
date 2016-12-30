@@ -38,30 +38,6 @@ module Perseus
       DB[:Results].where(params).delete
     end
 
-    # Helper method to import competitors into the local database
-    # The "replace" operator is not supported for postgres databases, so use a workaround
-    # We assume that the compatitors parameter is an array of hash objects, each object
-    # containing the following parameters:
-    # per_id, lastname, firstname, federation, nation, birthyear
-    # NOTE: The has conetne is assumed to be string based (not symbol based)
-    #
-    def insert_registrants competitors
-      competitors.each do |person|
-        person['per_id'] = person['PerId'] unless person['PerId'].nil?
-        record = DB[:Climbers].where(per_id: person['per_id'].to_i)
-        unless record.first
-          record.insert(
-            per_id:    person['per_id'].to_i,
-            lastname:  person['lastname'],
-            firstname: person['firstname'],
-            club:      person['federation'],
-            nation:    person['nation'],
-            birthyear: person['birthyear'].to_i
-          )
-        end
-      end
-    end
-
     # Helper method to import a startlist into the LAN database
     #
     # The data is assumed to ne an array competitors, each a ruby Hash containing at least
