@@ -60,16 +60,16 @@ app.ResultsList = Backbone.Collection.extend({
     this.on('change:is_tagged', this.updateFavoritesList, this.settings)
   },
 
-	//	loadResults(): Fetch results data from eGroupware and populate the collection
-	//	Uses the default entry point to eGroupware specifying the comp, category and round
-	//
-	loadResults: function(){
-		var query = '?wet_id='+this.comp+'&grp_id='+this.cat+'&route='+this.round
+  //  loadResults(): Fetch results data from eGroupware and populate the collection
+  //  Uses the default entry point to eGroupware specifying the comp, category and round
+  //
+  loadResults: function(){
+    var query = '?wet_id='+this.comp+'&grp_id='+this.cat+'&route='+this.round
     var parse = function(data){
-				this.parseJSONData(data)
-				this.reset(data)
-				this.setRankPrevHeat()
-				this.sortResults(data)
+        this.parseJSONData(data)
+        this.reset(data)
+        this.setRankPrevHeat()
+        this.sortResults(data)
     }.bind(this)
 
     return this.getJSON(query).then(parse)
@@ -79,7 +79,7 @@ app.ResultsList = Backbone.Collection.extend({
   //  Uses the &type=starters option to fetch the list of registered climbers
   //
   loadStarters: function(){
-	},
+  },
 
   //  update(): Fetch climber data from the server and update the collection
   //  Behaviour:
@@ -116,9 +116,9 @@ app.ResultsList = Backbone.Collection.extend({
       chr = _(person.firstname).last()
       if (chr === chr.toUpperCase()) { person.firstname = _.titleize(person.firstname) }
 
-			// Add new properties (a) as the model id and (b) to indicate the starting group
-			person.id             = parseInt(person.per_id, 10)
-			person.is_tagged      = (_.indexOf(this.settings.get('FavoritesList'), person.id) > -1)
+      // Add new properties (a) as the model id and (b) to indicate the starting group
+      person.id             = parseInt(person.per_id, 10)
+      person.is_tagged      = (_.indexOf(this.settings.get('FavoritesList'), person.id) > -1)
 
       // Edit properties , e.g. where ints/floats are stored as strings
       person.cat            = mcat === (person.cat || this.cat)
@@ -170,20 +170,21 @@ app.ResultsList = Backbone.Collection.extend({
     this.setDisplayValues()
   },
 
-	//
-	//	Private methods called from setResults() to set results data for specific disciplines
-	//
-	_setBResults: function(person, options){
-		var model   = this.get(parseInt(person.per_id, 10))
+  //
+  //  Private methods called from setResults() to set results data for specific disciplines
+  //
+  _setBResults: function(person, options){
+    var model   = this.get(parseInt(person.per_id, 10))
     var sortval = options.rank || this.length + options.prev
       
-		// Get the model and set its results parameters
-		model.set({
-			'sort_value': sortval || null,
+    // Get the model and set its results parameters
+    model.set({
+      'sort_value': sortval || null,
       'sort_values': person.sort_values || null,
       'result_jsonb': person.result_jsonb || null
-		})
-	},
+    })
+    window.console.log(model)
+  },
 
   _setLResults: function(person, options){
     var model   = this.get(parseInt(person.PerId, 10))
