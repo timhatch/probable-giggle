@@ -160,6 +160,46 @@ module Perseus
   end
 end
 
+# Session data getter/setters
+# The Session table contains only one entry by design
+#
+module Perseus
+  module LANStorageAPI
+      
+    module_function
+    
+    # Get the session data
+    #
+    def get_session_data
+      DB[:Session].first
+    end
+    
+    # Set the active competition
+    #
+    def set_active_competition params
+      args = Hash[{ wet_id: 0}.map { |k, v| [k, params[k].to_i || v] }]
+      DB[:Session].update(args)
+    end
+    
+    # Store an eGroupware authorisation hash
+    #
+    def set_authorisation params
+      args = Hash[{ auth: nil }.map { |k, v| [k, params[k] || v] }]
+      DB[:Session].update(args)
+    end
+
+    # Clear (reset) the session parameters
+    def reset_session
+      DB[:Session].update(wet_id: 0, auth: nil)
+    end
+  end
+end
+
+# puts Perseus::LANStorageAPI.get_session_data
+# Perseus::LANStorageAPI.set_active_competition(wet_id: 99)
+# Perseus::LANStorageAPI.set_authorisation(auth: 'alphabet')
+# Perseus::LANStorageAPI.reset_session
+
 module Perseus
   module IFSCBoulderModus
     
