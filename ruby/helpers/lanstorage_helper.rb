@@ -96,7 +96,7 @@ module Perseus
 
     def get_result_person params
       args = check_person(params)
-      get_result(args).first.to_json
+      get_result(args).first
     end
 
     # Fetch results for a collection of results (i.e. for a route)
@@ -105,7 +105,7 @@ module Perseus
     #
     def get_result_route params
       args = Hash[@default_route.map { |k, v| [k, params[k].to_i || v] }]
-      get_result(args).all.to_json
+      get_result(args).all
     end
 
     # Update results for a __single__ competitor

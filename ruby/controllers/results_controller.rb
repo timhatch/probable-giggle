@@ -25,14 +25,14 @@ module Perseus
     # Convert the received parameters into hash symbols and call LANStorageAPI.get_result_person
     # 
     get '/person' do
-      LANStorageAPI.get_result_person(params)
+      LANStorageAPI.get_result_person(params).to_json
     end
     
     # Fetch __multiple__ results (i.e. for a route)
     # Convert the received parameters into hash symbols and call LANStorageAPI.get_result_route
     # 
     get '/route' do
-      LANStorageAPI.get_result_route(params)
+      LANStorageAPI.get_result_route(params).to_json
     end
     
     # Update a __single__ result
