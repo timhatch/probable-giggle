@@ -1,10 +1,17 @@
 # Module  Perseus                 - The namespace for all application code
-# Module  LANStorageAPI           - Helper functions to access the LAN database
+# Module  LANStorageAPI           - Helper methods to access the LAN database
+#                                   LANStorageAPI methods are broken into a series of blocks (we may
+#                                   at some stage convert these into individual sub-modules, but that 
+#                                   seems like overkill at present. 
+#                                   1) At the head of this file, the base module declaration
+#                                   2) Results Accessor methods
 #
 require 'sequel'
 require 'pg'
 require 'json'
 
+# Base module declaration, instantiates a connection to a Postgresql database
+#
 module Perseus
   # LANStorageAPI
   module LANStorageAPI
@@ -13,7 +20,14 @@ module Perseus
     DB.extension :pg_array, :pg_json  # Needed to insert arrays
     Sequel.extension :pg_array_ops    # Needed to query stored arrays
     Sequel.extension :pg_json
-    
+  end
+end
+
+# Results data getters/setters
+#
+module Perseus
+  module LANStorageAPI
+
     @default_route = { wet_id: 0, grp_id: 0, route: 0 }
 
     module_function
@@ -148,6 +162,7 @@ end
 
 module Perseus
   module IFSCBoulderModus
+    
     module_function
 
     def rank_generator
