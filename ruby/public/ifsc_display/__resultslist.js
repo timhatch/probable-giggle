@@ -92,11 +92,8 @@ app.ResultsList = Backbone.Collection.extend({
   // Result", submitting the request without the '&route' parameter
   //
   update: function(){
-    var query = '?wet_id='+this.comp+'&grp_id='+this.cat
-    var parse = function(data){ this.sortResults(data.participants) }.bind(this)
-
-    // Set the url to access either the specific round or the General Result
-    query += ((this.LQ || this.SF) ? '' : '&route='+this.round)
+    var query = '?wet_id='+this.comp+'&grp_id='+this.cat+'&route='+this.round
+    var parse = function(data){ this.sortResults(data) }.bind(this)
 
     // Set the results data for each climber (model) in the collection, then sort the collection
     return this.getJSON(query).then(parse)
