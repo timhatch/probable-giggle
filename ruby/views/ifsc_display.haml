@@ -1,0 +1,56 @@
+!!! 5
+
+%head
+  %title  Boulder Results
+  / Meta Tags
+  %meta{ :charset=>'UTF-8'}
+  %meta{ :name=>'viewport', :content=>'width=360, user-scalable=0' }
+
+  / Stylesheets
+  %link{ :rel=>'stylesheet', href: './ifsc_display/THBoulderApp.css' }
+
+%body#outer
+  / Structural Content
+  #header
+  / #top_banner.banner 
+  /   %span.icc
+  /     %img{ src:'logos/ifsc-logo2015-europe.png', height:'90%' }
+  /   %span.t ECH2015 - Innsbruck (AUT)
+  /   %span.fed 
+  /     %img{ src:'logos/oewk_logo_white.png', width:'100%' }
+  / #btm_banner.banner
+  /   %img{ :src=>'logos/banner_new.png', :width=>'100%' }
+
+  / JS Libraries (modernizr, promise, underscore, exoskeleton, hammer)
+  %script{ src: './ifsc_display/jslibs-1407.min.js' }
+
+  / Application Cod
+  %script{ src: './ifsc_display/utilities.js' }
+  %script{ src: './ifsc_display/__settings.js' }
+  %script{ src: './ifsc_display/settingsview.js' }
+  %script{ src: './ifsc_display/headerview.js' }
+  %script{ src: './ifsc_display/climberview.js' }
+  %script{ src: './ifsc_display/__resultslist.js' }
+  %script{ src: './ifsc_display/resultslistview.js' }
+  %script{ src: './ifsc_display/resultslistview_animation_manager.js' }
+  %script{ src: './ifsc_display/resultslistview_drag_manager.js' }
+  %script{ src: './ifsc_display/application_core.js' }
+  %script{ src: './ifsc_display/__climberview_b_d.js' }
+
+  :javascript
+    document.addEventListener('DOMContentLoaded', function(){
+      var idx  = 10
+      var cmps = { "WetId" : "#{params['wet_id']}", "type" : "B", "name" : "Test Competition" }
+      var opts = { "defaultCompetition" :  cmps, "isFullScreenApp" : true }
+
+      // Extend Backbone Events to the applicationObject and then initialize the object
+      _.extend(window.applicationObject, Backbone.Events)
+
+      // Extend the application object to add mobile methods
+      _.extend(window.applicationObject, window.applicationObject.desktop)
+      _.extend(app.ResultsList.prototype, app.ResultsList.desktop)
+      _.extend(app.ResultsListView.prototype, app.ResultsListView.desktop)
+  
+      window.applicationObject.init(idx,opts)
+      window.console.log("#{params['wet_id']}")
+    }) 
