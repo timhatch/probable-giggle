@@ -161,7 +161,7 @@ module Perseus
   end
 end
 
-# Check delete_competition function
+# Check function
 # Perseus::LANStorageAPI.delete_competition(wet_id: 120)
 # puts Perseus::LANStorageAPI.get_active_competition
 # Perseus::LANStorageAPI.insert_competition(wet_id: 999)
@@ -204,6 +204,39 @@ end
 # Perseus::LANStorageAPI.set_active_competition(wet_id: 99)
 # Perseus::LANStorageAPI.set_authorisation(auth: 'alphabet')
 # Perseus::LANStorageAPI.reset_session
+
+# Competitor related getters/setters
+#
+module Perseus
+  module LANStorageAPI
+    module_function
+
+    # Helper method to import competitors into the local database
+    # The "replace" operator is not supported for postgres databases, so use a workaround
+    # We assume that the compatitors parameter is an array of hash objects, each object
+    # containing the following parameters:
+    # per_id, lastname, firstname, federation, nation, birthyear
+    # NOTE: The has conetne is assumed to be string based (not symbol based)
+    #
+    def insert_registrants competitors
+      competitors.each do |person|
+        person['per_id'] = person['PerId'] unless person['PerId'].nil?
+        record = DB[:Climbers].where(per_id: person['per_id'].to_i)
+        unless record.first
+          record.insert(
+            per_id:    person['per_id'].to_i,
+            lastname:  person['lastname'],
+            firstname: person['firstname'],
+            club:      person['federation'],
+            nation:    person['nation'],
+            birthyear: person['birthyear'].to_i
+          )
+        end
+      end
+    end
+  end
+end
+
 
 module Perseus
   module IFSCBoulderModus
