@@ -15,7 +15,7 @@ class EGroupwarePrivateAPITester < Test::Unit::TestCase
     assert_equal(target_resp1, capitalize_params(test_params1))
   end
 
-  def test_translate_results
+  def test_flatten_results
     # Expected Output
     target_resp1 = { 'boulder' => 1, 'try' => 4, 'bonus' => 1, 'top' => 4 }
     target_resp2 = { 'boulder' => 1, 'try' => 4, 'bonus' => 1, 'top' => nil }
@@ -26,9 +26,9 @@ class EGroupwarePrivateAPITester < Test::Unit::TestCase
     test_params3 = { 'p22' => { 'a' => nil, 'b' => nil, 't' => nil } }
 
     # Assertions
-    assert_equal(target_resp1, translate_results(test_params1))
-    assert_equal(target_resp2, translate_results(test_params2))
-    assert_equal(target_resp3, translate_results(test_params3))
+    assert_equal(target_resp1, flatten_results(test_params1))
+    assert_equal(target_resp2, flatten_results(test_params2))
+    assert_equal(target_resp3, flatten_results(test_params3))
   end
 
   def test_compose_boulder_measurement_data
