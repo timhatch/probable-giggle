@@ -14,6 +14,7 @@ module Perseus
     
     # HELPERS
     helpers Perseus::LANStorageAPI
+    helpers Perseus::ResultsHandler
     
     # symbolize route paramaters (deliberately non-recursive)
     #
@@ -39,7 +40,7 @@ module Perseus
     # Convert the received parameters into hash symbols and call LANStorageAPI.set_result_single
     #
     put '/person' do
-      LANStorageAPI.set_result_person(params) ? 200 : 501
+      ResultsHandler.handle_results_input(params) ? 200 : 501
     end
     
     # Serve a data input sheet formatted for a Nexus Tablet, IFSC scoring format
