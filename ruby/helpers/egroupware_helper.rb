@@ -73,8 +73,23 @@ end
 module Perseus
   # EGroupwarePrivateAPI - Helper functions to access the eGroupware Private API
   module EGroupwarePrivateAPI
-    # private_class_method
-    module_function
+
+    private_class_method
+
+    # Wet_id, grp_id, per_id parameters need to be converted to CamelCase
+    def capitalize_params params
+      route = params.delete('route')
+      Hash[params.map { |k, v| [k.split('_').map(&:capitalize).join, v] }]
+        .merge('route' => route)
+    end
+
+    # eGroupware requires results in a flattened format
+    def flatten_results result
+      mapping = { 'a' => 'try', 'b' => 'bonus', 't' => 'top' }
+      key = result.keys.first
+      Hash[result[key].map { |k, v| [mapping[k], v] }]
+        .merge('boulder' => key[1..-1].to_i)
+    end
 
     # Helper function to format a data object containing a single boulder result for eGroupware
     #
@@ -114,21 +129,6 @@ module Perseus
       Hash['request' => { 'parameters' => [data] }]
     end
 
-    # Wet_id, grp_id, per_id parameters need to be converted to CamelCase
-    def capitalize_params params
-      route = params.delete('route')
-      Hash[params.map { |k, v| [k.split('_').map(&:capitalize).join, v] }]
-        .merge('route' => route)
-    end
-
-    # eGroupware requires results in a flattened format
-    def flatten_results result
-      mapping = { 'a' => 'try', 'b' => 'bonus', 't' => 'top' }
-      key = result.keys.first
-      Hash[result[key].map { |k, v| [mapping[k], v] }]
-        .merge('boulder' => key[1..-1].to_i)
-    end
-
     # Helper function to format a data object containing results for a complete round (for one
     # climber) for uploading to eGroupware
     #
@@ -155,7 +155,7 @@ module Perseus
       puts 'Not Yet Implemented'
     end
 
-    # module_function
+    module_function
 
     # API Accessor
     # Publish data to the ranking.ranking_boulder_measurement.ajax_protocol_update API point
