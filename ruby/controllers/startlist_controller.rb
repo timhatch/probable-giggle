@@ -27,6 +27,7 @@ module Perseus
     # Assume that the CSV file contains the following data:
     # - wet_id, grp_id, route, per_id, start_order
     #
+    # REVIEW: This function not yet tested
     post '/file' do
       params[:competitors] = CSVParser.parse_csv_file({ file: params.delete(:file) })
       LocalDBConnection::Startlist.insert(params) ? 200 : 501

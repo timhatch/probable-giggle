@@ -3,5 +3,5 @@
   "grp_id" : 5,
   "route"  : 2,
   "per_id" : 1030,
-  "result_jsonb": { "p1": { "a" : 1 }}
+  "result_jsonb": { "p1": { "a" : 2, "b" : 1 } }
 }
