@@ -39,6 +39,27 @@ class Session < Test::Unit::TestCase
   end
 end
 
+class Competition < Test::Unit::TestCase
+  include Perseus::LANStorageAPI
+
+  def test_active
+    current_competition = DB[:Competitions]
+                          .join(:Session, [:wet_id])
+                          .where(wet_id: 99)
+                          .first
+    assert_equal(current_competition, Competition.active)
+  end
+
+  def test_insert
+    comp            = { wet_id: 999 }
+    expected_result = { wet_id: 0, city: 'Längenfeld', date: '2017-01-01', type: 'B',
+                        title: 'Test Competition' }.merge(comp)
+    Competition.insert(comp)
+    actual_result   = DB[:Competitions].where(comp).first
+    assert_equal(actual_result, expected_result)
+  end
+end
+
 class Competitors < Test::Unit::TestCase
   include Perseus::LANStorageAPI
 

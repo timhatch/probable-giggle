@@ -138,33 +138,28 @@ end
 #
 module Perseus
   module LANStorageAPI
+    module Competition
+      # Instance variable (could make this a const)
+      @default_comp = { wet_id: 0, city: 'Längenfeld', date: '2017-01-01', type: 'B',
+                        title: 'Test Competition' }
 
-    @default_comp = { wet_id: 0, city: 'Längenfeld', date: '2017-01-01', type: 'B',
-                      title: 'Test Competition' }
+      module_function
 
-    module_function
+      # Get the "active" competition
+      def active
+        DB[:Competitions].join(:Session, [:wet_id]).first
+      end
 
-    # Get the "active" competition
-    #
-    def get_active_competition
-      DB[:Competitions].join(:Session, [:wet_id]).first
-    end
-
-    # Insert a new competition (or overwrite an existing competition)
-    #
-    def insert_competition params
-      args = Hash[@default_comp.map { |k, v| [k, params[k] || v] }]
-      args[:wet_id] = args[:wet_id].to_i
-      DB[:Competitions].where(wet_id: args[:wet_id]).delete
-      DB[:Competitions].insert(args)
+      # Insert a new competition (or overwrite an existing competition)
+      def insert params
+        args = Hash[@default_comp.map { |k, v| [k, params[k] || v] }]
+        args[:wet_id] = args[:wet_id].to_i
+        DB[:Competitions].where(wet_id: args[:wet_id]).delete
+        DB[:Competitions].insert(args)
+      end
     end
   end
 end
-
-# Check function
-# Perseus::LANStorageAPI.delete_competition(wet_id: 120)
-# puts Perseus::LANStorageAPI.get_active_competition
-# Perseus::LANStorageAPI.insert_competition(wet_id: 999)
 
 # Session data getter/setters
 # The Session table contains only one entry by design
@@ -196,7 +191,9 @@ module Perseus
 end
 
 # Competitor related getters/setters
-#
+# OPTIMIZE: Replace the explicit assignment in insert() by a shorthand conversion of the parameters
+#   hash passed into the function (as in other sub-modules). 
+#   anticipation..
 module Perseus
   module LANStorageAPI
     module Competitors
@@ -302,10 +299,6 @@ end
 
 # Check delete_results function
 # Perseus::LANStorageAPI.delete_results(wet_id: 1572)
-
-# Check insert_registrants
-# competitors = [{ 'PerId' => 1_000_000, 'lastname' => 'ruby' }]
-# Perseus::LANStorageAPI.insert_registrants(competitors)
 
 # hash =  { "test" => 1, "result_jsonb" => { "p1" => { "a" => 1, "b" => 1 }} }
 # hash.keys.each { |key| hash[key.to_sym] = hash.delete(key) }
