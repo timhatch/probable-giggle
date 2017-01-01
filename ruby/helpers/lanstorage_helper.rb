@@ -38,32 +38,6 @@ module Perseus
       DB[:Results].where(params).delete
     end
 
-    # Helper method to import a startlist into the LAN database
-    #
-    # The data is assumed to ne an array competitors, each a ruby Hash containing at least
-    # a per_id (or PerId) and start_order parameter
-    #
-    # TODO: Fix the params
-    #
-    def insert_startlist params
-      args        = Hash[@default_route.map { |k, v| [k, params[k].to_i || v] }]
-      competitors = params[:competitors]
-      # delete any existing results data for the round
-      delete_results(args)
-      # Load the starters, converting any 'PerId' parameter (e.g. from eGroupware) into the
-      # snake_case format expected here
-      begin
-        competitors.each do |person|
-          person['per_id'] = person['PerId'] unless person['PerId'].nil?
-          hash = args.merge(
-            per_id: person['per_id'].to_i,
-            start_order: person['start_order'].to_i,
-            rank_prev_heat: person['rank_prev-heat'].to_i
-          )
-          DB[:Results].insert(hash)
-        end
-      rescue
-        puts 'nil response'
       end
     end
 
@@ -130,6 +104,43 @@ module Perseus
         sort_values: Sequel.pg_array(sort_array),
         result_jsonb: Sequel.pg_jsonb(new_result)
       )
+# Startlist data getter/setters
+# REVIEW: To be checked
+module Perseus
+  module LANStorageAPI
+    module Startlist
+      @default_route = { wet_id: 0, grp_id: 0, route: 0 }
+      
+      module_function
+      
+      # Helper method to import a startlist into the LAN database
+      #
+      # The data is assumed to ne an array competitors, each a ruby Hash containing at least
+      # a per_id (or PerId) and start_order parameter
+      #
+      # TODO: Fix the params
+      #
+      def insert params
+        args        = Hash[@default_route.map { |k, v| [k, params[k].to_i || v] }]
+        competitors = params[:competitors]
+        # delete any existing results data for the round
+        Results.delete(args)
+        # Load the starters, converting any 'PerId' parameter (e.g. from eGroupware) into the
+        # snake_case format expected here
+        begin
+          competitors.each do |person|
+            person['per_id'] = person['PerId'] unless person['PerId'].nil?
+            hash = args.merge(
+              per_id:         person['per_id'].to_i,
+              start_order:    person['start_order'].to_i,
+              rank_prev_heat: person['rank_prev-heat'].to_i
+            )
+            DB[:Results].insert(hash)
+          end
+        rescue
+          puts 'nil response'
+        end
+      end
     end
   end
 end
