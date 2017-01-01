@@ -29,81 +29,89 @@ end
 #
 module Perseus
   module LANStorageAPI
-    # Default route parameters
-    @default_route = { wet_id: 0, grp_id: 0, route: 0 }
+    module Results
+      # Default route parameters
+      @default_route = { wet_id: 0, grp_id: 0, route: 0 }
 
-    module_function
+      # Notionally private methods
+      private_class_method
 
-    def delete_results params
-      DB[:Results].where(params).delete
-    end
+      # Return a sequel object to fetch either __single__ or __multiple__ results
+      #
+      # OPTIMIZE: THE RANK FUNCTION DOES NOT WORK IF ONLY A SINGLE CLIMBER'S RESULTS ARE
+      # RETRIEVED. WE'D NEED TO USE A POSTRES VIEW TO PRESERVE RANKINGS...
+      # AND IF WE'RE COING TO USE A VIEW THEN WE MAY BE ABLE TO DISPENSE WITH SOME OF THIS
+      # ALSO WE NEED TO DEAL WITH THE GENERAL RESULT
+      #
+      def self.get_result params, order_by: 'result_rank'
+        DB[:Results]
+          .join(:Climbers, [:per_id])
+          .where(params)
+          .select(:per_id, :lastname, :firstname, :nation, :start_order, :sort_values, :result_jsonb)
+          .select_append {
+            rank.function.over(
+              partition: [:wet_id, :grp_id, :route],
+              order: Perseus::IFSCBoulderModus.rank_generator
+            ).as(:result_rank)
+          }
+          .order(order_by.to_sym)
+      end
+      
+      # Check that a specified climber is identified by either their per_id or their start_number
+      # within the round. Prefer the per_id if both are provided
+      def self.check_person params
+        args = Hash[@default_route.map { |k, v| [k, params[k].to_i || v] }]
+        id   = params[:per_id].nil? ? :start_order : :per_id
+        args.merge(id => params[id].to_i)
+      end
 
+      module_function
+
+      # Helper method to import a startlist into the LAN database
+      def delete params
+        DB[:Results].where(params).delete
+      end
+      
+      # Fetch results for a single person (i.e. for a single climber across the round)
+      def result_person params
+        args = check_person(params)
+        get_result(args).first
+      end
+
+      # Fetch results for a collection of results (i.e. for a route)
+      # Map the received parameters against the default parameters required for a collection
+      # of results abd call the general accessor get_result
+      def result_route params
+        args = Hash[@default_route.map { |k, v| [k, params[k].to_i || v] }]
+        get_result(args).all
+      end
+
+      # Update results for a __single__ competitor
+      # Updates (a) the result_jsonb property for the specific set of results and (b) the
+      # sort_values property used for ranking
+      #
+      # @params = {
+      #   wet_id: 0, grp_id: 0, route: 0, per_id: 0,
+      #   result_jsonb: { 'p1' => { 'a' => 2, 'b' => 1, 't' => 2 }}
+      # }
+      def update_single params
+        args = check_person(params)
+        data = params[:result_jsonb] || {}
+
+        query = DB[:Results].where(args)
+
+        new_result = Perseus::IFSCBoulderModus.result(query.first[:result_jsonb], data)
+        sort_array = Perseus::IFSCBoulderModus.sort_values(new_result)
+
+        query.update(
+          sort_values: Sequel.pg_array(sort_array),
+          result_jsonb: Sequel.pg_jsonb(new_result)
+        )
       end
     end
+  end
+end
 
-    # Return a sequel object to fetch either __single__ or __multiple__ results
-    #
-    # TODO: FIX THIS, THE RANK FUNCTION DOES NOT WORK IF ONLY A SINGLE CLIMBER'S RESULTS ARE
-    # RETRIEVED. WE'D NEED TO USE A POSTRES VIEW TO PRESERVE RANKINGS...
-    # AND IF WE'RE COING TO USE A VIEW THEN WE MAY BE ABLE TO DISPENSE WITH SOME OF THIS
-    # ALSO WE NEED TO DEAL WITH THE GENERAL RESULT
-    #
-    def get_result params, order_by: 'result_rank'
-      DB[:Results]
-        .join(:Climbers, [:per_id])
-        .where(params)
-        .select(:per_id, :lastname, :firstname, :nation, :start_order, :sort_values, :result_jsonb)
-        .select_append {
-          rank.function.over(
-            partition: [:wet_id, :grp_id, :route],
-            order: Perseus::IFSCBoulderModus.rank_generator
-          ).as(:result_rank)
-        }
-        .order(order_by.to_sym)
-    end
-
-    def check_person params
-      args = Hash[@default_route.map { |k, v| [k, params[k].to_i || v] }]
-      id   = params[:per_id].nil? ? :start_order : :per_id
-      args.merge(id => params[id].to_i)
-    end
-
-    def get_result_person params
-      args = check_person(params)
-      get_result(args).first
-    end
-
-    # Fetch results for a collection of results (i.e. for a route)
-    # Map the received parameters against the default parameters required for a collection
-    # of results abd call the general accessor get_result
-    #
-    def get_result_route params
-      args = Hash[@default_route.map { |k, v| [k, params[k].to_i || v] }]
-      get_result(args).all
-    end
-
-    # Update results for a __single__ competitor
-    # Updates (a) the result_jsonb property for the specific set of results and (b) the
-    # sort_values property used for ranking
-    #
-    # @params = {
-    #   wet_id: 0, grp_id: 0, route: 0, per_id: 0,
-    #   result_jsonb: { 'p1' => { 'a' => 2, 'b' => 1, 't' => 2 }}
-    # }
-    #
-    def set_result_person params
-      args = check_person(params)
-      data = params[:result_jsonb] || {}
-
-      query = DB[:Results].where(args)
-
-      new_result = Perseus::IFSCBoulderModus.set_result(query.first[:result_jsonb], data)
-      sort_array = Perseus::IFSCBoulderModus.set_sort_values(new_result)
-
-      query.update(
-        sort_values: Sequel.pg_array(sort_array),
-        result_jsonb: Sequel.pg_jsonb(new_result)
-      )
 # Startlist data getter/setters
 # REVIEW: To be checked
 module Perseus
@@ -203,7 +211,7 @@ end
 
 # Competitor related getters/setters
 # OPTIMIZE: Replace the explicit assignment in insert() by a shorthand conversion of the parameters
-#   hash passed into the function (as in other sub-modules). 
+#   hash passed into the function (as in other sub-modules).
 #   anticipation..
 module Perseus
   module LANStorageAPI
@@ -217,7 +225,7 @@ module Perseus
       end
 
       module_function
-      
+
       # Helper method to import competitors into the local database
       # The "replace" operator is not supported for postgres databases, so use a workaround
       # We assume that the compatitors parameter is an array of hash objects, each object
@@ -258,7 +266,7 @@ module Perseus
       ]
     end
 
-    def set_result result, update
+    def result result, update
       result ||= {}
       result.merge(update)
     end
@@ -268,7 +276,7 @@ module Perseus
       array[1] += value
     end
 
-    def set_sort_values result_jsonb
+    def sort_values result_jsonb
       barr = [0, 0]
       tarr = [0, 0]
 
@@ -283,19 +291,24 @@ module Perseus
   end
 end
 
-# params = { wet_id: 99, grp_id: 5, route: 2 }
-# puts Perseus::LANStorageAPI.get_result_route(params).all
+params = { wet_id: 99, grp_id: 5, route: 2 }
+# puts Perseus::LANStorageAPI::Results.result_route(params)
+
+puts Perseus::LANStorageAPI::Results.result_person(params.merge(per_id: 1030))
+
 # puts Perseus::LANStorageAPI.delete_route(wet_id: 0)
 # puts Perseus::LANStorageAPI.delete_person(99,1030)
 # puts Perseus::LANStorageAPI.get_result(wet_id: 99, route: 2, grp_id: 5).all
 
-# params = { wet_id: 99,
-#            grp_id: 5,
-#            route: 2,
-#            per_id: 1030,
-#            result_jsonb: { 'p2' => { 'a' => 2, 'b' => 1, "t" => 2 }}
-# }
-# Perseus::LANStorageAPI.set_result_single(params)
+params = { wet_id: 99,
+           grp_id: 5,
+           route: 2,
+           per_id: 1030,
+           result_jsonb: { 'p2' => { 'a' => 2, 'b' => 2, "t" => 2 }}
+}
+Perseus::LANStorageAPI::Results.update_single(params)
+
+
 #
 #
 # defs  = { wet_id: 99, per_id: 1030 }
