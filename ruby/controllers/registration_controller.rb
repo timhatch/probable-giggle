@@ -13,11 +13,10 @@ module Perseus
 
     # HELPERS
     helpers Perseus::EGroupwarePublicAPI
-    helpers Perseus::LANStorageAPI
+    helpers Perseus::LocalDBConnection
     helpers Perseus::CSVParser
 
     # symbolize route paramaters (deliberately non-recursive)
-    #
     before do
       params.keys.each{ |k| params[k.to_sym] = params.delete(k) }
     end
@@ -29,10 +28,10 @@ module Perseus
     # per_id, lastname, firstname, club (federation), nation, birthyear
     # @params
     # - a csv file
-    #
+    # TODO: This function not yet tested
     post '/file' do
       data = CSVParser.parse_csv_file({ file: params.delete(:file) })
-      LANStorageAPI.insert_registrants(data) ? 200 : 501
+      LocalDBConnection::Competitors.insert(data) ? 200 : 501 
     end
     
     # Fetch a list of climbers from eGroupware (actually fetches the list of climbers registered
@@ -41,10 +40,9 @@ module Perseus
     # - wet_id
     # This method simply passes the require parameters to the EGroupwarePublicAPI.get_starters where
     # they are checked.
-    #
     post '/ifsc' do
       data = EGroupwarePublicAPI.get_starters(params)
-      LANStorageAPI.insert_registrants(data) ? 200 : 501
+      LocalDBConnection::Competitors.insert(data) ? 200 : 501 
     end
   end
 end

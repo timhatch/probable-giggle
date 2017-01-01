@@ -13,7 +13,7 @@ module Perseus
   
     # HELPERS
     helpers Perseus::EGroupwarePublicAPI
-    helpers Perseus::LANStorageAPI
+    helpers Perseus::LocalDBConnection
     helpers Perseus::CSVParser
 
     # symbolize route paramaters (deliberately non-recursive)
@@ -29,7 +29,7 @@ module Perseus
     #
     post '/file' do
       params[:competitors] = CSVParser.parse_csv_file({ file: params.delete(:file) })
-      LANStorageAPI.insert_startlist(params)
+      LocalDBConnection::Startlist.insert(params) ? 200 : 501
     end
     
     # Import a startlist for some given competition/category/round from eGroupware
@@ -37,7 +37,7 @@ module Perseus
     # 
     post '/ifsc' do
       params[:competitors] = EGroupwarePublicAPI.get_results(params)
-      LANStorageAPI.insert_startlist(params) ? 200 : 501
+      LocalDBConnection::Startlist.insert(params) ? 200 : 501
     end
   end
 end
