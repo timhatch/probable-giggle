@@ -3,7 +3,7 @@ require 'test/unit'
 require_relative '../helpers/lanstorage_helper.rb'
 
 class Session < Test::Unit::TestCase
-  include Perseus::LANStorageAPI
+  include Perseus::LocalDBConnection
 
   def test_reset
     Session.reset
@@ -40,7 +40,7 @@ class Session < Test::Unit::TestCase
 end
 
 class Competition < Test::Unit::TestCase
-  include Perseus::LANStorageAPI
+  include Perseus::LocalDBConnection
 
   def test_active
     current_competition = DB[:Competitions]
@@ -61,7 +61,7 @@ class Competition < Test::Unit::TestCase
 end
 
 class Competitors < Test::Unit::TestCase
-  include Perseus::LANStorageAPI
+  include Perseus::LocalDBConnection
 
   def test_query
     test_result = DB[:Climbers].where(per_id: 1030).first
@@ -77,3 +77,10 @@ class Competitors < Test::Unit::TestCase
     assert_equal(test_result, check_result)
   end
 end
+
+class Results << Test::Unit::TestCase
+  include Perseus::LocalDBConnection
+  
+  @params = { wet_id: 99, grp_id: 5, route: 2 }
+end
+  

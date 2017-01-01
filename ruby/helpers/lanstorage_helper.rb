@@ -1,6 +1,6 @@
 # Module  Perseus                 - The namespace for all application code
-# Module  LANStorageAPI           - Helper methods to access the LAN database
-#                                   LANStorageAPI methods are broken into a series of blocks (we
+# Module  LocalDBConnection           - Helper methods to access the LAN database
+#                                   LocalDBConnection methods are broken into a series of blocks (we
 #                                   may at some stage convert these into individual sub-modules,
 #                                   but that seems like overkill at present.
 #                                   1) At the head of this file, the base module declaration
@@ -15,8 +15,8 @@ require 'json'
 # Base module declaration, instantiates a connection to a Postgresql database
 #
 module Perseus
-  # LANStorageAPI
-  module LANStorageAPI
+  # LocalDBConnection
+  module LocalDBConnection
     # Instantiate database access
     DB = Sequel.connect(ENV['DATABASE_URL'] || 'postgres://timhatch@localhost:5432/test')
     DB.extension :pg_array, :pg_json  # Needed to insert arrays
@@ -28,7 +28,7 @@ end
 # Results data getters/setters
 #
 module Perseus
-  module LANStorageAPI
+  module LocalDBConnection
     module Results
       # Default route parameters
       @default_route = { wet_id: 0, grp_id: 0, route: 0 }
@@ -47,7 +47,8 @@ module Perseus
         DB[:Results]
           .join(:Climbers, [:per_id])
           .where(params)
-          .select(:per_id, :lastname, :firstname, :nation, :start_order, :sort_values, :result_jsonb)
+          .select(:per_id, :lastname, :firstname, :nation, :start_order,
+                  :sort_values, :result_jsonb)
           .select_append {
             rank.function.over(
               partition: [:wet_id, :grp_id, :route],
@@ -56,7 +57,7 @@ module Perseus
           }
           .order(order_by.to_sym)
       end
-      
+
       # Check that a specified climber is identified by either their per_id or their start_number
       # within the round. Prefer the per_id if both are provided
       def self.check_person params
@@ -71,7 +72,7 @@ module Perseus
       def delete params
         DB[:Results].where(params).delete
       end
-      
+
       # Fetch results for a single person (i.e. for a single climber across the round)
       def result_person params
         args = check_person(params)
@@ -115,12 +116,12 @@ end
 # Startlist data getter/setters
 # REVIEW: To be checked
 module Perseus
-  module LANStorageAPI
+  module LocalDBConnection
     module Startlist
       @default_route = { wet_id: 0, grp_id: 0, route: 0 }
-      
+
       module_function
-      
+
       # Helper method to import a startlist into the LAN database
       #
       # The data is assumed to ne an array competitors, each a ruby Hash containing at least
@@ -156,7 +157,7 @@ end
 # Competition data getter/setters
 #
 module Perseus
-  module LANStorageAPI
+  module LocalDBConnection
     module Competition
       # Instance variable (could make this a const)
       @default_comp = { wet_id: 0, city: 'Längenfeld', date: '2017-01-01', type: 'B',
@@ -184,7 +185,7 @@ end
 # The Session table contains only one entry by design
 #
 module Perseus
-  module LANStorageAPI
+  module LocalDBConnection
     module Session
       module_function
 
@@ -214,7 +215,7 @@ end
 #   hash passed into the function (as in other sub-modules).
 #   anticipation..
 module Perseus
-  module LANStorageAPI
+  module LocalDBConnection
     module Competitors
       # Notionally private methods
       private_class_method
@@ -291,23 +292,21 @@ module Perseus
   end
 end
 
-params = { wet_id: 99, grp_id: 5, route: 2 }
-# puts Perseus::LANStorageAPI::Results.result_route(params)
+# params = { wet_id: 99, grp_id: 5, route: 2 }
+# puts Perseus::LocalDBConnection::Results.result_route(params)
 
-puts Perseus::LANStorageAPI::Results.result_person(params.merge(per_id: 1030))
+# puts Perseus::LocalDBConnection::Results.result_person(params.merge(per_id: 1030))
 
-# puts Perseus::LANStorageAPI.delete_route(wet_id: 0)
-# puts Perseus::LANStorageAPI.delete_person(99,1030)
-# puts Perseus::LANStorageAPI.get_result(wet_id: 99, route: 2, grp_id: 5).all
+# puts Perseus::LocalDBConnection.delete_route(wet_id: 0)
+# puts Perseus::LocalDBConnection.delete_person(99,1030)
+# puts Perseus::LocalDBConnection.get_result(wet_id: 99, route: 2, grp_id: 5).all
 
-params = { wet_id: 99,
-           grp_id: 5,
-           route: 2,
-           per_id: 1030,
-           result_jsonb: { 'p2' => { 'a' => 2, 'b' => 2, "t" => 2 }}
-}
-Perseus::LANStorageAPI::Results.update_single(params)
-
+# params = { wet_id: 99,
+#           grp_id: 5,
+#           route: 2,
+#           per_id: 1030,
+#           result_jsonb: { 'p2' => { 'a' => 2, 'b' => 2, 't' => 2 } } }
+# Perseus::LocalDBConnection::Results.update_single(params)
 
 #
 #
@@ -322,7 +321,7 @@ Perseus::LANStorageAPI::Results.update_single(params)
 # p h2
 
 # Check delete_results function
-# Perseus::LANStorageAPI.delete_results(wet_id: 1572)
+# Perseus::LocalDBConnection.delete_results(wet_id: 1572)
 
 # hash =  { "test" => 1, "result_jsonb" => { "p1" => { "a" => 1, "b" => 1 }} }
 # hash.keys.each { |key| hash[key.to_sym] = hash.delete(key) }
