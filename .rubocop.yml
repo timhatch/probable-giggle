@@ -9,4 +9,8 @@ Style/MethodDefParentheses:
 
 Documentation:
   Enabled: false
- 
+
+# Allow multi-line blocks delimited by {...}
+# Useful for Sequel statements
+Style/BlockDelimiters:
+  Enabled: false
