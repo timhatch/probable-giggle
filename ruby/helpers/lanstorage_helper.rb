@@ -237,16 +237,15 @@ module Perseus
       def insert competitors
         competitors.each do |person|
           record = query(person)
-          unless record.first
-            record.insert(
-              per_id:    person['per_id'].to_i,
-              lastname:  person['lastname'],
-              firstname: person['firstname'],
-              club:      person['federation'],
-              nation:    person['nation'],
-              birthyear: person['birthyear'].to_i
-            )
-          end
+          break if record.first
+          record.insert(
+            per_id:    person['per_id'].to_i,
+            lastname:  person['lastname'],
+            firstname: person['firstname'],
+            club:      person['federation'],
+            nation:    person['nation'],
+            birthyear: person['birthyear'].to_i
+          )
         end
       end
     end
