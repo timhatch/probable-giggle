@@ -1,8 +1,8 @@
 # Module  Perseus                 - The namespace for all application code
 # Module  LocalDBConnection           - Helper methods to access the LAN database
-#                                   LocalDBConnection methods are broken into a series of blocks (we
-#                                   may at some stage convert these into individual sub-modules,
-#                                   but that seems like overkill at present.
+#                                   LocalDBConnection methods are broken into a series of blocks
+#                                   (we may at some stage convert these into individual
+#                                   sub-modules, but that seems like overkill at present.
 #                                   1) At the head of this file, the base module declaration
 #                                   2) Results Accessor methods
 #                                   3) Competition Accessor methods
