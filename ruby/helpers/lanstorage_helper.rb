@@ -171,39 +171,29 @@ end
 #
 module Perseus
   module LANStorageAPI
-    module_function
+    module Session
+      module_function
 
-    # Get the session data
-    #
-    def get_session_data
-      DB[:Session].first
-    end
+      # Get the session data
+      def data
+        DB[:Session].first
+      end
 
-    # Set the active competition
-    #
-    def set_active_competition params
-      args = Hash[{ wet_id: 0 }.map { |k, v| [k, params[k].to_i || v] }]
-      DB[:Session].update(args)
-    end
+      # Update the Session parameters, either individually or collectively
+      def update params
+        args          = {}
+        args[:wet_id] = params[:wet_id].to_i unless params[:wet_id].nil?
+        args[:auth]   = params[:auth] unless params[:auth].nil?
+        DB[:Session].update(args) unless args.empty?
+      end
 
-    # Store an eGroupware authorisation hash
-    #
-    def set_authorisation params
-      args = Hash[{ auth: nil }.map { |k, v| [k, params[k] || v] }]
-      DB[:Session].update(args)
-    end
-
-    # Clear (reset) the session parameters
-    def reset_session
-      DB[:Session].update(wet_id: 0, auth: nil)
+      # Clear (reset) the session parameters
+      def reset
+        DB[:Session].update(wet_id: nil, auth: nil)
+      end
     end
   end
 end
-
-# puts Perseus::LANStorageAPI.get_session_data
-# Perseus::LANStorageAPI.set_active_competition(wet_id: 99)
-# Perseus::LANStorageAPI.set_authorisation(auth: 'alphabet')
-# Perseus::LANStorageAPI.reset_session
 
 # Competitor related getters/setters
 #
