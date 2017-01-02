@@ -11,20 +11,24 @@ require 'date'
 #   through config.ru
 require_relative './lanstorage_helper'
 
-# NOTE: To test event streams, we'll need to use curl
-#   curl -v --request GET -H "Accept: text/event-stream" http://10.0.2.10/timers/reset
+# NOTE: To test event streams, we'll can use curl
+#   curl -v --request GET -H "Accept: text/event-stream" http://10.0.2.10/broadcast/result
 #   sets up a terminal based event source receiver connected to the test server. Bonjour /
 #   zeroconf is not reliable
 #   We can send test messages using either curl, httpie or httpary:
-#   (httpie)    http POST http://10.0.2.10/timers/reset message='hello tim'
-#   (httparty)  httparty http://10.0.2.10/timers/reset --action POST --data "hello again"
+#   (httpie)    http POST http://10.0.2.10/broadcast/result message='hello tim'
+#   (httparty)  httparty http://10.0.2.10/broadast/result --action POST --data "hello again"
 
 module Perseus
   module ResultsHandler
+    # Localhost receiver
+    @default_url = 'http://10.0.2.10'
+
     private_class_method
 
     # Broadcast a result to localhost
-    def self.broadcast_to_localhost url, data
+    def self.broadcast_to_localhost path, data
+      url     = @default_url + path
       options = { body: data.to_json }
       HTTParty.post(url, options)
     rescue
@@ -46,17 +50,20 @@ module Perseus
       return 0 unless Perseus::LocalDBConnection::Results.result_person(params)
 
       # REVIEW: Technically we need only broadcast the pverall result when a bpnus or
-      #   top has been gained, but there's no obvious way to determine that
+      #   top has been gained, but there's no obvious way to determine that.
+      # Use the endpoint /broadcast/result for the results display stream
       updated_route_result = Perseus::LocalDBConnection::Results.result_route(params)
-      broadcast_to_localhost('http://10.0.2.10/timers/reset', updated_route_result)
+      broadcast_to_localhost('/broadcast/result', updated_route_result)
       # Get the individual result
       updated_person_result = updated_route_result
                               .select { |x| x[:per_id] == params[:per_id] }
                               .first
                               .merge(result_jsonb: params[:result_jsonb])
-      broadcast_to_localhost('http://10.0.2.10/timers/reset', updated_person_result)
-      # Put the eGroupware call into a separate thread
-      # Thread.new(broadcast_to_egroupware(updated_person_result))
+      # Use the endpoint /broadcast/stream for the live output stream
+      broadcast_to_localhost('/broadcast/stream', updated_person_result)
+      # HACK: Put the eGroupware call into a separate thread to avoid blocking
+      #   Not sure whether this is the best place to spawn a new thread
+      # Thread.new { broadcast_to_egroupware(updated_person_result) }
     end
 
     module_function
