@@ -22,13 +22,13 @@ class Session < Test::Unit::TestCase
     assert_equal({ wet_id: nil, auth: 'hermione' }, resp2)
     Session.reset
 
+    Session.update(per_id: 1030, 'wet_id' => 99)
+    resp4 = DB[:Session].first
+    assert_equal({wet_id: nil, auth: nil}, resp4)
+
     Session.update(wet_id: 99, auth: 'abracadabra')
     resp3 = DB[:Session].first
     assert_equal({ wet_id: 99, auth: 'abracadabra' }, resp3)
-    
-    Session.update(per_id: 1030, 'wet_id' => 21)
-    resp4 = DB[:Session].first
-    assert_equal(resp3, resp4)
   end
 
   # Test the Perseus::EGroupwarePublicAPI.capitalize_params method
@@ -45,7 +45,6 @@ class Competition < Test::Unit::TestCase
   def test_active
     current_competition = DB[:Competitions]
                           .join(:Session, [:wet_id])
-                          .where(wet_id: 99)
                           .first
     assert_equal(current_competition, Competition.active)
   end

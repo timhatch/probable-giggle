@@ -195,11 +195,14 @@ module Perseus
       end
 
       # Update the Session parameters, either individually or collectively
+      # @params
+      # - wet_id - the numeric id for the competition
+      # - auth   - a string
+      # HACK: wet_id is expected to be an INTEGER - Need to verify what's provided...
       def update params
-        args          = {}
-        args[:wet_id] = params[:wet_id].to_i unless params[:wet_id].nil?
-        args[:auth]   = params[:auth] unless params[:auth].nil?
-        DB[:Session].update(args) unless args.empty?
+        params.reject! { |k, v| params[k].to_s.empty? } 
+        args = Hash[{ wet_id: nil, auth: nil }.map { |k, v| [k, params[k] || v] }]
+        DB[:Session].update(args)
       end
 
       # Clear (reset) the session parameters
