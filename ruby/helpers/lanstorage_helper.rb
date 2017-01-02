@@ -60,7 +60,7 @@ module Perseus
 
       # Check that a specified climber is identified by either their per_id or their start_number
       # within the round. Prefer the per_id if both are provided
-      def self.check_person params
+      def self.query params
         args = Hash[@default_route.map { |k, v| [k, params[k].to_i || v] }]
         id   = params[:per_id].nil? ? :start_order : :per_id
         args.merge(id => params[id].to_i)
@@ -68,14 +68,17 @@ module Perseus
 
       module_function
 
-      # Helper method to import a startlist into the LAN database
+      # Helper method to delete a startlist or a person (use per_id as an optional
+      # parameter to delete an individual rather than the complete list
       def delete params
-        DB[:Results].where(params).delete
+        args          = Hash[@default_route.map { |k, v| [k, params[k].to_i || v] }]
+        args[:per_id] = params[:per_id].to_i unless params[:per_id].nil?
+        DB[:Results].where(args).delete
       end
 
       # Fetch results for a single person (i.e. for a single climber across the round)
       def result_person params
-        args = check_person(params)
+        args = query(params)
         get_result(args).first
       end
 
@@ -96,7 +99,7 @@ module Perseus
       #   result_jsonb: { 'p1' => { 'a' => 2, 'b' => 1, 't' => 2 }}
       # }
       def update_single params
-        args = check_person(params)
+        args = query(params)
         data = params[:result_jsonb] || {}
 
         query = DB[:Results].where(args)
@@ -180,12 +183,14 @@ module Perseus
 
       module_function
 
-      # Get the "active" competition
+      # Get the "active" competition (determined from the Session parameters)
       def active
         DB[:Competitions].join(:Session, [:wet_id]).first
       end
 
       # Insert a new competition (or overwrite an existing competition)
+      # @params
+      # - A hash containing :wet_id, :grp_id and :route values
       def insert params
         args = Hash[@default_comp.map { |k, v| [k, params[k] || v] }]
         args[:wet_id] = args[:wet_id].to_i
@@ -215,7 +220,7 @@ module Perseus
       # - auth   - a string
       # HACK: wet_id is expected to be an INTEGER - Need to verify what's provided...
       def update params
-        params.reject! { |k, v| params[k].to_s.empty? } 
+        params.reject! { |k, _v| params[k].to_s.empty? }
         args = Hash[{ wet_id: nil, auth: nil }.map { |k, v| [k, params[k] || v] }]
         DB[:Session].update(args)
       end
@@ -277,7 +282,7 @@ module Perseus
     # Simple helper to calculate tops/bonuses and the relevant number of attempts
     # The tests to call this function are all extenal, so it is pretty cimple
     # @params
-    # - An array [x, y] holding the aggregated result and 
+    # - An array [x, y] holding the aggregated result and
     # - A non-zero value passed in
     # OPTIMIZE: Refactor this as a lambda?
     def self.set_atts array, value
@@ -287,8 +292,8 @@ module Perseus
 
     module_function
 
-    # Sequel helper function to calculate a rank-order value sorting a boulder result by 
-    # tops (descending), top attempts (ascending), bonuses (descending), bonus attempts 
+    # Sequel helper function to calculate a rank-order value sorting a boulder result by
+    # tops (descending), top attempts (ascending), bonuses (descending), bonus attempts
     # (ascending). The desc(nulls: :last) postfix ensures that results with a null value
     # are ranked lower than results with a value of 0 (i.e. competitors who havenot started
     # are always ranked below competitors who have started
@@ -309,7 +314,7 @@ module Perseus
     # @params
     # - A Hash containing the unmodified result
     # - A Hash containing the new result to be merged in
-    # NOTE: PostGreSQL's jsonb functionality may allow this to be dispensed with.  
+    # NOTE: PostGreSQL's jsonb functionality may allow this to be dispensed with.
     #
     def merge result, update
       result ||= {}
