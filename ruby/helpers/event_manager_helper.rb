@@ -16,6 +16,7 @@ require_relative './lanstorage_helper'
 #   sets up a terminal based event source receiver connected to the test server. Bonjour /
 #   zeroconf is not reliable
 #   We can send test messages using either curl, httpie or httpary:
+#   (curl)      curl -v http://10.0.2.10/broadcast/stream --data 'hello tim'
 #   (httpie)    http POST http://10.0.2.10/broadcast/result message='hello tim'
 #   (httparty)  httparty http://10.0.2.10/broadast/result --action POST --data "hello again"
 
@@ -37,8 +38,10 @@ module Perseus
     end
 
     # Broadcast the received result to eGroupware
+    # We use the presnece of an authorisation key in the session parameters to determine
+    # whether or not to send a message to eGroupware
     def self.broadcast_to_egroupware data
-      auth = LocalDBConnection.get_session_data[:auth]
+      auth = LocalDBConnection::Session.data[:auth]
       EGroupwarePrivateAPI.ranking_boulder_measurement(auth, data) unless auth.nil?
     rescue
       puts 'Exception raised in ResultsHandler.broadcast_to_egroupware'
@@ -46,6 +49,10 @@ module Perseus
     end
 
     # Broadcast results to localhost and egroupware
+    # HACK: We contain each broadcast message within a separate thread in order to avoid to 
+    #   mitigate any network latency effects. THis should in theory be unecessary for broadcasts
+    #   to localhost but on the other hand, if such broadcasts have little or no latency then 
+    #   the relevant threads will be short lived.
     def self.broadcast_results params
       return 0 unless Perseus::LocalDBConnection::Results.result_person(params)
 
@@ -53,22 +60,21 @@ module Perseus
       #   top has been gained, but there's no obvious way to determine that.
       # Use the endpoint /broadcast/result for the results display stream
       updated_route_result = Perseus::LocalDBConnection::Results.result_route(params)
-      broadcast_to_localhost('/broadcast/result', updated_route_result)
+      Thread.new { broadcast_to_localhost('/broadcast/result', updated_route_result) }
       # Get the individual result
       updated_person_result = updated_route_result
                               .select { |x| x[:per_id] == params[:per_id] }
                               .first
                               .merge(result_jsonb: params[:result_jsonb])
       # Use the endpoint /broadcast/stream for the live output stream
-      broadcast_to_localhost('/broadcast/stream', updated_person_result)
-      # HACK: Put the eGroupware call into a separate thread to avoid blocking
-      #   Not sure whether this is the best place to spawn a new thread
-      # Thread.new { broadcast_to_egroupware(updated_person_result) }
+      Thread.new { broadcast_to_localhost('/broadcast/stream', updated_person_result) }
+      Thread.new { broadcast_to_egroupware(params) }
     end
 
     module_function
 
     # Handle a results update coming into the local server
+    # Pretty much all the work is done in private functions 
     def handle_result_single params
       # Update the local server
       LocalDBConnection::Results.update_single(params)
