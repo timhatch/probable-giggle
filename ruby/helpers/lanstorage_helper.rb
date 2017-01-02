@@ -101,7 +101,7 @@ module Perseus
 
         query = DB[:Results].where(args)
 
-        new_result = Perseus::IFSCBoulderModus.result(query.first[:result_jsonb], data)
+        new_result = Perseus::IFSCBoulderModus.merge(query.first[:result_jsonb], data)
         sort_array = Perseus::IFSCBoulderModus.sort_values(new_result)
 
         query.update(
@@ -254,8 +254,26 @@ end
 
 module Perseus
   module IFSCBoulderModus
+    private_class_method
+
+    # Simple helper to calculate tops/bonuses and the relevant number of attempts
+    # The tests to call this function are all extenal, so it is pretty cimple
+    # @params
+    # - An array [x, y] holding the aggregated result and 
+    # - A non-zero value passed in
+    # OPTIMIZE: Refactor this as a lambda?
+    def self.set_atts array, value
+      array[0] += 1
+      array[1] += value
+    end
+
     module_function
 
+    # Sequel helper function to calculate a rank-order value sorting a boulder result by 
+    # tops (descending), top attempts (ascending), bonuses (descending), bonus attempts 
+    # (ascending). The desc(nulls: :last) postfix ensures that results with a null value
+    # are ranked lower than results with a value of 0 (i.e. competitors who havenot started
+    # are always ranked below competitors who have started
     def rank_generator
       [
         Sequel.pg_array_op(:sort_values)[1].desc(nulls: :last),
@@ -266,16 +284,25 @@ module Perseus
       ]
     end
 
-    def result result, update
+    # Merge any update into the results, e.g.
+    # { p1: { a: 1, b: 1, t:1 }, p2: { a: 2 } }.merge( p2: { a: 3, b: 3 })
+    # becomes
+    # { p1: { a: 1, b: 1, t:1 }, p2: { a: 3, b: 3 } }
+    # @params
+    # - A Hash containing the unmodified result
+    # - A Hash containing the new result to be merged in
+    # NOTE: PostGreSQL's jsonb functionality may allow this to be dispensed with.  
+    #
+    def merge result, update
       result ||= {}
       result.merge(update)
     end
 
-    def set_atts array, value
-      array[0] += 1
-      array[1] += value
-    end
-
+    # Calculate the overall result for the competitor (i.e. 1t2 3b4), storing the result in
+    # an array.
+    # @params
+    # - A hash containing the result, e.g.
+    # { p1: { a: 1, b: 1, t:1 }, p2: { a: 3, b: 3 } }
     def sort_values result_jsonb
       barr = [0, 0]
       tarr = [0, 0]

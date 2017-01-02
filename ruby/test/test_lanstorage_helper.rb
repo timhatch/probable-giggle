@@ -77,10 +77,3 @@ class Competitors < Test::Unit::TestCase
     assert_equal(test_result, check_result)
   end
 end
-
-class Results << Test::Unit::TestCase
-  include Perseus::LocalDBConnection
-  
-  @params = { wet_id: 99, grp_id: 5, route: 2 }
-end
-  

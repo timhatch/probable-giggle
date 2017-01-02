@@ -28,7 +28,7 @@ module Perseus
     # per_id, lastname, firstname, club (federation), nation, birthyear
     # @params
     # - a csv file
-    # TODO: This function not yet tested
+    # REVIEW: This function not yet tested
     post '/file' do
       data = CSVParser.parse_csv_file({ file: params.delete(:file) })
       LocalDBConnection::Competitors.insert(data) ? 200 : 501 
