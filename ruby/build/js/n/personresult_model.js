@@ -14,9 +14,8 @@ App.PersonResult = {
   data        : {},
   
   //  Fetch a single set of results from the server
-  //  params can take the form of:
+  //  params take the form of:
   //  - wet_id, route, grp_id and start_order 
-  //  - wet_id, route, per_id
   //
   fetch: function(params){
     this.params = params
@@ -30,7 +29,7 @@ App.PersonResult = {
         window.console.log(resp)
         this.data = resp
       } catch  (err) { 
-        window.console.log(resp)
+        window.console.log(err)
       }
     }.bind(this))
   },
