@@ -62,10 +62,15 @@ App.VM = function(sessiondata){
       this.model.fetch(params)
       .then(function(){
         try {
-          var key          = 'p' + String(parseInt(sessiondata.BlcNr, 10))
-          this.result      = this.model.data.result_jsonb[key] || {a: null,b: null,t: null}
-          this.start_order = this.model.data.start_order
-          this.fullname    = this.model.data.lastname+', '+this.model.data.firstname 
+          // If the model doesn't exist (e.g. we've entered an ineligible startnumber)
+          // theh reset the model and only otherwise process the data
+          if (!this.model.data) { this.reset() } 
+          else {
+            var key          = 'p' + String(parseInt(this.ss.BlcNr, 10))
+            this.result      = this.model.data.result_jsonb[key] || { a: null, b: null, t: null }
+            this.start_order = this.model.data.start_order
+            this.fullname    = this.model.data.lastname+', '+this.model.data.firstname
+          }
         }
         catch (err) { window.console.log(err) }
       }.bind(this))

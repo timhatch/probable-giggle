@@ -7,27 +7,25 @@ var App = App || {}
 
 App.PersonSelectorView = {
   controller: function(vm){
-            
+    // If the "forward' button is pressed, then
+    // (a) change the value of the bonus/top field to indicate that attempts have finished
+    // or zero out the result
     this.incrementStarter = function(){
       var val = vm.start_order + 1
       // No top
       if (vm.result.b > 0 && vm.result.t === null) { 
-        vm.result.t = 0 
-        vm.save()
+        vm.result.t = 0; vm.save()
       }
       // No bonus
       else if (vm.result.a > 0 && vm.result.b === null) { 
-        vm.result.b = 0 
-        vm.save()      
+        vm.result.b = 0; vm.save()
       }
       // Result manually zeroed
-      else if (vm.result === 0) { 
-        vm.result.a = vm.result.b = vm.result.t = null 
-        vm.save()
+      else if (vm.result.a === null) {
+        vm.result.a = vm.result.b = vm.result.t = null; vm.save()
       }
-      
-      // Fetch the next set of data 
-      // TODO Add error handling to deal with running past the last climber...
+      // window.console.log(vm.result)
+      // (b) save the data, and fetch the next set of data
       vm.fetch(val)
     }
   },
