@@ -14,9 +14,8 @@ App.PersonResult = {
   data        : {},
   
   //  Fetch a single set of results from the server
-  //  params can take the form of:
+  //  params take the form of:
   //  - wet_id, route, grp_id and start_order 
-  //  - wet_id, route, per_id
   //
   fetch: function(params){
     this.params = params
@@ -30,7 +29,7 @@ App.PersonResult = {
         window.console.log(resp)
         this.data = resp
       } catch  (err) { 
-        window.console.log(resp)
+        window.console.log(err)
       }
     }.bind(this))
   },
@@ -60,10 +59,8 @@ App.HeaderVC = {
     this.toggleSettings = function(){      
       // Disable toggling if a required value has not been provided...
       for (var prop in vm.ss) { if (vm.ss[prop] === null) return }
-      
-      // Change the view state
-      var state = vm.ss.State
-      vm.ss.State = (!!state) ? false : true
+      // Toggle the view state
+      vm.ss.State = !vm.ss.State
     }
   },
   
@@ -74,7 +71,7 @@ App.HeaderVC = {
       }, [
       m("button", {
         onclick: ctrl.toggleSettings,
-        square: true
+        square : true
       }, m.trust('=')),
       m("span.details", title || m.trust('&nbsp;'))
     ])
@@ -91,27 +88,25 @@ var App = App || {}
 
 App.PersonSelectorView = {
   controller: function(vm){
-            
+    // If the "forward' button is pressed, then
+    // (a) change the value of the bonus/top field to indicate that attempts have finished
+    // or zero out the result
     this.incrementStarter = function(){
       var val = vm.start_order + 1
       // No top
       if (vm.result.b > 0 && vm.result.t === null) { 
-        vm.result.t = 0 
-        vm.save()
+        vm.result.t = 0; vm.save()
       }
       // No bonus
       else if (vm.result.a > 0 && vm.result.b === null) { 
-        vm.result.b = 0 
-        vm.save()      
+        vm.result.b = 0; vm.save()
       }
       // Result manually zeroed
-      else if (vm.result === 0) { 
-        vm.result.a = vm.result.b = vm.result.t = null 
-        vm.save()
+      else if (vm.result.a === null) {
+        vm.result.a = vm.result.b = vm.result.t = null; vm.save()
       }
-      
-      // Fetch the next set of data 
-      // TODO Add error handling to deal with running past the last climber...
+      // window.console.log(vm.result)
+      // (b) save the data, and fetch the next set of data
       vm.fetch(val)
     }
   },
@@ -131,6 +126,7 @@ App.PersonSelectorView = {
     ])
   }
 }
+
 
 //	-----------------------------------------------------
 //	CODEKIT DECLARATIONS
@@ -265,9 +261,9 @@ App.ParamSV = {
   }
 };
 
-//	-----------------------------------------------------
-//	CODEKIT DECLARATIONS
-//	-----------------------------------------------------
+//  -----------------------------------------------------
+//  CODEKIT DECLARATIONS
+//  -----------------------------------------------------
 /*global m                                            */
 /*global mx                                           */
 
@@ -275,18 +271,23 @@ var App = App || {};
 
 App.sessionStorage   = mx.storage( 'session' , mx.SESSION_STORAGE )
 
-App.VM = function(sessiondata){  
+App.VM = function(){ 
+
+  var sessiondata = App.sessionStorage.get('n-appstate')
+  if (!sessiondata) {
+    sessiondata = { WetId : null, Route : null, GrpId : null, BlcNr : null, State : false }
+    App.sessionStorage.set('n-appstate', sessiondata)
+  }
+
   return {
     connection  : m.prop(true),
     model       : App.PersonResult,
     ss          : sessiondata,
     
-    // View-Model parameters and functions derived from the this.model
-    //
+    // View-Model parameters and functions derived from the model
     start_order : null,
     fullname    : null, 
-    result      : {a: null,b: null,t: null},
-    
+    result      : { a: null, b: null, t: null },
     // Set or unset results
     
     // setValue allows a result attribute to be set only once, i.e.
@@ -313,58 +314,67 @@ App.VM = function(sessiondata){
     // plus the provided start_order
     composeURLParams: function(query){
       var rounds = {"QA":0, "QB":1,"S":2,"F":3,"SF":4}
-        , groups = {"M":6,"F":5,"MJ":84,"FJ":81,"MA":82,"FA":79,"MB":83,"FB":80,"TM":63, "TF":284}
-        , params = {
-            wet_id     : parseInt(sessiondata.WetId, 10),
-            route      : rounds[sessiondata.Route],
-            grp_id     : groups[sessiondata.GrpId]
-        }
+      var groups = {"M":6,"F":5,"MJ":84,"FJ":81,"MA":82,"FA":79,"MB":83,"FB":80,"TM":63,"TF":284}
       
-      return Object.assign(params, query) 
+      return Object.assign({
+        wet_id : parseInt(this.ss.WetId, 10),
+        route  : rounds[this.ss.Route],
+        grp_id : groups[this.ss.GrpId]
+      }, query)
     },
     
+    // Fetch a model from the server
     fetch: function(val){
       var params  = this.composeURLParams({ start_order: parseInt(val, 10) || 1 })
       
       this.model.fetch(params)
       .then(function(){
         try {
-          var key          = 'p' + String(parseInt(sessiondata.BlcNr, 10))
-          this.result      = this.model.data.result_jsonb[key] || {a: null,b: null,t: null}
-          this.start_order = this.model.data.start_order
-          this.fullname    = this.model.data.lastname+', '+this.model.data.firstname 
+          // If the model doesn't exist (e.g. we've entered an ineligible startnumber)
+          // theh reset the model and only otherwise process the data
+          if (!this.model.data) { this.reset() } 
+          else {
+            var key          = 'p' + String(parseInt(this.ss.BlcNr, 10))
+            this.result      = this.model.data.result_jsonb[key] || { a: null, b: null, t: null }
+            this.start_order = this.model.data.start_order
+            this.fullname    = this.model.data.lastname+', '+this.model.data.firstname
+          }
         }
         catch (err) { window.console.log(err) }
       }.bind(this))
       .then(function(){ this.connection(true) }.bind(this))
       .then(null, function(){ this.connection(false) }.bind(this))      
     },
-  
+    
+    // Save data back to the server
     save: function(){
-      var params = this.composeURLParams({ per_id: this.model.data.per_id })
-      var key    = 'p' + String(parseInt(sessiondata.BlcNr, 10))
-      
+      var key, params
       // Prevent a save occuring if no viewmodel has been instantiated
       if (!this.start_order) return
-      
-      // Update the PersonModel
-      this.model.data.result_jsonb[key] = this.result
-      params.result_jsonb               = { [key] : this.result }
-      
+      // Create the parameters to save back to the server
+      // TODO: Computed property names (ESNext) breaks Uglify.js
+      // Can fix, e.g. var o = {}; o[key] = this.result
+      key    = 'p' + String(parseInt(this.ss.BlcNr, 10))
+      params = this.composeURLParams({
+        per_id      : this.model.data.per_id,
+        result_jsonb: { [key] : this.result }
+      });
+      // Send the data back
       this.model.save(params) 
       .then(function(){ this.connection(true) }.bind(this))
       .then(null, function(){ this.connection(false) }.bind(this))
     },
     
+    // Reset the viewmodel
     reset: function(){
       this.start_order = null
       this.fullname    = null 
-      this.result      = {a: null,b: null,t: null}
+      this.result      = { a: null, b: null, t: null }
       
       this.model.data = {}
     }
   }
-};
+}();
 
 
 //	-----------------------------------------------------
@@ -380,21 +390,12 @@ App.VM = function(sessiondata){
 // @codekit-prepend "./n/nexus-viewmodel.js"
 
 (function(m, document, App){
-  var session, viewmodel, application
- 
-  // Fetch any stored application settings, if none exist then create them
-  session  = App.sessionStorage.get('n-appstate')
-  if (!session) { 
-    session = { WetId : null, Route : null, GrpId : null, BlcNr : null, State : false } 
-    App.sessionStorage.set('n-appstate', session) 
-  } 
-  
   // Create the Application ViewModel and render the application
   // The header component is rendered by default and then either the settings component
   // (if there are no settings in the session storage) or the results_input component
   // (if there are stored settings)
-  viewmodel   = App.VM(session)
-  application = {
+  var viewmodel   = App.VM
+  var application = {
     view: function(ctrl, viewmodel){
       return [
         m.component(App.HeaderVC, viewmodel),
@@ -402,9 +403,8 @@ App.VM = function(sessiondata){
       ]
     }
   }
-  
   // Mount the application 
   m.mount(document.body, m.component(application, viewmodel))
-})(window.m, window.document, window.App)
+})(window.m, window.document, window.App);
 
 

@@ -60,6 +60,7 @@ App.VM = function(){
       }, query)
     },
     
+    // Fetch a model from the server
     fetch: function(val){
       var params  = this.composeURLParams({ start_order: parseInt(val, 10) || 1 })
       
@@ -84,19 +85,18 @@ App.VM = function(){
     
     // Save data back to the server
     save: function(){
-      var params = this.composeURLParams({ per_id: this.model.data.per_id })
-      var key    = 'p' + String(parseInt(sessiondata.BlcNr, 10))
-      
+      var key, params
       // Prevent a save occuring if no viewmodel has been instantiated
       if (!this.start_order) return
-      
-      // Update the PersonModel
-      this.model.data.result_jsonb[key] = this.result
-      params.result_jsonb               = { [key] : this.result }
-      
       // Create the parameters to save back to the server
       // TODO: Computed property names (ESNext) breaks Uglify.js
       // Can fix, e.g. var o = {}; o[key] = this.result
+      key    = 'p' + String(parseInt(this.ss.BlcNr, 10))
+      params = this.composeURLParams({
+        per_id      : this.model.data.per_id,
+        result_jsonb: { [key] : this.result }
+      });
+      // Send the data back
       this.model.save(params) 
       .then(function(){ this.connection(true) }.bind(this))
       .then(null, function(){ this.connection(false) }.bind(this))
