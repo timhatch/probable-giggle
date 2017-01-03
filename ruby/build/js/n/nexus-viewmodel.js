@@ -8,7 +8,14 @@ var App = App || {};
 
 App.sessionStorage   = mx.storage( 'session' , mx.SESSION_STORAGE )
 
-App.VM = function(sessiondata){  
+App.VM = function(){ 
+
+  var sessiondata = App.sessionStorage.get('n-appstate')
+  if (!sessiondata) {
+    sessiondata = { WetId : null, Route : null, GrpId : null, BlcNr : null, State : false }
+    App.sessionStorage.set('n-appstate', sessiondata)
+  }
+
   return {
     connection  : m.prop(true),
     model       : App.PersonResult,
