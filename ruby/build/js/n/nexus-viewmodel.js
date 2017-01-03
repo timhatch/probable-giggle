@@ -112,4 +112,4 @@ App.VM = function(){
       this.model.data = {}
     }
   }
-};
+}();
