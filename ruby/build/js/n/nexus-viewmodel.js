@@ -51,14 +51,13 @@ App.VM = function(){
     // plus the provided start_order
     composeURLParams: function(query){
       var rounds = {"QA":0, "QB":1,"S":2,"F":3,"SF":4}
-        , groups = {"M":6,"F":5,"MJ":84,"FJ":81,"MA":82,"FA":79,"MB":83,"FB":80,"TM":63, "TF":284}
-        , params = {
-            wet_id     : parseInt(sessiondata.WetId, 10),
-            route      : rounds[sessiondata.Route],
-            grp_id     : groups[sessiondata.GrpId]
-        }
+      var groups = {"M":6,"F":5,"MJ":84,"FJ":81,"MA":82,"FA":79,"MB":83,"FB":80,"TM":63,"TF":284}
       
-      return Object.assign(params, query) 
+      return Object.assign({
+        wet_id : parseInt(this.ss.WetId, 10),
+        route  : rounds[this.ss.Route],
+        grp_id : groups[this.ss.GrpId]
+      }, query)
     },
     
     fetch: function(val){
