@@ -23,6 +23,7 @@ module Perseus
     def self.get_json params
       url = 'http://egw.ifsc-climbing.org/egw/ranking/json.php'
       begin
+        #  response = HTTParty.get(url, query: params, options: { timeout: 1 })
         response = HTTParty.get(url, query: params)
         response.code == 200 ? JSON.parse(response.body) : nil
       rescue
@@ -73,14 +74,14 @@ module Perseus
     private_class_method
 
     # Wet_id, grp_id, per_id parameters need to be converted to CamelCase
-    def capitalize_params params
+    def self.capitalize_params params
       route = params.delete('route')
       Hash[params.map { |k, v| [k.split('_').map(&:capitalize).join, v] }]
         .merge('route' => route)
     end
 
     # eGroupware requires results in a flattened format
-    def flatten_results result
+    def self.flatten_results result
       mapping = { 'a' => 'try', 'b' => 'bonus', 't' => 'top' }
       key = result.keys.first
       Hash[result[key].map { |k, v| [mapping[k], v] }]
@@ -93,18 +94,19 @@ module Perseus
     # expected by the eGroupware "ranking.ranking_boulder_measurement.ajax_protocol_update" API
     #
     # @params - a hash formetted as follows:
-    # { "wet_id" => 99,"grp_id" => 5,"route" => 2,"per_id" => 6326,
-    #   "result_jsonb" => {
-    #     "p2"=>{"a" => 4,"b" => 2,"t" => nil
+    # { wet_id: 99, grp_id: 5, route: 2, per_id: 6326,
+    #   result_jsonb: {
+    #     "p2" => { "a" => 4,"b" => 2,"t" => nil }
     #   }
-    # }}
+    # }
     #
-    # The data format expected by the eGroupware API is:
-    # { request: {
-    #   parameters: [{
-    #     WetId: 99, GrpId: 5, route: 0, PerId: 1030,
-    #     boulder: 1, try: 1, bonus: 1, top: "",
-    #     updated: DateTime.now.new_offset(Rational(0,24)).to_s
+    # The data format expected by the eGroupware API is a JSON formatted object created from a
+    # hash having the format:
+    # { 'request' => {
+    #   'parameters' => [{
+    #     'WetId' => 99, 'GrpId' => 5, 'route' => 0, 'PerId' => 1030,
+    #     'boulder' => 1, 'try' => 1, 'bonus' => 1, 'top' => "",
+    #     'updated' => DateTime.now.new_offset(Rational(0,24)).to_s
     #   }]
     # }}
     #
@@ -114,10 +116,16 @@ module Perseus
     #       only used to provide a single result
     # NOTE: The native JSON feed into eGroupware treats all values as strings rather than integers
     #       or nulls (so a "" is provided in place of a null) however it seems to accept both
-    #       integers and nulls in testing
-    # TODO: Check all hash parameters - think these need all to be converted to symbols
-    #
-    def compose_boulder_measurement_data params
+    #       integers and nulls in testing. It also seems to accept missing parameters, e.g. the
+    #       following entries are all treated as the same:
+    #         'boulder' => 1, 'try' => 1, 'bonus' => 1, 'top' => ""
+    #         'boulder' => 1, 'try' => 1, 'bonus' => 1, 'top' => null
+    #         'boulder' => 1, 'try' => 1, 'bonus' => 1
+    # NOTE: The input parameters are stringified because we need to manipulate case (eGroupware
+    #       uses CamelCase for most (but not all input parameters) where our symbols are all
+    #       snake_case
+    def self.compose_boulder_measurement_data params
+      params.keys.each { |k| params[k.to_s] = params.delete(k) }
       result = params.delete('result_jsonb')
       data   = capitalize_params(params)
                .merge(flatten_results(result))
@@ -147,7 +155,7 @@ module Perseus
     # NOTE: This format is from a PRIVATE API, so it could change
     # TODO: Define this
     #
-    def componse_result_ui_data
+    def self.compose_result_ui_data
       puts 'Not Yet Implemented'
     end
 
@@ -165,42 +173,48 @@ module Perseus
     #           'base64' and
     #           Base64.strict_encode 'tim:mockpo2014'
     #         - See compose_boulder_measurement_data for the format of the result parameter
-    #
+    # HACK: Hardwire session authorisation. The sessionid key is stored as plain text
+    #   and basic authorisation is not implemented. Will have to rethink this if both types (or
+    #   a different type of) authorisation are/is needed
     def ranking_boulder_measurement authorisation, result
       url  = 'https://ifsc.egroupware.net/egw/json.php'
+      auth = { 'Cookie' => 'sessionid=' << authorisation }
       data = compose_boulder_measurement_data(result)
       begin
         options = Hash[
           query: { menuaction: 'ranking.ranking_boulder_measurement.ajax_protocol_update',
                    json_data: JSON.generate(data) },
-          headers: authorisation]
+          headers: auth]
         HTTParty.post(url, options)
       rescue
-        puts 'Exception raised in EGroupwarePrivateAPI:set_boulder_result'
+        puts 'Exception raised in EGroupwarePrivateAPI:ranking_boulder_measurement'
       end
     end
 
     # API Accessor
     # Publish data to the ranking.ranking_result_ui.ajax_update API point
     # (submits data for a single competitor / multiple boulders)
-    #
+    # HACK: NOT COMPLETE / TESTED. DO NOT USE.
     def ranking_result_ui authorisation, result
       url  = 'https://ifsc.egroupware.net/egw/json.php'
-      data = componse_result_ui_data(result)
+      auth = { 'Cookie' => 'sessionid=' << authorisation }
+      data = compose_result_ui_data(result)
       begin
         options = Hash[
           query: { menuaction: 'ranking.ranking_result_ui.ajax_update',
                    json_data: JSON.generate(data) },
-          headers: authorisation]
+          headers: auth]
         HTTParty.post(url, options)
       rescue
-        puts 'Exception raised in EGroupwarePrivateAPI:set_person_result'
+        puts 'Exception raised in EGroupwarePrivateAPI:ranking_result_ui'
       end
     end
   end
 end
 
-# params = {
-#   "wet_id"=>99,"grp_id"=>5,"route"=>2,"per_id"=>6326,
+# data = {
+#   "wet_id"=>1572,"grp_id"=>284,"route"=>0,"per_id"=>50691,
 #   "result_jsonb"=>{"p2"=>{"a"=>4,"b"=>2,"t"=>nil}}
 # }
+# Perseus::EGroupwarePrivateAPI.ranking_boulder_measurement('cq5glcnacdpsa5ahih6jqb3qr1', data)
+# puts Perseus::EGroupwarePublicAPI.get_results(wet_id: 1572, grp_id: 284, route: 0)
