@@ -280,13 +280,14 @@ module Perseus
     private_class_method
 
     # Simple helper to calculate tops/bonuses and the relevant number of attempts
-    # The tests to call this function are all extenal, so it is pretty cimple
+    # This function is not called if the relevant value is nil (doesn't exist), so
+    # internally we just need to check for it existing but having a value of zero
     # @params
     # - An array [x, y] holding the aggregated result and
-    # - A non-zero value passed in
+    # - A value passed in (may be zero)
     # OPTIMIZE: Refactor this as a lambda?
     def self.set_atts array, value
-      array[0] += 1
+      array[0] += 1 unless value == 0
       array[1] += value
     end
 
