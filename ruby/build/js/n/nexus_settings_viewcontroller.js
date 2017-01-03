@@ -6,7 +6,7 @@
 
 var App = App || {};
 
-App.settingsVC = {
+App.SettingsPanelComponent = {
   // Chnage this to vm, as the sessiondata is callable from the vm...
   controller: function(vm){
     
@@ -25,10 +25,10 @@ App.settingsVC = {
   
   view: function(ctrl, vm){
     return m("div#settings",[
-      m.component(App.ParamSV, { ss : vm.ss, key: 'WetId', text: "competition", pattern: "[0-9]" }),
-      m.component(App.ParamSV, { ss : vm.ss, key: 'Route', text: "round" }),
-      m.component(App.ParamSV, { ss : vm.ss, key: 'GrpId', text: "category" }),
-      m.component(App.ParamSV, { ss : vm.ss, key: 'BlcNr', text: "boulder", pattern: "[0-9]" }),
+      m.component(App.ParamSV, { ss : vm.ss, key: 'wet_id', text: "competition", pattern: "[0-9]" }),
+      m.component(App.ParamSV, { ss : vm.ss, key: 'route', text: "round" }),
+      m.component(App.ParamSV, { ss : vm.ss, key: 'grp_id', text: "category" }),
+      m.component(App.ParamSV, { ss : vm.ss, key: 'blc_nr', text: "boulder", pattern: "[0-9]" }),
       m("button.save", { 
         type    : "primary", 
         outline : true, 

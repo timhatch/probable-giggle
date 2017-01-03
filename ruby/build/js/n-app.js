@@ -15,12 +15,13 @@
   // The header component is rendered by default and then either the settings component
   // (if there are no settings in the session storage) or the results_input component
   // (if there are stored settings)
-  var viewmodel   = App.VM
+  var viewmodel   = App.ViewModel
   var application = {
     view: function(ctrl, viewmodel){
       return [
-        m.component(App.HeaderVC, viewmodel),
-        m.component(!!viewmodel.ss.State ? App.ResultsVC : App.settingsVC, viewmodel)
+        m.component(App.HeaderBarComponent, viewmodel),
+        m.component(!!viewmodel.ss.State ? App.ResultsInputComponent : 
+          App.SettingsPanelComponent, viewmodel)
       ]
     }
   }

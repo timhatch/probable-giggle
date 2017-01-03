@@ -6,7 +6,7 @@
 
 var App = App || {};
 
-App.ResultsVC = {
+App.ResultsInputComponent = {
   controller: function(tablet_vm){
     
     this.changeAttempts = function(e){
@@ -26,10 +26,10 @@ App.ResultsVC = {
         'swipeup'   : ctrl.changeAttempts.bind(ctrl)
       })
     }, [
-      m.component(App.PersonSelectorView, tablet_vm),
-      m.component(App.AttemptsView, { vm: tablet_vm, text: "Tops" }),
-      m.component(App.AttemptsView, { vm: tablet_vm, text: "Bonus" }),
-      m.component(App.AttemptsView, { vm: tablet_vm, text: "Attempts" })
+      m.component(App.PersonSelectorComponent, tablet_vm),
+      m.component(App.AttemptsInputComponent, { vm: tablet_vm, text: "Tops" }),
+      m.component(App.AttemptsInputComponent, { vm: tablet_vm, text: "Bonus" }),
+      m.component(App.AttemptsInputComponent, { vm: tablet_vm, text: "Attempts" })
     ])
   }
 }
@@ -39,7 +39,7 @@ App.ResultsVC = {
 // with two sub-views, one containing a descriptor and the second a display div
 // displaying the number of attempts
 //
-App.AttemptsView = {
+App.AttemptsInputComponent = {
   controller: function(params){
     
     this.changeValue = function(e){

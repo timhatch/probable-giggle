@@ -10,7 +10,7 @@ App.PersonResult = {
   //  Store the model directly as retrieved from the server (a plain JS object)
   //  Set wet_id === 999 to guard against data being entered without a specified comp'
   // 
-  params      : { wet_id: 999 },
+  params      : {},
   data        : {},
   
   //  Fetch a single set of results from the server
@@ -54,7 +54,7 @@ App.PersonResult = {
 
 var App = App || {};
 
-App.HeaderVC = {
+App.HeaderBarComponent = {
   controller: function(vm){    
     this.toggleSettings = function(){      
       // Disable toggling if a required value has not been provided...
@@ -65,7 +65,7 @@ App.HeaderVC = {
   },
   
   view: function(ctrl, vm){
-    var title = (vm.ss.Route || "-")+" / "+(vm.ss.GrpId || "-")+" / "+(vm.ss.BlcNr || "-")
+    var title = (vm.ss.route || "-")+" / "+(vm.ss.grp_id || "-")+" / "+(vm.ss.blc_nr || "-")
     return m("header", { 
         className: vm.connection() ? 'connected' : 'disconnected' 
       }, [
@@ -86,7 +86,7 @@ App.HeaderVC = {
 
 var App = App || {}
 
-App.PersonSelectorView = {
+App.PersonSelectorComponent = {
   controller: function(vm){
     // If the "forward' button is pressed, then
     // (a) change the value of the bonus/top field to indicate that attempts have finished
@@ -136,7 +136,7 @@ App.PersonSelectorView = {
 
 var App = App || {};
 
-App.ResultsVC = {
+App.ResultsInputComponent = {
   controller: function(tablet_vm){
     
     this.changeAttempts = function(e){
@@ -156,10 +156,10 @@ App.ResultsVC = {
         'swipeup'   : ctrl.changeAttempts.bind(ctrl)
       })
     }, [
-      m.component(App.PersonSelectorView, tablet_vm),
-      m.component(App.AttemptsView, { vm: tablet_vm, text: "Tops" }),
-      m.component(App.AttemptsView, { vm: tablet_vm, text: "Bonus" }),
-      m.component(App.AttemptsView, { vm: tablet_vm, text: "Attempts" })
+      m.component(App.PersonSelectorComponent, tablet_vm),
+      m.component(App.AttemptsInputComponent, { vm: tablet_vm, text: "Tops" }),
+      m.component(App.AttemptsInputComponent, { vm: tablet_vm, text: "Bonus" }),
+      m.component(App.AttemptsInputComponent, { vm: tablet_vm, text: "Attempts" })
     ])
   }
 }
@@ -169,7 +169,7 @@ App.ResultsVC = {
 // with two sub-views, one containing a descriptor and the second a display div
 // displaying the number of attempts
 //
-App.AttemptsView = {
+App.AttemptsInputComponent = {
   controller: function(params){
     
     this.changeValue = function(e){
@@ -208,7 +208,7 @@ App.AttemptsView = {
 
 var App = App || {};
 
-App.settingsVC = {
+App.SettingsPanelComponent = {
   // Chnage this to vm, as the sessiondata is callable from the vm...
   controller: function(vm){
     
@@ -227,10 +227,10 @@ App.settingsVC = {
   
   view: function(ctrl, vm){
     return m("div#settings",[
-      m.component(App.ParamSV, { ss : vm.ss, key: 'WetId', text: "competition", pattern: "[0-9]" }),
-      m.component(App.ParamSV, { ss : vm.ss, key: 'Route', text: "round" }),
-      m.component(App.ParamSV, { ss : vm.ss, key: 'GrpId', text: "category" }),
-      m.component(App.ParamSV, { ss : vm.ss, key: 'BlcNr', text: "boulder", pattern: "[0-9]" }),
+      m.component(App.ParamSV, { ss : vm.ss, key: 'wet_id', text: "competition", pattern: "[0-9]" }),
+      m.component(App.ParamSV, { ss : vm.ss, key: 'route', text: "round" }),
+      m.component(App.ParamSV, { ss : vm.ss, key: 'grp_id', text: "category" }),
+      m.component(App.ParamSV, { ss : vm.ss, key: 'blc_nr', text: "boulder", pattern: "[0-9]" }),
       m("button.save", { 
         type    : "primary", 
         outline : true, 
@@ -261,6 +261,7 @@ App.ParamSV = {
   }
 };
 
+
 //  -----------------------------------------------------
 //  CODEKIT DECLARATIONS
 //  -----------------------------------------------------
@@ -271,11 +272,11 @@ var App = App || {};
 
 App.sessionStorage   = mx.storage( 'session' , mx.SESSION_STORAGE )
 
-App.VM = function(){ 
+App.ViewModel = function(){ 
 
   var sessiondata = App.sessionStorage.get('n-appstate')
   if (!sessiondata) {
-    sessiondata = { WetId : null, Route : null, GrpId : null, BlcNr : null, State : false }
+    sessiondata = { wet_id : null, route : null, grp_id : null, blc_nr : null, State : false }
     App.sessionStorage.set('n-appstate', sessiondata)
   }
 
@@ -317,9 +318,9 @@ App.VM = function(){
       var groups = {"M":6,"F":5,"MJ":84,"FJ":81,"MA":82,"FA":79,"MB":83,"FB":80,"TM":63,"TF":284}
       
       return Object.assign({
-        wet_id : parseInt(this.ss.WetId, 10),
-        route  : rounds[this.ss.Route],
-        grp_id : groups[this.ss.GrpId]
+        wet_id : parseInt(this.ss.wet_id, 10),
+        route  : rounds[this.ss.route],
+        grp_id : groups[this.ss.grp_id]
       }, query)
     },
     
@@ -334,7 +335,7 @@ App.VM = function(){
           // theh reset the model and only otherwise process the data
           if (!this.model.data) { this.reset() } 
           else {
-            var key          = 'p' + String(parseInt(this.ss.BlcNr, 10))
+            var key          = 'p' + String(parseInt(this.ss.blc_nr, 10))
             this.result      = this.model.data.result_jsonb[key] || { a: null, b: null, t: null }
             this.start_order = this.model.data.start_order
             this.fullname    = this.model.data.lastname+', '+this.model.data.firstname
@@ -354,7 +355,7 @@ App.VM = function(){
       // Create the parameters to save back to the server
       // TODO: Computed property names (ESNext) breaks Uglify.js
       // Can fix, e.g. var o = {}; o[key] = this.result
-      key    = 'p' + String(parseInt(this.ss.BlcNr, 10))
+      key    = 'p' + String(parseInt(this.ss.blc_nr, 10))
       params = this.composeURLParams({
         per_id      : this.model.data.per_id,
         result_jsonb: { [key] : this.result }
@@ -394,12 +395,13 @@ App.VM = function(){
   // The header component is rendered by default and then either the settings component
   // (if there are no settings in the session storage) or the results_input component
   // (if there are stored settings)
-  var viewmodel   = App.VM
+  var viewmodel   = App.ViewModel
   var application = {
     view: function(ctrl, viewmodel){
       return [
-        m.component(App.HeaderVC, viewmodel),
-        m.component(!!viewmodel.ss.State ? App.ResultsVC : App.settingsVC, viewmodel)
+        m.component(App.HeaderBarComponent, viewmodel),
+        m.component(!!viewmodel.ss.State ? App.ResultsInputComponent : 
+          App.SettingsPanelComponent, viewmodel)
       ]
     }
   }

@@ -6,7 +6,7 @@
 
 var App = App || {};
 
-App.HeaderVC = {
+App.HeaderBarComponent = {
   controller: function(vm){    
     this.toggleSettings = function(){      
       // Disable toggling if a required value has not been provided...
@@ -17,7 +17,7 @@ App.HeaderVC = {
   },
   
   view: function(ctrl, vm){
-    var title = (vm.ss.Route || "-")+" / "+(vm.ss.GrpId || "-")+" / "+(vm.ss.BlcNr || "-")
+    var title = (vm.ss.route || "-")+" / "+(vm.ss.grp_id || "-")+" / "+(vm.ss.blc_nr || "-")
     return m("header", { 
         className: vm.connection() ? 'connected' : 'disconnected' 
       }, [

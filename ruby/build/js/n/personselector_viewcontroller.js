@@ -5,7 +5,7 @@
 
 var App = App || {}
 
-App.PersonSelectorView = {
+App.PersonSelectorComponent = {
   controller: function(vm){
     // If the "forward' button is pressed, then
     // (a) change the value of the bonus/top field to indicate that attempts have finished
