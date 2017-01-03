@@ -70,7 +70,7 @@ App.HeaderVC = {
   view: function(ctrl, vm){
     var title = (vm.ss.Route || "-")+" / "+(vm.ss.GrpId || "-")+" / "+(vm.ss.BlcNr || "-")
     return m("header", { 
-        className: App.connectionStatus() ? 'connected' : 'disconnected' 
+        className: vm.connection() ? 'connected' : 'disconnected' 
       }, [
       m("button", {
         onclick: ctrl.toggleSettings,
@@ -80,6 +80,7 @@ App.HeaderVC = {
     ])
   }
 };
+
 
 //	-----------------------------------------------------
 //	CODEKIT DECLARATIONS
@@ -272,11 +273,15 @@ App.ParamSV = {
 
 var App = App || {};
 
-App.VM = function(model, sessiondata){  
+App.sessionStorage   = mx.storage( 'session' , mx.SESSION_STORAGE )
+
+App.VM = function(sessiondata){  
   return {
-    model       : model,
+    connection  : m.prop(true),
+    model       : App.PersonResult,
     ss          : sessiondata,
-    // View-Model parameters and functions derived from the model
+    
+    // View-Model parameters and functions derived from the this.model
     //
     start_order : null,
     fullname    : null, 
@@ -298,6 +303,7 @@ App.VM = function(model, sessiondata){
         }
       }
     },
+
     // clearValue() unsets any existing data 
     clearValue: function(attr){
       if (!!this.result[attr]) this.result[attr] = null
@@ -320,33 +326,34 @@ App.VM = function(model, sessiondata){
     fetch: function(val){
       var params  = this.composeURLParams({ start_order: parseInt(val, 10) || 1 })
       
-      model.fetch(params)
+      this.model.fetch(params)
       .then(function(){
         try {
           var key          = 'p' + String(parseInt(sessiondata.BlcNr, 10))
-          this.result      = model.data.result_jsonb[key] || {a: null,b: null,t: null}
-          this.start_order = model.data.start_order
-          this.fullname    = model.data.lastname+', '+model.data.firstname 
+          this.result      = this.model.data.result_jsonb[key] || {a: null,b: null,t: null}
+          this.start_order = this.model.data.start_order
+          this.fullname    = this.model.data.lastname+', '+this.model.data.firstname 
         }
         catch (err) { window.console.log(err) }
       }.bind(this))
-      .then(function(){ App.connectionStatus(true) })
-      .then(null, function(){ App.connectionStatus(false) })      
+      .then(function(){ this.connection(true) }.bind(this))
+      .then(null, function(){ this.connection(false) }.bind(this))      
     },
   
     save: function(){
-      var params = this.composeURLParams({ per_id: model.data.per_id })
+      var params = this.composeURLParams({ per_id: this.model.data.per_id })
       var key    = 'p' + String(parseInt(sessiondata.BlcNr, 10))
       
       // Prevent a save occuring if no viewmodel has been instantiated
       if (!this.start_order) return
-
-      model.data.result_jsonb[key] = this.result
-      params.result_jsonb          = { [key] : this.result }
       
-      model.save(params) 
-      .then(function(){ App.connectionStatus(true) })
-      .then(null, function(){ App.connectionStatus(false) })
+      // Update the PersonModel
+      this.model.data.result_jsonb[key] = this.result
+      params.result_jsonb               = { [key] : this.result }
+      
+      this.model.save(params) 
+      .then(function(){ this.connection(true) }.bind(this))
+      .then(null, function(){ this.connection(false) }.bind(this))
     },
     
     reset: function(){
@@ -354,7 +361,7 @@ App.VM = function(model, sessiondata){
       this.fullname    = null 
       this.result      = {a: null,b: null,t: null}
       
-      model.data = {}
+      this.model.data = {}
     }
   }
 };
@@ -363,8 +370,6 @@ App.VM = function(model, sessiondata){
 //	-----------------------------------------------------
 //	CODEKIT DECLARATIONS
 //	-----------------------------------------------------
-/*global m                                            */
-/*global mx                                           */
 
 // @codekit-prepend "./n/personresult_model.js"
 // @codekit-prepend "./n/headerbar_viewcontroller.js"
@@ -374,40 +379,32 @@ App.VM = function(model, sessiondata){
 // @codekit-prepend "./n/nexus_settings_viewcontroller.js"
 // @codekit-prepend "./n/nexus-viewmodel.js"
 
-var App = App || {}
-// Store the connection status (in-memory)
-App.connectionStatus = m.prop(true)
-// Use session storage to contain view model parameters
-App.sessionStorage   = mx.storage( 'session' , mx.SESSION_STORAGE )
-
-App.SuperVC = {
-  // View declaration  
-  view: function(ctrl, vm){
-    return [
-      m.component(App.HeaderVC, vm),
-      (!!vm.ss.State) ? m.component(App.ResultsVC, vm) : m.component(App.settingsVC, vm)
-    ]
+(function(m, document, App){
+  var session, viewmodel, application
+ 
+  // Fetch any stored application settings, if none exist then create them
+  session  = App.sessionStorage.get('n-appstate')
+  if (!session) { 
+    session = { WetId : null, Route : null, GrpId : null, BlcNr : null, State : false } 
+    App.sessionStorage.set('n-appstate', session) 
+  } 
+  
+  // Create the Application ViewModel and render the application
+  // The header component is rendered by default and then either the settings component
+  // (if there are no settings in the session storage) or the results_input component
+  // (if there are stored settings)
+  viewmodel   = App.VM(session)
+  application = {
+    view: function(ctrl, viewmodel){
+      return [
+        m.component(App.HeaderVC, viewmodel),
+        m.component(!!viewmodel.ss.State ? App.ResultsVC : App.settingsVC, viewmodel)
+      ]
+    }
   }
-}
-
-App.init = function(){
-  var model = App.PersonResult
   
-  var defaults = {
-        WetId : null, Route : null, GrpId : null, 
-        BlcNr : null,
-        State : false
-      }
-  
-  var ss = App.sessionStorage.get('n-appstate')
-      if (!ss) { 
-        ss = defaults
-        App.sessionStorage.set('n-appstate', defaults) 
-      } 
-  
-  var vm = App.VM(model, ss)
-  
-  m.mount(document.body, m.component(App.SuperVC, vm))
-}()
+  // Mount the application 
+  m.mount(document.body, m.component(application, viewmodel))
+})(window.m, window.document, window.App)
 
 

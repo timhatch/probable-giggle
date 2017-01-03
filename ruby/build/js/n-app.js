@@ -1,8 +1,6 @@
 //	-----------------------------------------------------
 //	CODEKIT DECLARATIONS
 //	-----------------------------------------------------
-/*global m                                            */
-/*global mx                                           */
 
 // @codekit-prepend "./n/personresult_model.js"
 // @codekit-prepend "./n/headerbar_viewcontroller.js"
@@ -12,38 +10,30 @@
 // @codekit-prepend "./n/nexus_settings_viewcontroller.js"
 // @codekit-prepend "./n/nexus-viewmodel.js"
 
-var App = App || {}
-// Store the connection status (in-memory)
-App.connectionStatus = m.prop(true)
-// Use session storage to contain view model parameters
-App.sessionStorage   = mx.storage( 'session' , mx.SESSION_STORAGE )
-
-App.SuperVC = {
-  // View declaration  
-  view: function(ctrl, vm){
-    return [
-      m.component(App.HeaderVC, vm),
-      (!!vm.ss.State) ? m.component(App.ResultsVC, vm) : m.component(App.settingsVC, vm)
-    ]
+(function(m, document, App){
+  var session, viewmodel, application
+ 
+  // Fetch any stored application settings, if none exist then create them
+  session  = App.sessionStorage.get('n-appstate')
+  if (!session) { 
+    session = { WetId : null, Route : null, GrpId : null, BlcNr : null, State : false } 
+    App.sessionStorage.set('n-appstate', session) 
+  } 
+  
+  // Create the Application ViewModel and render the application
+  // The header component is rendered by default and then either the settings component
+  // (if there are no settings in the session storage) or the results_input component
+  // (if there are stored settings)
+  viewmodel   = App.VM(session)
+  application = {
+    view: function(ctrl, viewmodel){
+      return [
+        m.component(App.HeaderVC, viewmodel),
+        m.component(!!viewmodel.ss.State ? App.ResultsVC : App.settingsVC, viewmodel)
+      ]
+    }
   }
-}
-
-App.init = function(){
-  var model = App.PersonResult
   
-  var defaults = {
-        WetId : null, Route : null, GrpId : null, 
-        BlcNr : null,
-        State : false
-      }
-  
-  var ss = App.sessionStorage.get('n-appstate')
-      if (!ss) { 
-        ss = defaults
-        App.sessionStorage.set('n-appstate', defaults) 
-      } 
-  
-  var vm = App.VM(model, ss)
-  
-  m.mount(document.body, m.component(App.SuperVC, vm))
-}()
+  // Mount the application 
+  m.mount(document.body, m.component(application, viewmodel))
+})(window.m, window.document, window.App)

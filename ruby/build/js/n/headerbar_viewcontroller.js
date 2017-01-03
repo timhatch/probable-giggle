@@ -21,7 +21,7 @@ App.HeaderVC = {
   view: function(ctrl, vm){
     var title = (vm.ss.Route || "-")+" / "+(vm.ss.GrpId || "-")+" / "+(vm.ss.BlcNr || "-")
     return m("header", { 
-        className: App.connectionStatus() ? 'connected' : 'disconnected' 
+        className: vm.connection() ? 'connected' : 'disconnected' 
       }, [
       m("button", {
         onclick: ctrl.toggleSettings,
