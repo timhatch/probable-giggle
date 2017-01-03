@@ -11,10 +11,8 @@ App.HeaderVC = {
     this.toggleSettings = function(){      
       // Disable toggling if a required value has not been provided...
       for (var prop in vm.ss) { if (vm.ss[prop] === null) return }
-      
-      // Change the view state
-      var state = vm.ss.State
-      vm.ss.State = (!!state) ? false : true
+      // Toggle the view state
+      vm.ss.State = !vm.ss.State
     }
   },
   
@@ -25,7 +23,7 @@ App.HeaderVC = {
       }, [
       m("button", {
         onclick: ctrl.toggleSettings,
-        square: true
+        square : true
       }, m.trust('=')),
       m("span.details", title || m.trust('&nbsp;'))
     ])
