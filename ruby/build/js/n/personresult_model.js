@@ -10,7 +10,7 @@ App.PersonResult = {
   //  Store the model directly as retrieved from the server (a plain JS object)
   //  Set wet_id === 999 to guard against data being entered without a specified comp'
   // 
-  params      : { wet_id: 999 },
+  params      : {},
   data        : {},
   
   //  Fetch a single set of results from the server
