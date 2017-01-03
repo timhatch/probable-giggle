@@ -1,6 +1,6 @@
-//	-----------------------------------------------------
-//	CODEKIT DECLARATIONS
-//	-----------------------------------------------------
+//  -----------------------------------------------------
+//  CODEKIT DECLARATIONS
+//  -----------------------------------------------------
 /*global m                                            */
 /*global mx                                           */
 
@@ -21,12 +21,10 @@ App.VM = function(){
     model       : App.PersonResult,
     ss          : sessiondata,
     
-    // View-Model parameters and functions derived from the this.model
-    //
+    // View-Model parameters and functions derived from the model
     start_order : null,
     fullname    : null, 
-    result      : {a: null,b: null,t: null},
-    
+    result      : { a: null, b: null, t: null },
     // Set or unset results
     
     // setValue allows a result attribute to be set only once, i.e.
@@ -84,7 +82,8 @@ App.VM = function(){
       .then(function(){ this.connection(true) }.bind(this))
       .then(null, function(){ this.connection(false) }.bind(this))      
     },
-  
+    
+    // Save data back to the server
     save: function(){
       var params = this.composeURLParams({ per_id: this.model.data.per_id })
       var key    = 'p' + String(parseInt(sessiondata.BlcNr, 10))
@@ -96,15 +95,19 @@ App.VM = function(){
       this.model.data.result_jsonb[key] = this.result
       params.result_jsonb               = { [key] : this.result }
       
+      // Create the parameters to save back to the server
+      // TODO: Computed property names (ESNext) breaks Uglify.js
+      // Can fix, e.g. var o = {}; o[key] = this.result
       this.model.save(params) 
       .then(function(){ this.connection(true) }.bind(this))
       .then(null, function(){ this.connection(false) }.bind(this))
     },
     
+    // Reset the viewmodel
     reset: function(){
       this.start_order = null
       this.fullname    = null 
-      this.result      = {a: null,b: null,t: null}
+      this.result      = { a: null, b: null, t: null }
       
       this.model.data = {}
     }
