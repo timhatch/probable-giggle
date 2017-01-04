@@ -8,13 +8,13 @@ var App = App || {};
 
 App.sessionStorage   = mx.storage( 'session' , mx.SESSION_STORAGE )
 
-App.ViewModel = function(){ 
-
+App.ViewModel = function(comp){ 
   var sessiondata = App.sessionStorage.get('n-appstate')
   if (!sessiondata) {
-    sessiondata = { wet_id : null, route : null, grp_id : null, blc_nr : null, State : false }
+    sessiondata = { wet_id : comp, route : null, grp_id : null, blc_nr : null, State : false }
     App.sessionStorage.set('n-appstate', sessiondata)
   }
+  window.console.log(sessiondata)
 
   return {
     connection  : m.prop(true),
@@ -111,4 +111,4 @@ App.ViewModel = function(){
       this.model.data = {}
     }
   }
-}();
+};

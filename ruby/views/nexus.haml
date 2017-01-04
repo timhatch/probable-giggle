@@ -11,8 +11,30 @@
     /  CSS
     %link{ rel: "stylesheet", href: "./stylesheets/n.css" }
 
-    %body
-      %script{ src: './js/mithril.min.js' }
-      %script{ src: './js/mithril-storage.js' }
-      %script{ src: './js/mithril-touch.js' }
-      %script{ src: './n-app-min.js' }
+  %body
+    %script{ src: './js/mithril.min.js' }
+    %script{ src: './js/mithril-storage.js' }
+    %script{ src: './js/mithril-touch.js' }
+    %script{ src: './n-app-min.js' }
+
+    :javascript
+      (function(m, document, App){
+        //  Create the Application ViewModel and render the application
+        //  The header component is rendered by default and then either the settings component
+        //  (if there are no settings in the session storage) or the results_input component
+        //  (if there are stored settings)
+        var viewmodel   = App.ViewModel(parseInt("#{params[:wet_id]}", 10))
+        var application = {
+          view: function(ctrl, viewmodel){
+            return [
+              m.component(App.HeaderBarComponent, viewmodel),
+              m.component(!!viewmodel.ss.State ? App.ResultsInputComponent : 
+                App.SettingsPanelComponent, viewmodel)
+            ]
+          }
+        }
+        // Mount the application 
+        m.mount(document.body, m.component(application, viewmodel))
+      })(window.m, window.document, window.App)
+      // document.addEventListener('DOMContentLoaded', function(){
+      // })
