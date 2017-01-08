@@ -25,7 +25,7 @@ App.ViewModel = function(comp){
     start_order : null,
     fullname    : null, 
     result      : { a: null, b: null, t: null },
-    // Set or unset results
+    key         : function(){ return 'p'+ String(parseInt(this.ss.blc_nr, 10)) },
     
     // setValue allows a result attribute to be set only once, i.e.
     // if the existing value is null (or zero), set the value of the attribute to
@@ -49,10 +49,9 @@ App.ViewModel = function(comp){
   
     // Construct query parameters from stored data on the competition, round and group
     // plus the provided start_order
-    composeURLParams: function(query){
+    mergeParams: function(query){
       var rounds = {"QA":0, "QB":1,"S":2,"F":3,"SF":4}
       var groups = {"M":6,"F":5,"MJ":84,"FJ":81,"MA":82,"FA":79,"MB":83,"FB":80,"TM":63,"TF":284}
-      
       return Object.assign({
         wet_id : parseInt(this.ss.wet_id, 10),
         route  : rounds[this.ss.route],
@@ -61,20 +60,17 @@ App.ViewModel = function(comp){
     },
     
     // Fetch a model from the server
+    // If the model doesn't exist (e.g. we've entered an ineligible startnumber)
+    // theh reset the model and only otherwise process the data
     fetch: function(val){
-      var params  = this.composeURLParams({ start_order: parseInt(val, 10) || 1 })
-      
-      this.model.fetch(params)
+      this.start_order = parseInt(val, 10)
+      this.model.fetch(this.mergeParams({ start_order: this.start_order }))
       .then(function(){
         try {
-          // If the model doesn't exist (e.g. we've entered an ineligible startnumber)
-          // theh reset the model and only otherwise process the data
           if (!this.model.data) { this.reset() } 
           else {
-            var key          = 'p' + String(parseInt(this.ss.blc_nr, 10))
-            this.result      = this.model.data.result_jsonb[key] || { a: null, b: null, t: null }
-            this.start_order = this.model.data.start_order
-            this.fullname    = this.model.data.lastname+', '+this.model.data.firstname
+            this.result   = this.model.data.result_jsonb[this.key()] || { a: null, b: null, t: null }
+            this.fullname = this.model.data.lastname+', '+this.model.data.firstname
           }
         }
         catch (err) { window.console.log(err) }
@@ -85,16 +81,15 @@ App.ViewModel = function(comp){
     
     // Save data back to the server
     save: function(){
-      var key, params
+      var params
       // Prevent a save occuring if no viewmodel has been instantiated
       if (!this.start_order) return
       // Create the parameters to save back to the server
       // TODO: Computed property names (ESNext) breaks Uglify.js
       // Can fix, e.g. var o = {}; o[key] = this.result
-      key    = 'p' + String(parseInt(this.ss.blc_nr, 10))
-      params = this.composeURLParams({
+      params = this.mergeParams({
         per_id      : this.model.data.per_id,
-        result_jsonb: { [key] : this.result }
+        result_jsonb: { [this.key()] : this.result }
       });
       // Send the data back
       this.model.save(params) 

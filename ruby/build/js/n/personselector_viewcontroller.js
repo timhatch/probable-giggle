@@ -11,7 +11,6 @@ App.PersonSelectorComponent = {
     // (a) change the value of the bonus/top field to indicate that attempts have finished
     // or zero out the result
     this.incrementStarter = function(){
-      var val = vm.start_order + 1
       // No top
       if (vm.result.b > 0 && vm.result.t === null) { 
         vm.result.t = 0; vm.save()
@@ -26,7 +25,7 @@ App.PersonSelectorComponent = {
       }
       // window.console.log(vm.result)
       // (b) save the data, and fetch the next set of data
-      vm.fetch(val)
+      vm.fetch(vm.start_order + 1)
     }
   },
   
