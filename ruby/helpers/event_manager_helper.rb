@@ -49,9 +49,9 @@ module Perseus
     end
 
     # Broadcast results to localhost and egroupware
-    # HACK: We contain each broadcast message within a separate thread in order to avoid to 
+    # HACK: We contain each broadcast message within a separate thread in order to avoid to
     #   mitigate any network latency effects. THis should in theory be unecessary for broadcasts
-    #   to localhost but on the other hand, if such broadcasts have little or no latency then 
+    #   to localhost but on the other hand, if such broadcasts have little or no latency then
     #   the relevant threads will be short lived.
     def self.broadcast_results params
       return 0 unless Perseus::LocalDBConnection::Results.result_person(params)
@@ -74,7 +74,7 @@ module Perseus
     module_function
 
     # Handle a results update coming into the local server
-    # Pretty much all the work is done in private functions 
+    # Pretty much all the work is done in private functions
     def handle_result_single params
       # Update the local server
       LocalDBConnection::Results.update_single(params)

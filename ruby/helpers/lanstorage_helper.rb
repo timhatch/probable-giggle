@@ -124,7 +124,7 @@ module Perseus
       @default_route = { wet_id: 0, grp_id: 0, route: 0 }
 
       private_class_method
-      
+
       # Helper method to create a startlist input
       # @params
       # - args, a hash containing :wet_id, :grp_id and :route values (common to all competitors)
@@ -287,7 +287,7 @@ module Perseus
     # - A value passed in (may be zero)
     # OPTIMIZE: Refactor this as a lambda?
     def self.set_atts array, value
-      array[0] += 1 unless value == 0
+      array[0] += 1 unless value.zero?
       array[1] += value
     end
 

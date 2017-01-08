@@ -5,12 +5,11 @@
 # Currently implements:
 # - A route (registration/file) to upload competitor data from a CSV file
 # - A route (registration/ifsc) to fetch competitor data from the list of climbers registered
-#   for a specific competition within eGroupware 
+#   for a specific competition within eGroupware
 #
 
 module Perseus
   class RegistrationController < Perseus::ApplicationController
-
     # HELPERS
     helpers Perseus::EGroupwarePublicAPI
     helpers Perseus::LocalDBConnection
@@ -18,9 +17,9 @@ module Perseus
 
     # symbolize route paramaters (deliberately non-recursive)
     before do
-      params.keys.each{ |k| params[k.to_sym] = params.delete(k) }
+      params.keys.each { |k| params[k.to_sym] = params.delete(k) }
     end
-    
+
     # Route handling
     #
     # Add to the list of registered climbers by reading from a CSV formatted file
@@ -30,19 +29,19 @@ module Perseus
     # - a csv file
     # REVIEW: This function not yet tested
     post '/file' do
-      data = CSVParser.parse_csv_file({ file: params.delete(:file) })
-      LocalDBConnection::Competitors.insert(data) ? 200 : 501 
+      data = CSVParser.parse_csv_file(file: params.delete(:file))
+      LocalDBConnection::Competitors.insert(data) ? 200 : 501
     end
-    
+
     # Fetch a list of climbers from eGroupware (actually fetches the list of climbers registered
     # for a specific competition.
     # @params
     # - wet_id
-    # This method simply passes the require parameters to the EGroupwarePublicAPI.get_starters where
-    # they are checked.
+    # This method simply passes the require parameters to the EGroupwarePublicAPI.get_starters
+    # where they are checked.
     post '/ifsc' do
       data = EGroupwarePublicAPI.get_starters(params)
-      LocalDBConnection::Competitors.insert(data) ? 200 : 501 
+      LocalDBConnection::Competitors.insert(data) ? 200 : 501
     end
   end
 end
