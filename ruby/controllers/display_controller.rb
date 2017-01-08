@@ -18,7 +18,7 @@ module Perseus
       haml :ifsc_display, locals: params
     end
 
-    get '/test' do
+    get '/stream' do
       haml :streaming_client
     end
   end
