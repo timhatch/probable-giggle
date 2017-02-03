@@ -135,7 +135,7 @@ module Perseus
         args.merge(
           per_id:         person['per_id'].to_i,
           start_order:    person['start_order'].to_i,
-          rank_prev_heat: person['rank_prev-heat'].to_i
+          rank_prev_heat: person['rank_prev_heat'].to_i
         )
       end
 
@@ -147,10 +147,10 @@ module Perseus
       # a per_id (or PerId) and start_order parameter
       #
       # @params
-      # - A has containing:
+      # - A hash containing:
       # - :wet_id, :grp_id, :route (each integers) defining the comp, category and round
       # - :competitors  An array of competitor data, each competitor having three properties
-      #   'PerId' or 'per_id' (the Competitor's id), start_order and rank_prev_heat
+      #   'PerId' or 'per_id' (the Competitor's id), start_order and (optional) rank_prev_heat
       # REVIEW: Probably we need to add :bib_nr
       def insert params
         args        = Hash[@default_route.map { |k, v| [k, params[k].to_i || v] }]
@@ -213,16 +213,20 @@ module Perseus
       def data
         DB[:Session].first
       end
+      
+      # Update the Session authorisation parameter
+      # @params
+      # - auth  - a string in the format 'sessionid=sljhfgagagfhjkdsgv'
+      def authorisation params
+        params.select! { |_k, v| /sessionid=/.match(v.to_s) }
+        DB[:Session].update(auth: params[:auth] || nil)
+      end
 
-      # Update the Session parameters, either individually or collectively
+      # Update the session wet_id parameter
       # @params
       # - wet_id - the numeric id for the competition
-      # - auth   - a string
-      # HACK: wet_id is expected to be an INTEGER - Need to verify what's provided...
-      def update params
-        params.reject! { |k, _v| params[k].to_s.empty? }
-        args = Hash[{ wet_id: nil, auth: nil }.map { |k, v| [k, params[k] || v] }]
-        DB[:Session].update(args)
+      def competition params
+        DB[:Session].update(wet_id: params[:wet_id].to_i || nil)
       end
 
       # Clear (reset) the session parameters
@@ -232,6 +236,23 @@ module Perseus
     end
   end
 end
+
+# puts Perseus::LocalDBConnection::Session.authorisation(wet_id: 99)
+# puts Perseus::LocalDBConnection::Session.authorisation(wet_id: '')
+# puts Perseus::LocalDBConnection::Session.authorisation(wet_id: 'asbc')
+# puts Perseus::LocalDBConnection::Session.authorisation(auth: nil)
+# puts Perseus::LocalDBConnection::Session.authorisation(auth: '')
+# puts Perseus::LocalDBConnection::Session.authorisation(auth: 99)
+# puts Perseus::LocalDBConnection::Session.authorisation(wet_id: 'sessionid=abc')
+# puts Perseus::LocalDBConnection::Session.authorisation(auth: 'sessionid=abc')
+# puts Perseus::LocalDBConnection::Session.competition(wet_id: '99')
+# puts Perseus::LocalDBConnection::Session.competition(wet_id: 'hello')
+# puts Perseus::LocalDBConnection::Session.competition(wet_id: '')
+# puts Perseus::LocalDBConnection::Session.competition(wet_id: nil)
+# puts Perseus::LocalDBConnection::Session.competition(wet_id: 99)
+# puts Perseus::LocalDBConnection::Session.competition(atuhr: 99)
+
+# puts Perseus::LocalDBConnection::Session.reset
 
 # Competitor related getters/setters
 # OPTIMIZE: Replace the explicit assignment in insert() by a shorthand conversion of the parameters
