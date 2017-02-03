@@ -1,0 +1,3 @@
+helpers/event_manager_helper.rb
+
+62:0 It should be possible to send updates to the scoreboard only when a bonus or top is realised by testing a==b || a==t (i.e. if a!=b or a!=t then by definition a top was not made on that attempt)

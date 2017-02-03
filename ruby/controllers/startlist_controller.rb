@@ -24,8 +24,10 @@ module Perseus
     # Create a startlist from a CSV formatted file
     # params = { wet_id: 1572, grp_id: 5, route: 2 }
     # Assume that the CSV file contains the following data:
-    # - wet_id, grp_id, route, per_id, start_order
-    #
+    # - [wet_id,] [grp_id,] [route,] per_id, start_order, [rank_prev_heat]
+    # 
+    # NOTE: The order of parameters is unimportant, but the CSV file MUST contain a header
+    # line
     # REVIEW: This function not yet tested
     post '/file' do
       params[:competitors] = CSVParser.parse_csv_file(file: params.delete(:file))

@@ -59,6 +59,8 @@ module Perseus
       # REVIEW: Technically we need only broadcast the pverall result when a bpnus or
       #   top has been gained, but there's no obvious way to determine that.
       # Use the endpoint /broadcast/result for the results display stream
+      # TODO: In theory we could test as follow. If (for the updated result) a == b or a == t,
+      # then it follows that either t or b has been achieved on that attempt..
       updated_route_result = Perseus::LocalDBConnection::Results.result_route(params)
       Thread.new { broadcast_to_localhost('/broadcast/result', updated_route_result) }
       # Get the individual result
