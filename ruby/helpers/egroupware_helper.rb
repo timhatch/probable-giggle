@@ -176,9 +176,10 @@ module Perseus
     # HACK: Hardwire session authorisation. The sessionid key is stored as plain text
     #   and basic authorisation is not implemented. Will have to rethink this if both types (or
     #   a different type of) authorisation are/is needed
+    #   NOTE: See note at the foot of this fie
     def ranking_boulder_measurement authorisation, result
       url  = 'https://ifsc.egroupware.net/egw/json.php'
-      auth = { 'Cookie' => 'sessionid=' << authorisation }
+      auth = { 'Cookie' => authorisation }
       data = compose_boulder_measurement_data(result)
       begin
         options = Hash[
@@ -188,6 +189,7 @@ module Perseus
         HTTParty.post(url, options)
       rescue
         puts 'Exception raised in EGroupwarePrivateAPI:ranking_boulder_measurement'
+        nil
       end
     end
 
@@ -197,7 +199,7 @@ module Perseus
     # HACK: NOT COMPLETE / TESTED. DO NOT USE.
     def ranking_result_ui authorisation, result
       url  = 'https://ifsc.egroupware.net/egw/json.php'
-      auth = { 'Cookie' => 'sessionid=' << authorisation }
+      auth = { 'Cookie' => authorisation }
       data = compose_result_ui_data(result)
       begin
         options = Hash[
@@ -207,6 +209,7 @@ module Perseus
         HTTParty.post(url, options)
       rescue
         puts 'Exception raised in EGroupwarePrivateAPI:ranking_result_ui'
+        nil
       end
     end
   end
