@@ -39,7 +39,7 @@ App.PersonResult.prototype = {
       per_id: this.data.per_id,
       result_jsonb: { [key]: value }
     }
-    window.console.log(params)
+    // window.console.log(params)
     return m.request({
       method: 'PUT',
       url   : '/results/person',
