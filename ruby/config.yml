@@ -1,0 +1,21 @@
+# Taken from 
+# http://recipes.sinatrarb.com/p/deployment/lighttpd_proxied_to_thin?#article
+#
+environment: production
+# /usr/share/nginx/www is the default location for the NGINX on raspberry pi
+# Change this to the specific file hosting location
+chdir: /path/to/my/app
+address: 127.0.0.1
+user: root
+group: root
+# Identify which port to use. If multiple ports are listed in NGINX the 
+# port identified here should be the first listed  
+port: 5000
+# Change this to the specific file hosting location
+rackup: /path/to/my/app/config.ru
+# pid: /path/to/my/app/thin.pid
+# log: /path/to/my/app/thin.log
+max_conns: 128
+timeout: 30
+max_persistent_conns: 64
+daemonize: true 
