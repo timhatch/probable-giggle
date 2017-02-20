@@ -23,7 +23,7 @@ require_relative './lanstorage_helper'
 module Perseus
   module ResultsHandler
     # Localhost receiver
-    @default_url = 'http://10.0.2.10'
+    @default_url = 'http://127.0.0.1'
 
     private_class_method
 
