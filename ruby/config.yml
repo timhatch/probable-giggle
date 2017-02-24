@@ -1,19 +1,29 @@
+# config.yml to run a sinatra app in conjunction with NGINX as a reverse proxy
 # Taken from 
 # http://recipes.sinatrarb.com/p/deployment/lighttpd_proxied_to_thin?#article
+# 
+# Used in the context of launching a thin instance rather than by calling rackup,
+# i.e. invoking
+# thin -s 1 -C config.yml -R config.ru
+# -s gives the number of instances: -s 1 (one), -s 2 (two) etc.
 #
 environment: production
-# /usr/share/nginx/www is the default location for the NGINX on raspberry pi
+# /usr/share/nginx/www is the default location for NGINX on raspberry pi
 # Change this to the specific file hosting location
-chdir: /path/to/my/app
+chdir: /Users/timhatch/sites/flashresults/ruby/
 address: 127.0.0.1
-user: root
-group: root
+# On Raspberry Pi run as root 
+# user: root
+# group: root
+# On OSX run as the host
+user: timhatch
+group: staff
 # Identify which port to use. If multiple ports are listed in NGINX the 
 # port identified here should be the first listed  
 port: 5000
 # Change this to the specific file hosting location
-rackup: /path/to/my/app/config.ru
-# pid: /path/to/my/app/thin.pid
+rackup: /Users/timhatch/sites/flashresults/ruby/config.ru
+pid: /Users/timhatch/sites/flashresults/ruby/tmp/pids/thin.pid
 # log: /path/to/my/app/thin.log
 max_conns: 128
 timeout: 30
