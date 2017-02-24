@@ -1,5 +1,0 @@
-helpers/event_manager_helper.rb
-
-tests needed for:
-  LocalDBConnection::Session.authorisation
-  LocalDBConnection::Session.competition
