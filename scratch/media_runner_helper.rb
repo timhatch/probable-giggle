@@ -9,27 +9,28 @@ require 'json'
 require 'csv'
 
 # Class   CWIFResultsModus        - Helper functions to calculate results (CWIF c
-# 
+#
 module Perseus
   module CWIFResultsModus
     module_function
+
 #    TODO: Check that these generators work with nil values
 #    def result_generator
 #      t  = Sequel.pg_array_op(:sort_values)[1] * 13
 #      ta = Sequel.pg_array_op(:sort_values)[2] * 3
-#      b  = Sequel.pg_array_op(:sort_values)[3].cast(:text) 
-#    
-#      Sequel.cast(t - ta, :text) + "b" + b 
-#    end
+#      b  = Sequel.pg_array_op(:sort_values)[3].cast(:text)
+#
+#      Sequel.cast(t - ta, :text) + 'b' + b
+#   end
     def rank_generator
       t  = Sequel.pg_array_op(:sort_values)[1] * 13
       ta = Sequel.pg_array_op(:sort_values)[2] * 3
       b  = Sequel.pg_array_op(:sort_values)[3]
-    
+
       [(t - ta).desc(:nulls=>:last), b.desc]
     end    
   end
-  
+
   module IFSCResultsModus
     module_function
 #    TODO: Check that these generators work with nil values
@@ -38,7 +39,7 @@ module Perseus
 #      ta = Sequel.pg_array_op(:sort_values)[2].cast(:text)
 #      b  = Sequel.pg_array_op(:sort_values)[3].cast(:text) 
 #      ba = Sequel.pg_array_op(:sort_values)[4].cast(:text)
-#      str =  t + "t" + ta + " " + b + "b" + ba 
+#      str =  t + 't' + ta + ' ' + b + 'b' + ba 
 #    end
     def rank_generator 
     [
@@ -49,14 +50,14 @@ module Perseus
       :rank_prev_heat
     ]
     end
-  end  
+  end
 end
 
 module Perseus  
   module MediaRunner
     # Instantiate database access
-    DB = Sequel.connect(ENV['DATABASE_URL'] || "postgres://timhatch@localhost:5432/test")
-#    DB = Sequel.connect(ENV['DATABASE_URL'] || "postgres://postgres@melody.local:5432/test")
+    DB = Sequel.connect(ENV['DATABASE_URL'] || 'postgres://timhatch@localhost:5432/test')
+#    DB = Sequel.connect(ENV['DATABASE_URL'] || 'postgres://postgres@melody.local:5432/test')
     DB.extension :pg_array, :pg_json          # Needed to insert arrays
     Sequel.extension :pg_array_ops  # Needed to query stored arrays
     Sequel.extension :pg_json
@@ -90,7 +91,7 @@ module Perseus
     def self.semifinal_results params
       params = Hash[params.map{ |(k,v)| [k.to_sym,v.to_i] }]
       params[:route] = 2
-#      p params
+#     p params
 
       DB[:Results]
       .where(params)
@@ -128,7 +129,7 @@ module Perseus
     end
 
     def self.parse_result type, result
-      regex   = Regexp.new "#{type}([0-9]{1,})"
+      regex   = Regexp.new '#{type}([0-9]{1,})'
       matched = regex.match(result)
       if matched
         scored_attempts = matched.captures.to_a.first.to_i
@@ -143,11 +144,11 @@ module Perseus
       b_arr = []
       a_arr = []
       (1..4).each do |i|
-        key = "p"+i.to_s
-        val = json.nil? ? "" : json[key]
-        t_arr << parse_result("t", val)
-        b_arr << parse_result("b", val)
-        a_arr << parse_result("a", val)
+        key = 'p' + i.to_s
+        val = json.nil? ? '' : json[key]
+        t_arr << parse_result('t', val)
+        b_arr << parse_result('b', val)
+        a_arr << parse_result('a', val)
       end
       t_arr + b_arr + a_arr
     end
@@ -164,32 +165,32 @@ module Perseus
       DB.create_table! :TTFinl, { as: self.final_results(params), temp: true }
       
       DB[:TTSemi]
-      .select(:Climbers__per_id,:lastname, :firstname, :nation)
-      .select_append(:q_rank, :q_t, :q_ta, :q_b)
-      .select_append(:s_rank, :s_sn, :s_array, :s_rjson)
-      .select_append(:f_rank, :f_sn, :f_array, :f_rjson)
-      .left_join(:Climbers, :per_id => :per_id)
-      .left_join(:TTQual, :per_id => :per_id)
-      .left_join(:TTFinl, :per_id => :per_id)
-      .order([:f_rank, :s_rank])
-      .all
+        .select(:Climbers__per_id,:lastname, :firstname, :nation)
+        .select_append(:q_rank, :q_t, :q_ta, :q_b)
+        .select_append(:s_rank, :s_sn, :s_array, :s_rjson)
+        .select_append(:f_rank, :f_sn, :f_array, :f_rjson)
+        .left_join(:Climbers, :per_id => :per_id)
+        .left_join(:TTQual, :per_id => :per_id)
+        .left_join(:TTFinl, :per_id => :per_id)
+        .order([:f_rank, :s_rank])
+        .all
     end
-    
-    # Create a consolidated list of results for Q/S/F 
+
+    # Create a consolidated list of results for Q/S/F
     # @params: wet_id, grp_id
     # @return: csv file
     #
     def export_consolidated_results params
-      filename = "results_#{params[:wet_id].to_s}_#{params[:grp_id].to_s}.csv"
+      filename = 'results_#{params[:wet_id].to_s}_#{params[:grp_id].to_s}.csv'
       
-      File.new(filename, "w") unless File.exists?(filename)
-      File.open(filename,"w") do |file|
+      File.new(filename, 'w') unless File.exists?(filename)
+      File.open(filename,'w') do |file|
         
-        file.write "per_id\,lastname\,firstname\,nation\,q_rank\,q_t\,q_ta\,q_b\," <<    
-        "s_rank\,s_sn\,s_t\,s_ta\,s_b\,s_ba\,s_t1\,s_t2\,s_t3\,s_t4\," <<
-        "s_b1\,s_b2\,s_b3\,s_b4\,s_a1\,s_a2\,s_a3\,s_a4\," <<
-        "f_rank\,f_sn\,f_t\,f_ta\,f_b\,f_ba\,f_t1\,f_t2\,f_t3\,f_t4\," <<
-        "f_b1\,f_b2\,f_b3\,f_b4\,f_a1\,f_a2\,f_a3\,f_a4\n"        
+        file.write 'per_id\,lastname\,firstname\,nation\,q_rank\,q_t\,q_ta\,q_b\,' <<    
+        's_rank\,s_sn\,s_t\,s_ta\,s_b\,s_ba\,s_t1\,s_t2\,s_t3\,s_t4\,' <<
+        's_b1\,s_b2\,s_b3\,s_b4\,s_a1\,s_a2\,s_a3\,s_a4\,' <<
+        'f_rank\,f_sn\,f_t\,f_ta\,f_b\,f_ba\,f_t1\,f_t2\,f_t3\,f_t4\,' <<
+        'f_b1\,f_b2\,f_b3\,f_b4\,f_a1\,f_a2\,f_a3\,f_a4\n'        
         
         data = update_consolidated_results(params)      
         data.each do |row|
@@ -210,25 +211,26 @@ module Perseus
     # age groups.
     #
     def export_results params, max_age: 99, min_age: 10
-      filename = "results_#{params[:grp_id].to_s}_age_#{max_age}.csv"
+      filename = 'results_#{params[:grp_id].to_s}_age_#{max_age}.csv'
 
-      File.new(filename, "w") unless File.exists?(filename)
-      File.open(filename,"w") do |file|
-        year = Sequel.cast(Date.today, DateTime).extract(:year).cast(Integer)        
+      File.new(filename, 'w') unless File.exists?(filename)
+      File.open(filename, 'w') do |file|
+        year = Sequel.cast(Date.today, DateTime).extract(:year).cast(Integer)
         data = DB[:Results]
-        .where(params)
-        .where{birthyear > year - max_age}
-        .select(:lastname, :firstname, :nation)
-        .select_append(
-          Sequel.pg_array_op(:sort_values)[1].as(:q_t),
-          Sequel.pg_array_op(:sort_values)[2].as(:q_ta),
-          Sequel.pg_array_op(:sort_values)[3].as(:q_b))
-        .select_append{
-          rank.function.over(order: Perseus::CWIFResultsModus.rank_generator)
-        }
-        .join(:Climbers, :per_id => :per_id)
-        
-        data.all.each { |row| file.write(row.values.to_csv) }           
+               .where(params)
+               .where { birthyear > year - max_age }
+               .select(:lastname, :firstname, :nation)
+               .select_append(
+                 Sequel.pg_array_op(:sort_values)[1].as(:q_t),
+                 Sequel.pg_array_op(:sort_values)[2].as(:q_ta),
+                 Sequel.pg_array_op(:sort_values)[3].as(:q_b)
+               )
+               .select_append {
+                 rank.function.over(order: Perseus::CWIFResultsModus.rank_generator)
+               }
+               .join(:Climbers, :per_id => :per_id)
+
+        data.all.each { |row| file.write(row.values.to_csv) }
       end
     end
   end
