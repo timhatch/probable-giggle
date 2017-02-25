@@ -45,7 +45,9 @@ const generateCSVArray = () => {
         attempts.push(r.result_jsonb[key].t)
       }
     } catch(e) { console.log('error') }
-    return [r.per_id, r.lastname, r.firstname, r.start_order, r.result_rank].concat(attempts)
+    return [r.per_id, r.lastname, r.firstname, r.nation, r.start_order, r.result_rank]
+      .concat(r.sort_values)
+      .concat(attempts)
   })
 }
 
