@@ -213,7 +213,7 @@ module Perseus
       def data
         DB[:Session].first
       end
-      
+
       # Update the Session authorisation parameter
       # @params
       # - auth  - a string in the format 'sessionid=sljhfgagagfhjkdsgv'
@@ -273,15 +273,15 @@ module Perseus
 
       # Helper method to import competitors into the local database
       # The "replace" operator is not supported for postgres databases, so use a workaround
-      # We assume that the compatitors parameter is an array of hash objects, each object
+      # We assume that the competitors parameter is an array of hash objects, each object
       # containing the following parameters:
       # per_id, lastname, firstname, federation, nation, birthyear
-      # NOTE: The hash contents are assumed to be string (ot symbol) based. This works for the
-      # eGroupware response
+      # NOTE: The hash contents are assumed to be STRING (NOT SYMBOL) based. This works for the
+      # eGroupware response and for headed CSV files
       def insert competitors
         competitors.each do |person|
           record = query(person)
-          break if record.first
+          next if record.first
           record.insert(
             per_id:    person['per_id'].to_i,
             lastname:  person['lastname'],
