@@ -157,7 +157,7 @@ module Perseus
     # TODO: Define this
     #
     def self.compose_result_ui_data
-      puts 'Not Yet Implemented'
+      puts 'Not Implemented'
     end
 
     module_function
@@ -199,19 +199,20 @@ module Perseus
     # (submits data for a single competitor / multiple boulders)
     # HACK: NOT COMPLETE / TESTED. DO NOT USE.
     def ranking_result_ui authorisation, result
-      url  = 'https://ifsc.egroupware.net/egw/json.php'
-      auth = { 'Cookie' => authorisation }
-      data = compose_result_ui_data(result)
-      begin
-        options = Hash[
-          query: { menuaction: 'ranking.ranking_result_ui.ajax_update',
-                   json_data: JSON.generate(data) },
-          headers: auth]
-        HTTParty.post(url, options)
-      rescue
-        puts 'Exception raised in EGroupwarePrivateAPI:ranking_result_ui'
-        nil
-      end
+      puts 'Not Implemented'
+      # url  = 'https://ifsc.egroupware.net/egw/json.php'
+      # auth = { 'Cookie' => authorisation }
+      # data = compose_result_ui_data(result)
+      # begin
+      #   options = Hash[
+      #     query: { menuaction: 'ranking.ranking_result_ui.ajax_update',
+      #              json_data: JSON.generate(data) },
+      #     headers: auth]
+      #   HTTParty.post(url, options)
+      # rescue
+      #   puts 'Exception raised in EGroupwarePrivateAPI:ranking_result_ui'
+      #   nil
+      # end
     end
   end
 end
