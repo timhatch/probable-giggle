@@ -20,7 +20,10 @@ const fetchResults = params => {
     method: 'GET', 
     json: true, 
     body: { wet_id: params.wet_id, grp_id: params.grp_id, route: params.route }  
-  }).then( r => r.body.forEach((x) => results.push(x)))
+  }).then( r => r.body.forEach((x) => { 
+    x.grp_id = params.grp_id
+    results.push(x)
+  }))
 }
 
 // Handle data returned from an EventStream source
@@ -45,7 +48,7 @@ const generateCSVArray = () => {
         attempts.push(r.result_jsonb[key].t)
       }
     } catch(e) { console.log('error') }
-    return [r.per_id, r.lastname, r.firstname, r.nation, r.start_order, r.result_rank]
+    return [r.per_id, r.lastname, r.firstname, r.nation, r.grp_id, r.start_order, r.result_rank]
       .concat(r.sort_values)
       .concat(attempts)
   })
