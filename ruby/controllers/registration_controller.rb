@@ -20,7 +20,7 @@ module Perseus
     before do
       params.keys.each { |k| params[k.to_sym] = params.delete(k) }
     end
-    
+
     # Test Route
     post '/login' do
       sessionid   = Perseus::EGroupwareSessionAPI.login(login: 'tim', passwd: 'mockpo2014')
@@ -41,8 +41,8 @@ module Perseus
     # - a csv file
     # REVIEW: This function not yet tested
     post '/file' do
-      data = CSVParser.parse_csv_file(file: params.delete(:file))
-      LocalDBConnection::Competitors.insert(data) ? 200 : 501
+      data = Perseus::CSVParser.parse_csv_file(file: params.delete(:file))
+      Perseus::LocalDBConnection::Competitors.insert(data) ? 200 : 501
     end
 
     # Fetch a list of climbers from eGroupware (actually fetches the list of climbers registered
@@ -50,10 +50,10 @@ module Perseus
     # @params
     # - wet_id
     # This method simply passes the require parameters to the EGroupwarePublicAPI.get_starters
-    # where they are checked.
+    # method for validation and action
     post '/ifsc' do
-      data = EGroupwarePublicAPI.get_starters(params)
-      LocalDBConnection::Competitors.insert(data) ? 200 : 501
+      data = Perseus::EGroupwarePublicAPI.get_starters(params)
+      Perseus::LocalDBConnection::Competitors.insert(data) ? 200 : 501
     end
   end
 end
