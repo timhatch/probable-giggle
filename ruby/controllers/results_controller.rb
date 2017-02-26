@@ -47,7 +47,7 @@ module Perseus
       params[:wet_id] = LocalDBConnection::Session.data[:wet_id]
       haml :nexus, locals: params
       # OPTION B - Define an instance variable and replace "#{params[:wet_id]}" by
-      # "#{@comptetition}"
+      # "#{@competition}"
       # @competition = LocalDBConnection::Session.data[:wet_id]
       # haml :nexus
     end
