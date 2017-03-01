@@ -30,9 +30,8 @@ module Perseus
     # line
     # REVIEW: This function not yet tested
     post '/file' do
-      puts params
       params[:competitors] = Perseus::CSVParser.parse_csv_file(file: params.delete(:file))
-      #Perseus::LocalDBConnection::Startlist.insert(params) ? 200 : 501
+      Perseus::LocalDBConnection::Startlist.insert(params) ? 200 : 501
     end
 
     # Import a startlist for some given competition/category/round from eGroupware
