@@ -94,8 +94,8 @@ module Perseus
       # }
       def forecast params
         # Create a temporary database from the query data
-        # data = Perseus::LocalDBConnection::Results.result_route(params)
-        DB.create_table!(:Forecast, as: DB[:Results].where(params))
+        dataset = Perseus::LocalDBConnection::Results.get_result(params)
+        DB.create_table!(:Forecast, as: dataset, temp: true)
 
         @results = DB[:Forecast].all
 
@@ -103,6 +103,7 @@ module Perseus
         generate_ranking(:max_rank, :max_result, :min_result)
         generate_ranking(:min_rank, :min_result, :max_result)
         @results.each { |x| p x }
+        @results.to_json
       end
     end
   end
