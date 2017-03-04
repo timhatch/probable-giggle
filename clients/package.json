@@ -12,6 +12,8 @@
     "q": "^1.4.1" 
   },
   "scripts": {
-    "csv": "node scripts/stream_to_csv.js"
+    "ifsc": "node scripts/stream_ifsc.js",
+    "cwif": "node scripts/stream_cwif.js",
+    "stats": "node scripts/route_stats.js"
   }
 }

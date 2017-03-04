@@ -17,6 +17,8 @@ Edit the params.js file to define
 - the location of the output file
 - the competition, group and route parameters to be included
 
+- run options are "ifsc" for standard format results and "cwif" for cwif qualification results
 ~~~
-npm run csv
+npm run ifsc    
+npm run cwif
 ~~~
