@@ -47,11 +47,11 @@ module Perseus
 
       # Update the sort_value parameter used for the forecast
       #
-      def self.sort_values per_id, data
+      def self.update_sort_values per_id, data
         DB[:Forecast].where(per_id: per_id).update(sort_values: Sequel.pg_array(data))
       end
 
-      # 
+      #
       def self.calculate_rank per_id
         DB[:Forecast]
           .select(:per_id, :sort_values, :rank_prev_heat)
@@ -73,12 +73,12 @@ module Perseus
       # "max_result" against the "min_result" for the rest of the field
       #
       def self.generate_ranking ranking, test_key, base_key
-        @results.each { |r| sort_values(r[:per_id], r[base_key]) }
+        @results.each { |r| update_sort_values(r[:per_id], r[base_key]) }
 
         @results.each do |r|
-          sort_values(r[:per_id], r[test_key])
+          update_sort_values(r[:per_id], r[test_key])
           r[ranking] = calculate_rank(r[:per_id])
-          sort_values(r[:per_id], r[base_key])
+          update_sort_values(r[:per_id], r[base_key])
         end
       end
 
