@@ -238,3 +238,45 @@ end
 
 #params = {wet_id: 2, grp_id: 5, route: 1}
 #p Perseus::MediaRunner.export_results params, max_age: 19
+
+
+
+# # Experimental methods
+# # Fetch stats for a specific boulder, i.e.
+# # NUmber of climbers attempted
+# # NUmber of attempts made
+# # Number of zones
+# # Number of tops
+# module Perseus
+#   module LocalDBConnection
+#     module Experiments
+#       module_function
+#
+#       def attempts arr, val
+#         return if [0, nil].include? val['a']
+#         arr[0] += 1
+#         arr[1] += val['a']
+#         arr[2] += 1 unless [0, nil].include? val['b']
+#         arr[3] += 1 unless [0, nil].include? val['t']
+#       end
+#
+#       def results
+#         DB[:Results]
+#           .where(wet_id: 99, route: 2, grp_id: 5)
+#           .all
+#           .map { |x| x[:result_jsonb] }
+#       end
+#
+#       def test bloc
+#         arr = [0, 0, 0, 0]
+#         results.each do |r|
+#           next if r.nil?
+#           attempts(arr, r[bloc])
+#         end
+#         p arr
+#       end
+#     end
+#   end
+# end
+#
+# Perseus::LocalDBConnection::Experiments.test 'p2'
