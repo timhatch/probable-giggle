@@ -24,24 +24,25 @@ module Perseus
 
       # Synthesise a "best" result by assuming flashes for any yet unstarted boulders
       #
-      def self.synthesise_result result
+      def self.max_result result
         flash = { 'a' => 1, 'b' => 1, 't' => 1 }
         blocs = %w(p1 p2 p3 p4)
         blocs.each do |x|
           result[x] ||= flash
           result[x]['a'].nil? && result[x] = flash
         end
+        result
       end
 
       # Evaluate the potential best result for a competitor
+      # Clone :result_jsonb so that we preserve the original result
       #
       def self.calculate_max_result
         @results.each do |r|
           next if r[:result_jsonb].nil?
-          r[:comparator] = Hash[r[:result_jsonb]]
-          synthesise_result(r[:comparator])
           r[:min_result] = r.delete(:sort_values)
-          r[:max_result] = Perseus::IFSCBoulderModus.sort_values(r.delete(:comparator))
+          r[:max_result] = Perseus::IFSCBoulderModus
+                           .sort_values(max_result(Hash[r[:result_jsonb]]))
         end
       end
 
