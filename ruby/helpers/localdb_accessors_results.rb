@@ -29,7 +29,7 @@ module Perseus
           .join(:Climbers, [:per_id])
           .where(params)
           .select(:per_id, :lastname, :firstname, :nation, :start_order,
-                  :sort_values, :result_jsonb)
+                  :rank_prev_heat, :sort_values, :result_jsonb)
           .select_append {
             rank.function.over(
               partition: [:wet_id, :grp_id, :route],
