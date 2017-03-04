@@ -6,11 +6,7 @@ require 'httparty'
 require 'json'
 require 'date'
 
-# NOTE: This require statement is needed for stand-alone testing. It may not be needed when
-#   this module is called from a running Sinatra application as all helper modules are included
-#   through config.ru
-require_relative './lanstorage_helper'
-
+# NOTE: require_relative statements are needed for stand-alone testing
 # NOTE: To test event streams, we'll can use curl
 #   curl -v --request GET -H "Accept: text/event-stream" http://10.0.2.10/broadcast/result
 #   sets up a terminal based event source receiver connected to the test server. Bonjour /
