@@ -16,9 +16,6 @@ require_relative './ifsc_boulder_modus.rb'
 module Perseus
   module LocalDBConnection
     module Forecasts
-      # Default route parameters
-      @default_route = { wet_id: 0, grp_id: 0, route: 0 }
-
       # Notionally private methods
       private_class_method
 
@@ -74,6 +71,8 @@ module Perseus
       # "max_result" against the "min_result" for the rest of the field
       #
       def self.generate_ranking ranking, test_key, base_key
+        # TODO: Pretty sure this initial reset is unecessary, but leave it here until we can
+        # test it
         @results.each { |r| update_sort_values(r[:per_id], r[base_key]) }
 
         @results.each do |r|
@@ -102,11 +101,11 @@ module Perseus
         calculate_max_result
         generate_ranking(:max_rank, :max_result, :min_result)
         generate_ranking(:min_rank, :min_result, :max_result)
-        @results.each { |x| p x }
-        @results.to_json
+        # @results.each { |x| p x }
+        @results
       end
     end
   end
 end
 
-Perseus::LocalDBConnection::Forecasts.forecast(wet_id: 99, route: 2, grp_id: 5)
+# Perseus::LocalDBConnection::Forecasts.forecast(wet_id: 99, route: 2, grp_id: 5)
