@@ -54,8 +54,8 @@ module Perseus
 
     # Fetch a forecast "best_possible_outcome" for a route
     # params are the same as for '/route'
-    get '/forecast' do
-      LocalDBConnection::Forecasts.forecast(params).to_json
-    end
+    # get '/forecast' do
+    #   LocalDBConnection::Forecasts.forecast(params).to_json
+    # end
   end
 end
