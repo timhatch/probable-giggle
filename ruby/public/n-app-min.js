@@ -327,9 +327,12 @@ App.ViewModel = function(comp){
       this.model.fetch(this.mergeParams({ start_order: this.start_order }))
       .then(function(){
         try {
-          if (!this.model.data) { this.reset() } 
+          if (!this.model.data) { this.reset() }
           else {
-            this.result   = this.model.data.result_jsonb[this.key()] || { a: null, b: null, t: null }
+            var bloc = this.key()
+            this.model.data.result_jsonb = this.model.data.result_jsonb || {} 
+            window.console.log(bloc)
+            this.result   = this.model.data.result_jsonb[bloc] || { a: null, b: null, t: null }
             this.fullname = this.model.data.lastname+', '+this.model.data.firstname
           }
         }
