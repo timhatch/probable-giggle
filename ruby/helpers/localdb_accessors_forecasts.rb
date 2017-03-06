@@ -37,7 +37,6 @@ module Perseus
       def self.calculate_max_result
         @results.each do |r|
           next if r[:result_jsonb].nil?
-          r[:min_result] = r.delete(:sort_values)
           r[:max_result] = Perseus::IFSCBoulderModus
                            .sort_values(max_result(Hash[r[:result_jsonb]]))
         end
@@ -71,8 +70,9 @@ module Perseus
       # "max_result" against the "min_result" for the rest of the field
       #
       def self.generate_ranking ranking, test_key, base_key
-        # TODO: Pretty sure this initial reset is unecessary, but leave it here until we can
-        # test it
+        # TODO: Replace whatever is currently in the db as sort_values by the key that
+        # we're using as a "base", i.e. :sort_values if we're testing a maxima, and
+        # :max_result if we're testing a minima
         @results.each { |r| update_sort_values(r[:per_id], r[base_key]) }
 
         @results.each do |r|
@@ -80,6 +80,8 @@ module Perseus
           r[ranking] = calculate_rank(r[:per_id])
           update_sort_values(r[:per_id], r[base_key])
         end
+        # When we've finished, restore the original sort data
+        @results.each { |r| update_sort_values(r[:per_id], r[:sort_values]) }
       end
 
       module_function
@@ -94,18 +96,25 @@ module Perseus
       def forecast params
         # Create a temporary database from the query data
         dataset = Perseus::LocalDBConnection::Results.get_result(params)
-        DB.create_table!(:Forecast, as: dataset, temp: true)
+        DB.create_table!(:Forecast, as: dataset)
 
-        @results = DB[:Forecast].all
+        @results = dataset.all
 
         calculate_max_result
-        generate_ranking(:max_rank, :max_result, :min_result)
-        generate_ranking(:min_rank, :min_result, :max_result)
+        generate_ranking(:max_rank, :max_result, :sort_values)
+        generate_ranking(:min_rank, :sort_values, :max_result)
         # @results.each { |x| p x }
         @results
+      end
+
+      def reset
+        DB[:Results]
+          .where(wet_id: 99, route: 2)
+          .update(sort_values: nil, result_jsonb: nil)
       end
     end
   end
 end
 
 # Perseus::LocalDBConnection::Forecasts.forecast(wet_id: 99, route: 2, grp_id: 5)
+# Perseus::LocalDBConnection::Forecasts.reset
