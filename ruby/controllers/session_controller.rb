@@ -22,19 +22,13 @@ module Perseus
     # Fetch session data a JSON object containing wet_id and auth parameters
     #
     get '/' do
-      Perseus::LocalDBConnection::Session.data.to_json
+      Perseus::LocalDBConnection::Session.get.to_json
     end
 
     # Update Session[:wet_id' with a provided parameter
     #
-    post '/wet_id' do
-      Perseus::LocalDBConnection::Session.competition(params) ? 200 : 501
-    end
-
-    # Update Session[:auth] with a provided parameter
-    #
-    post '/auth' do
-      Perseus::LocalDBConnection::Session.authorisation(params) ? 200 : 501
+    post '/' do
+      Perseus::LocalDBConnection::Session.set(params) ? 200 : 501
     end
 
     # Update Session[:auth] by connecting to eGroupware with login credentials

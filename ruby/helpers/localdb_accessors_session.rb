@@ -15,26 +15,25 @@ module Perseus
       module_function
 
       # Get the session data
-      def data
+      #
+      def get
         DB[:Session].first
       end
 
-      # Update the Session authorisation parameter
-      # @params
-      # - auth  - a string in the format 'sessionid=sljhfgagagfhjkdsgv'
-      def authorisation params
-        params.select! { |_k, v| /sessionid=/.match(v.to_s) }
-        DB[:Session].update(auth: params[:auth] || nil)
-      end
-
-      # Update the session wet_id parameter
-      # @params
+      # Update the Session with the provided parameters
+      # @params (both optional)
       # - wet_id - the numeric id for the competition
-      def competition params
-        DB[:Session].update(wet_id: params[:wet_id].to_i || nil)
+      # - auth   - a string in the format 'sessionid=sljhfgagagfhjkdsgv'
+      #
+      def set params
+        query = {}
+        params.key?(:wet_id) && query[:wet_id] = params[:wet_id].to_i
+        params.key?(:auth)   && query[:auth]   = params[:auth]
+        DB[:Session].update(query) unless query.empty?
       end
 
       # Clear (reset) the session parameters
+      #
       def reset
         DB[:Session].update(wet_id: nil, auth: nil)
       end

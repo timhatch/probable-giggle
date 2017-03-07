@@ -14,25 +14,13 @@ module Perseus
     helpers Perseus::EGroupwarePublicAPI
     helpers Perseus::LocalDBConnection
     helpers Perseus::CSVParser
-    helpers Perseus::EGroupwareSessionAPI
 
     # symbolize route parameters (deliberately non-recursive)
     before do
       params.keys.each { |k| params[k.to_sym] = params.delete(k) }
     end
 
-    # Test Route
-    post '/login' do
-      sessionid   = Perseus::EGroupwareSessionAPI.login(login: 'tim', passwd: 'mockpo2014')
-      egw_session = Perseus::EGroupwareSessionAPI.ajax_exec(sessionid)
-      puts sessionid
-      puts egw_session
-      Perseus::EGroupwareSessionAPI.set_calendar(sessionid, egw_session) ? 200 : 501
-      Perseus::EGroupwareSessionAPI.set_comp(sessionid, egw_session) ? 200 : 501
-      Perseus::LocalDBConnection::Session.authorisation(auth: sessionid) ? 200 : 501
-    end
-
-    # Route handling
+    # ROUTES
     #
     # Add to the list of registered climbers by reading from a CSV formatted file
     # Assume that the CSV file contains the following data:

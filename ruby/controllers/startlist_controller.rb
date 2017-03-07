@@ -20,6 +20,8 @@ module Perseus
       params.keys.each { |k| params[k.to_sym] = params.delete(k) }
     end
 
+    # ROUTES
+    #
     # Create a startlist from a CSV formatted file
     # params = { wet_id: 1572, grp_id: 5, route: 2 }
     # Assume that the CSV file contains the following data:
