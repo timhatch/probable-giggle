@@ -10,7 +10,7 @@
 environment: production
 # /usr/share/nginx/www is the default location for NGINX on raspberry pi
 # Change this to the specific file hosting location
-chdir: /Users/timhatch/sites/flashresults/ruby/
+chdir: /Users/timhatch/sites/perseus_main/ruby/
 address: 127.0.0.1
 # On Raspberry Pi run as root 
 # user: root
@@ -22,8 +22,8 @@ group: staff
 # port identified here should be the first listed  
 port: 5000
 # Change this to the specific file hosting location
-rackup: /Users/timhatch/sites/flashresults/ruby/config.ru
-pid: /Users/timhatch/sites/flashresults/ruby/tmp/pids/thin.pid
+rackup: /Users/timhatch/sites/perseus_main/ruby/config.ru
+pid: /Users/timhatch/sites/perseus_main/ruby/tmp/pids/thin.pid
 # log: /path/to/my/app/thin.log
 max_conns: 128
 timeout: 30
