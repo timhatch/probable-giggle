@@ -272,6 +272,10 @@ module Perseus
     module_function
 
     # Login to eGroupware and fetch the sessionid parameter
+    # @params
+    # - login   (name)
+    # - passwd  (password)
+    #
     def login params
       url      = 'https://ifsc.egroupware.net/egw/login.php'
       defaults = { logindomain: 'ifsc-climbing.org', passwd_type: 'text', account_type: 'u' }
@@ -358,3 +362,5 @@ module Perseus
     end
   end
 end
+
+# p Perseus::EGroupwareSessionAPI.login({ login: 'tim', passwd: 'mockpo2014' })
