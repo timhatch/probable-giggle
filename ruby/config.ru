@@ -14,8 +14,7 @@ map('/results')      { run Perseus::ResultsController }
 map('/registration') { run Perseus::RegistrationController }
 map('/startlist')    { run Perseus::StartlistController }
 map('/displays')     { run Perseus::DisplayController }
+map('/session')      { run Perseus::SessionController }
 
-# map('/competition')  { run Perseus::CompetitionController }
-# map('/statistics')   { run Perseus::StatisticsController }
-# Add a test controller to support Server-Side Events for real live updates
-# map('/live')         { run Perseus::EventController }
+# Bespoke controller for handling the CWIF Qualification
+map('/cwif')         { run Perseus::CWIFController }
