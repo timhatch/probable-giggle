@@ -41,7 +41,15 @@ module Perseus
       ResultsHandler.handle_result_single(params) ? 200 : 501
     end
 
+    # ROUTES
+    # Serve a desktop-based results editor
+    #
+    get '/' do
+      haml :results
+    end
+
     # Serve a data input sheet formatted for a Nexus Tablet, IFSC scoring format
+    #
     get '/mobile' do
       # OPTION A - Add the wet_id is passed to the params hash (must be named "params")
       params[:wet_id] = LocalDBConnection::Session.data[:wet_id]
@@ -51,11 +59,5 @@ module Perseus
       # @competition = LocalDBConnection::Session.data[:wet_id]
       # haml :nexus
     end
-
-    # Fetch a forecast "best_possible_outcome" for a route
-    # params are the same as for '/route'
-    # get '/forecast' do
-    #   LocalDBConnection::Forecasts.forecast(params).to_json
-    # end
   end
 end

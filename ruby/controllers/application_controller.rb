@@ -36,21 +36,5 @@ module Perseus
       end
       Hash[hostname: Socket.gethostname, address: addr].to_json
     end
-
-    # symbolize route paramaters (deliberately non-recursive)
-    before do
-      params.keys.each { |k| params[k.to_sym] = params.delete(k) }
-    end
-
-    get '/session' do
-      LocalDBConnection::Session.data.to_json
-    end
-
-    post '/session/wet_id' do
-      LocalDBConnection::Session.competition(params) ? 200 : 501
-    end
-    post '/session/auth' do
-      LocalDBConnection::Session.authorisation(params) ? 200 : 501
-    end
   end
 end
