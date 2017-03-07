@@ -13,7 +13,7 @@ module Perseus
     helpers Perseus::LocalDBConnection
     helpers Perseus::EGroupwareSessionAPI
 
-    # symbolize route paramaters (deliberately non-recursive)
+    # symbolize route parameters (deliberately non-recursive)
     #
     before do
       params.keys.each { |k| params[k.to_sym] = params.delete(k) }

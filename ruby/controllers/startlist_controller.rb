@@ -10,13 +10,12 @@
 
 module Perseus
   class StartlistController < Perseus::ApplicationController
-
     # HELPERS
     helpers Perseus::EGroupwarePublicAPI
     helpers Perseus::LocalDBConnection
     helpers Perseus::CSVParser
 
-    # symbolize route paramaters (deliberately non-recursive)
+    # symbolize route parameters (deliberately non-recursive)
     before do
       params.keys.each { |k| params[k.to_sym] = params.delete(k) }
     end
