@@ -35,7 +35,7 @@ module Perseus
     #
     post '/login' do
       sessionid = Perseus::EGroupwareSessionAPI.login(params)
-      Perseus::LocalDBConnection::Session.authorisation(auth: sessionid) ? 200 : 501
+      Perseus::LocalDBConnection::Session.set(auth: sessionid) ? 200 : 501
     end
 
     # Reset the competition and authorisation parameters
