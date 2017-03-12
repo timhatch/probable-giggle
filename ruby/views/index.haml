@@ -1,41 +1,11 @@
 !!! 5
 %html
   %head
-    %title  Index Page
-    / Meta Tags
-    %meta{ :charset=>'UTF-8'}
-    %meta{ :name=>'viewport', :content=>'width=device-width, initial-scale=1.0' }
-    / CSS
-    / %link{ rel: 'stylesheet', href: './stylesheets/r.css' }
-
-  %body#inner
-    %h2 Results Links
-    %div
-      %a{ title: "registration", href: "/registration" } Registration (WIP)
-    
-    %div
-      %a{ title: "results", href: "/results" } Group Result UI
-    %div
-      %a{ title: "mobile results", href: "/results/f" } Boulder Result UI
-    %div
-      %a{ title: "mobile results", href: "/results/m" } Tablet Result UI
-    
-    %h2 Display Links
-    %div
-      The following two links work, but require manual assignment of the wet_id parameter within code. Check this before use. </br></br>Specifically, line 2283 in THBoulderApp.min.js will need to be modified to introduce the correct competition for the eGroupware display and line 17 of display_controller.rb will need to be modified to introduce the correct competition for the CWIF qualification results display. Both of these manual amends can be eliminated, but that's a job for the future.</br></br>
-    %div
-      %a{ title: "eGroupware Display", href: "/displays/egw" } eGroupware Display.
-    %div
-      %a{ title: "CWIF Qualification Display", href: "/displays/cwif" } Qualification Display
-    
-    %br
-    %h2 Non-display paths
-    %div GET /statistics/boulder { wet_id, route, boulder, [grp_id, data]}
-    %div GET /statistics/round { wet_id, route, [grp_id, data]}
-    %div GET /statistics/forecast { wet_id, route, grp_id }
-    %div GET /competition { wet_id }
-    %div GET /results/person { wet_id, grp_id, route, [start_order || per_id] }
-    %div GET /results/route { wet_id, grp_id, route }
-    <br/>
-    %div POST /startlist { wet_id, grp_id, route, next_route, quota }
-    
+    %title  Admin client
+    %meta{ charset: 'UTF-8'}
+    %meta{ content: 'width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0', 
+      name: 'viewport' }
+    // Stylesheets
+    %link{ rel: 'stylesheet', href: './admin.css' }
+  %body
+    %script{ src: './admin-es6.js' }
