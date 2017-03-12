@@ -18,8 +18,9 @@ module Perseus
       # Helper method to create a startlist input
       # @params
       # - args, a hash containing :wet_id, :grp_id and :route values (common to all competitors)
-      # - person, a hash containing competitor-unique information such as :per_id, start_order
-      # NOTE: Probably need to add bib_nr here.
+      # - person, a hash containing competitor-unique information such as 'per_id', 'start_order'
+      #   NOTE: Assume that the person Hash is string rather than symbol based
+      #   NOTE: Probably need to add bib_nr here.
       def self.query args, person
         person['per_id'] = person['PerId'] unless person['PerId'].nil?
         args.merge(
@@ -58,6 +59,33 @@ module Perseus
           puts 'nil response'
         end
       end
+
+      # Simple startlist creator
+      # @params
+      # A hash containing
+      # - :quota, defining the qualifying quota
+      # - :wet_id, :grp_id, :route defining the comp, category and route FROM WHICH the
+      #   startlist is to be generated
+      # TODO: Deal with the special case of 2 starting groups
+      #
+      def self.generate params
+        quota    = params.delete(:quota) || 1
+        starters = Perseus::LocalDBConnection::Results
+                   .result_route(params)
+                   .keep_if { |x| x[:result_rank] <= quota }
+                   .reverse.map.with_index(1) { |x, i|
+                     Hash['per_id' => x[:per_id], 'start_order' => i,
+                          'rank_prev_heat' => x[:result_rank]]
+                   }
+        params[:route] += 1
+        insert(params.merge(competitors: starters))
+      end
     end
   end
 end
+
+# require_relative './localdb_accessors'
+# require_relative './localdb_accessors_results'
+# require_relative './ifsc_boulder_modus'
+
+# Perseus::LocalDBConnection::Startlist.generate({ wet_id: 99, grp_id: 5, route: 2, quota: 2 })
