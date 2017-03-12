@@ -35,3 +35,58 @@ body {
   src:  url('./fonts/bold/Roboto-Bold-webfont.woff') format('woff'),
         url('./fonts/bold/Roboto-Bold-webfont.ttf') format('truetype');
 }
+
+
+/* Main container */
+.main-800 {
+  width: 800px;
+  position: relative;
+  padding: 0 16px 16px 48px;
+  background-color: white;
+  box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.37);
+  margin: 40px auto;
+  vertical-align: top;
+}
+
+.inset {
+}
+
+/* Name and result elements */
+.name, .result {
+  margin-top: 35px;
+  font-family: Roboto, Helvetica, Arial;
+  font-size: 18px;
+  line-height: 24px;
+}
+
+.name {
+  position: absolute;
+  display: inline-block;
+}
+
+.result {
+  float: right;
+  text-align: right;
+  margin-right: 32px;
+}
+
+/* Textfield definitions */
+.narrow__textfield {
+  width: 184px !important;
+  padding-right: 16px;
+}
+
+.xsmall__textfield {
+  font-weight: light;
+  width: 104px !important;
+  padding-right: 16px;
+  margin-right: 16px !important;
+  padding-bottom: 0px !important;
+}
+
+/* Position the submit button */
+.button_container {
+  float: right;
+  margin-right: 32px;
+  margin-top: 20px;
+}

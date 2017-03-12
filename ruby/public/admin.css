@@ -35,3 +35,47 @@ body {
   src:  url('./fonts/bold/Roboto-Bold-webfont.woff') format('woff'),
         url('./fonts/bold/Roboto-Bold-webfont.ttf') format('truetype');
 }
+
+.main-600 {
+  width: 600px;
+  padding: 0 16px 16px 16px;
+  background-color: white;
+  box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.37);
+  margin: 16px auto;
+}
+
+.test001 {
+  width: 320px !important;
+}
+
+
+.test003 {
+  color: black;
+  padding: 24px 0 0 0;
+  font-family: Roboto, Helvetica, Arial;
+  font-size: 24px;
+  line-height: 29px;
+}
+
+.address {
+  display: inline-block;
+  width: 180px;
+  padding: 10px 0 10px 0;
+}
+
+.filename {
+  display: inline-block;
+  width: 200px;
+  margin-left: 6px;
+  border-bottom: 1px solid #ddd;
+}
+
+.subtitle {
+  margin: 8px 0;
+  color: rgba(0, 0, 0, 0.54);
+}
+
+.narrow__textfield {
+  width: 184px !important;
+  padding-right: 16px;
+}
