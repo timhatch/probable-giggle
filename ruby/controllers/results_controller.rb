@@ -52,7 +52,7 @@ module Perseus
     #
     get '/mobile' do
       # OPTION A - Add the wet_id is passed to the params hash (must be named "params")
-      params[:wet_id] = LocalDBConnection::Session.data[:wet_id]
+      params[:wet_id] = LocalDBConnection::Session.get[:wet_id]
       haml :nexus, locals: params
       # OPTION B - Define an instance variable and replace "#{params[:wet_id]}" by
       # "#{@competition}"
