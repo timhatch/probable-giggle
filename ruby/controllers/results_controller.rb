@@ -44,9 +44,9 @@ module Perseus
     # ROUTES
     # Serve a desktop-based results editor
     #
-    get '/' do
-      haml :results
-    end
+    # get '/' do
+    #  haml :results
+    # end
 
     # Serve a data input sheet formatted for a Nexus Tablet, IFSC scoring format
     #
@@ -56,7 +56,7 @@ module Perseus
       haml :nexus, locals: params
       # OPTION B - Define an instance variable and replace "#{params[:wet_id]}" by
       # "#{@competition}"
-      # @competition = LocalDBConnection::Session.data[:wet_id]
+      # @competition = LocalDBConnection::Session.get[:wet_id]
       # haml :nexus
     end
   end
