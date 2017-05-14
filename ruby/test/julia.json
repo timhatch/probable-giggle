@@ -1,0 +1,7 @@
+{
+  "wet_id" : 32,
+  "grp_id" : 5,
+  "route"  : 3,
+  "per_id" : 84,
+  "result_jsonb": { "p4": { "a" : 3, "b" : 0, "t": null } }
+}
