@@ -15,7 +15,7 @@ class Session < Test::Unit::TestCase
   def test_data
     # Expected Output
     resp6 = DB[:Session].first
-    assert_equal(resp6, Session.data)
+    assert_equal(resp6, Session.get)
   end
 end
 
