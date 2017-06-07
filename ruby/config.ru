@@ -13,8 +13,9 @@ map('/')             { run Perseus::ApplicationController }
 map('/results')      { run Perseus::ResultsController }
 map('/registration') { run Perseus::RegistrationController }
 map('/startlist')    { run Perseus::StartlistController }
-map('/displays')     { run Perseus::DisplayController }
 map('/session')      { run Perseus::SessionController }
 
+# Redundant map (static content served via NGINX for now)
+# map('/displays')     { run Perseus::DisplayController }
 # Bespoke controller for handling the CWIF Qualification
-map('/cwif')         { run Perseus::CWIFController }
+# map('/cwif')         { run Perseus::CWIFController }
