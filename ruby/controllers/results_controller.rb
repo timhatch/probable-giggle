@@ -50,14 +50,14 @@ module Perseus
 
     # Serve a data input sheet formatted for a Nexus Tablet, IFSC scoring format
     #
-    get '/mobile' do
-      # OPTION A - Add the wet_id is passed to the params hash (must be named "params")
-      params[:wet_id] = LocalDBConnection::Session.get[:wet_id]
-      haml :nexus, locals: params
-      # OPTION B - Define an instance variable and replace "#{params[:wet_id]}" by
-      # "#{@competition}"
-      # @competition = LocalDBConnection::Session.get[:wet_id]
-      # haml :nexus
-    end
+    # get '/mobile' do
+    #   # OPTION A - Add the wet_id is passed to the params hash (must be named "params")
+    #   params[:wet_id] = LocalDBConnection::Session.get[:wet_id]
+    #   haml :nexus, locals: params
+    #   # OPTION B - Define an instance variable and replace "#{params[:wet_id]}" by
+    #   # "#{@competition}"
+    #   # @competition = LocalDBConnection::Session.get[:wet_id]
+    #   # haml :nexus
+    # end
   end
 end

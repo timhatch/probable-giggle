@@ -20,9 +20,9 @@ module Perseus
 
     # Handle the application's root view
     #
-    get '/' do
-      haml :index
-    end
+    # get '/' do
+    #   haml :index
+    # end
 
     # Get connection details for the local results server
     # See
