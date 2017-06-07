@@ -112,9 +112,15 @@ module Perseus
           .where(wet_id: 99, route: 2)
           .update(sort_values: nil, result_jsonb: nil)
       end
+
+      def duplicate_results
+        dataset = Perseus::LocalDBConnection::Results.get_result(wet_id: 31, route: 3)
+        DB.create_table!(:Forecast, as: dataset)
+      end
     end
   end
 end
 
 # Perseus::LocalDBConnection::Forecasts.forecast(wet_id: 99, route: 2, grp_id: 5)
-# Perseus::LocalDBConnection::Forecasts.reset
+# Perseus::LocalDBConnection::Forecasts.reset
+# Perseus::LocalDBConnection::Forecasts.duplicate_results
