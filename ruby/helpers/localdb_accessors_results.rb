@@ -104,6 +104,12 @@ module Perseus
           result_jsonb: Sequel.pg_jsonb(new_result)
         )
       end
+
+      def results_lock params
+        args = Hash[@default_route.map { |k, v| [k, params[k].to_i || v] }]
+        lock = params[:locked] || true
+        DB[:Results].where(args).update(locked: lock)
+      end
     end
   end
 end
