@@ -287,8 +287,9 @@ module Perseus
           .select { |x| /sessionid=/.match(x) }
           .first
           .strip
-      rescue
+      rescue StandardError => e
         puts 'Exception raised in EGroupwareSessionAPI.login'
+        puts e
         nil
       end
     end
