@@ -89,15 +89,16 @@ module Perseus
       #   result_jsonb: { 'p1' => { 'a' => 2, 'b' => 1, 't' => 2 }}
       # }
       def update_single params
-        args = query(params)
+        args = query(params).merge(locked: false)
         data = params[:result_jsonb] || {}
 
-        query = DB[:Results].where(args)
+        results = DB[:Results].where(args)
+        return nil if results.all.empty?
 
-        new_result = Perseus::IFSCBoulderModus.merge(query.first[:result_jsonb], data)
+        new_result = Perseus::IFSCBoulderModus.merge(results.first[:result_jsonb], data)
         sort_array = Perseus::IFSCBoulderModus.sort_values(new_result)
 
-        query.update(
+        results.update(
           sort_values: Sequel.pg_array(sort_array),
           result_jsonb: Sequel.pg_jsonb(new_result)
         )
