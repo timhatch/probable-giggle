@@ -38,7 +38,9 @@ module Perseus
     # Convert the received parameters into hash symbols and call
     # LocalDBConnection.set_result_single
     put '/person' do
-      ResultsHandler.handle_result_single(params) ? 200 : 501
+      if LocalDBConnection::Results.update_single(params)
+        ResultsHandler.broadcast_results(params) ? 200 : 501
+      end
     end
 
     # Reset a __single__ result

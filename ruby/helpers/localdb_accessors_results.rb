@@ -83,6 +83,7 @@ module Perseus
       # Update results for a __single__ competitor
       # Updates (a) the result_jsonb property for the specific set of results and (b) the
       # sort_values property used for ranking
+      # No update is posted if the results in question are locked on the server
       #
       # @params = {
       #   wet_id: 0, grp_id: 0, route: 0, per_id: 0,
