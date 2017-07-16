@@ -105,6 +105,8 @@ module Perseus
         )
       end
 
+      # Lock or unlock results (if no :locked parameter is provided the relevant results will be
+      # locked automatically
       def results_lock params
         args = Hash[@default_route.map { |k, v| [k, params[k].to_i || v] }]
         lock = params[:locked] || true
