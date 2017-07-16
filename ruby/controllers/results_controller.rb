@@ -41,12 +41,12 @@ module Perseus
       ResultsHandler.handle_result_single(params) ? 200 : 501
     end
 
-    # ROUTES
-    # Serve a desktop-based results editor
-    #
-    # get '/' do
-    #  haml :results
-    # end
+    # Reset a __single__ result
+    # Convert the received parameters into hash symbols and call
+    # LocalDBConnection.result_reset
+    put '/reset' do
+      LocalDBConnection::Results.result_reset(params) ? 200 : 501
+    end
 
     # Serve a data input sheet formatted for a Nexus Tablet, IFSC scoring format
     #

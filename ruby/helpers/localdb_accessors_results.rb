@@ -57,6 +57,15 @@ module Perseus
         DB[:Results].where(args).delete
       end
 
+      # Helper method to reset results (i.e. to restore the state of the climber to the same
+      # as that of a non-starter
+      def result_reset params
+        args = query(params)
+        DB[:Results]
+          .where(args)
+          .update(sort_values: nil, result_jsonb: nil)
+      end
+
       # Fetch results for a single person (i.e. for a single climber across the round)
       def result_person params
         args = query(params)
