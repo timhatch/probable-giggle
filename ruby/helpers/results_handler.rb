@@ -44,12 +44,20 @@ module Perseus
       nil
     end
 
+    module_function
+
+    # Broadcast route results to localhost
+    def broadcast_route params
+      results = Perseus::LocalDBConnection::Results.result_route(params)
+      Thread.new { broadcast_to_localhost('/broadcast/result', results) }
+    end
+
     # Broadcast results to localhost and egroupware
     # HACK: We contain each broadcast message within a separate thread in order to avoid to
     #   mitigate any network latency effects. THis should in theory be unecessary for broadcasts
     #   to localhost but on the other hand, if such broadcasts have little or no latency then
     #   the relevant threads will be short lived.
-    def self.broadcast_results params
+    def broadcast_results params
       return 0 unless Perseus::LocalDBConnection::Results.result_person(params)
 
       # REVIEW: Technically we need only broadcast the pverall result when a bpnus or
@@ -64,19 +72,12 @@ module Perseus
                               .select { |x| x[:per_id] == params[:per_id] }
                               .first
                               .merge(result_jsonb: params[:result_jsonb])
+                              .merge(active: params[:result_jsonb].keys.first)
+      # TODO: Think this merge is used as some clients expect only a single result?
+      # p updated_person_result
       # Use the endpoint /broadcast/stream for the live output stream
       Thread.new { broadcast_to_localhost('/broadcast/stream', updated_person_result) }
       Thread.new { broadcast_to_egroupware(params) }
-    end
-
-    module_function
-
-    # Handle a results update coming into the local server
-    # Pretty much all the work is done in private functions
-    def handle_result_single params
-      # Update the local server
-      LocalDBConnection::Results.update_single(params)
-      broadcast_results(params)
     end
   end
 end

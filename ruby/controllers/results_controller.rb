@@ -47,13 +47,13 @@ module Perseus
     # Convert the received parameters into hash symbols and call
     # LocalDBConnection.result_reset
     put '/reset' do
-      LocalDBConnection::Results.result_reset(params) ? 200 : 501
+      LocalDBConnection::Results.result_reset(params)
+      ResultsHandler.broadcast_route(params) ? 200 : 501
     end
 
     # Lock or unlock results for a complete route to disable/enable editing
     put '/lock' do
       LocalDBConnection::Results.results_lock(params) ? 200 : 501
     end
-
   end
 end
