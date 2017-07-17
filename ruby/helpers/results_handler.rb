@@ -79,5 +79,11 @@ module Perseus
       Thread.new { broadcast_to_localhost('/broadcast/stream', updated_person_result) }
       Thread.new { broadcast_to_egroupware(params) }
     end
+
+    # Purge the eventstream e.g. following a change of round
+    def purge_eventstream
+      HTTParty.delete(@default_url + '/broadcast/result')
+      HTTParty.delete(@default_url + '/broadcast/stream')
+    end
   end
 end

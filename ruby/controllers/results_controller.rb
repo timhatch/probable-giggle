@@ -51,9 +51,9 @@ module Perseus
       ResultsHandler.broadcast_route(params) ? 200 : 501
     end
 
-    # Lock or unlock results for a complete route to disable/enable editing
-    put '/lock' do
-      LocalDBConnection::Results.results_lock(params) ? 200 : 501
+    # Delete any results in the broadcast pipeline
+    delete '/broadcast' do
+      ResultsHandler.purge_eventstream ? 200 : 501
     end
   end
 end
