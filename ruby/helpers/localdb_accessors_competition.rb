@@ -18,6 +18,7 @@ module Perseus
       module_function
 
       # Get the "active" competition (determined from the Session parameters)
+      #
       def active
         DB[:Competitions].join(:Session, [:wet_id]).first
       end
@@ -25,6 +26,8 @@ module Perseus
       # Insert a new competition (or overwrite an existing competition)
       # @params
       # - A hash containing :wet_id, :grp_id and :route values
+      # HACK: If using Postgres 9.5, could try insert_conflict(:update).insert(args)
+      #
       def insert params
         args = Hash[@default_comp.map { |k, v| [k, params[k] || v] }]
         args[:wet_id] = args[:wet_id].to_i

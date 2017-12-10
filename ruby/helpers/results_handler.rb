@@ -34,7 +34,7 @@ module Perseus
     end
 
     # Broadcast the received result to eGroupware
-    # We use the presnece of an authorisation key in the session parameters to determine
+    # We use the presence of an authorisation key in the session parameters to determine
     # whether or not to send a message to eGroupware
     def self.broadcast_to_egroupware data
       auth = LocalDBConnection::Session.get[:auth]

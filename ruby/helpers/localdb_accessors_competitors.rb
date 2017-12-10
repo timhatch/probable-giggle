@@ -24,12 +24,14 @@ module Perseus
       module_function
 
       # Helper method to import competitors into the local database
-      # The "replace" operator is not supported for postgres databases, so use a workaround
       # We assume that the competitors parameter is an array of hash objects, each object
       # containing the following parameters:
       # per_id, lastname, firstname, federation, nation, birthyear
+      # NOTE: This method deliberately will not overwrite any existing competitor
+      # HACK: If using Postgres 9.5, could try insert_conflict.insert(args)
       # NOTE: The hash contents are assumed to be STRING (NOT SYMBOL) based. This works for the
-      # eGroupware response and for headed CSV files
+      #       eGroupware response and for headed CSV files
+      #
       def insert competitors
         competitors.each do |person|
           record = query(person)
