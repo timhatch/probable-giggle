@@ -20,18 +20,33 @@ module Perseus
       params.keys.each { |k| params[k.to_sym] = params.delete(k) }
     end
 
-    # Fetch a __single__ result
+    # Fetch either __multiple__ or (if either per_id or start_order are given) a __single__ result
     # Convert the received parameters into hash symbols and call
-    # LocalDBConnection.get_result_person
-    get '/person' do
-      LocalDBConnection::Results.result_person(params).to_json
+    # LocalDBConnection::Results.fetch
+    # Returns either an array of results or a single result as appropriate
+    fetch = lambda do
+      data = LocalDBConnection::Results.fetch(params)
+      (data.count == 1 ? data.first : data).to_json
     end
 
+    # Handle either a generic GET request or one with a per_id sub-route
+    get '/', &fetch
+    get '/:per_id', &fetch
+
+    # FIXME: To delete (just use fetch)
+    # Fetch a __single__ result
+    # Convert the received parameters into hash symbols and call
+    # LocalDBConnection.fetch
+    get '/person' do
+      LocalDBConnection::Results.fetch(params).first.to_json
+    end
+
+    # FIXME: To delete (just use fetch)
     # Fetch __multiple__ results (i.e. for a route)
     # Convert the received parameters into hash symbols and call
-    # LocalDBConnection.get_result_route
+    # LocalDBConnection.fetch
     get '/route' do
-      LocalDBConnection::Results.result_route(params).to_json
+      LocalDBConnection::Results.fetch(params).to_json
     end
 
     # Update a __single__ result

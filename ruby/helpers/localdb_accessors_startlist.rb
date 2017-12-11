@@ -72,7 +72,7 @@ module Perseus
       def generate params
         quota    = params[:quota].to_i || 1
         starters = Perseus::LocalDBConnection::Results
-                   .result_route(params)
+                   .fetch(params)
                    .keep_if { |x| x[:result_rank] <= quota }
                    .reverse.map.with_index(1) { |x, i|
                      Hash['per_id' => x[:per_id], 'start_order' => i,

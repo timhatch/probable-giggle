@@ -74,9 +74,9 @@ module Perseus
 end
 
 # params = { wet_id: 99, grp_id: 5, route: 2 }
-# puts Perseus::LocalDBConnection::Results.result_route(params)
+# puts Perseus::LocalDBConnection::Results.fetch(params)
 
-# puts Perseus::LocalDBConnection::Results.result_person(params.merge(per_id: 1030))
+# puts Perseus::LocalDBConnection::Results.fetch(params.merge(per_id: 1030)).first
 
 # puts Perseus::LocalDBConnection.delete_route(wet_id: 0)
 # puts Perseus::LocalDBConnection.delete_person(99,1030)

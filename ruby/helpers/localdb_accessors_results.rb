@@ -66,17 +66,14 @@ module Perseus
           .update(sort_values: nil, result_jsonb: nil)
       end
 
-      # Fetch results for a single person (i.e. for a single climber across the round)
-      def result_person params
-        args = query(params)
-        get_result(args).first
-      end
-
-      # Fetch results for a collection of results (i.e. for a route)
-      # Map the received parameters against the default parameters required for a collection
-      # of results abd call the general accessor get_result
-      def result_route params
+      # Fetch results for a category/route or for a single person (if either per_id or start_order
+      # are defined. If both per_id and start_order are defined, user the per_id value
+      def fetch params
         args = Hash[@default_route.map { |k, v| [k, params[k].to_i || v] }]
+        if params.key?(:per_id) || params.key?(:start_order)
+          id       = params[:per_id].nil? ? :start_order : :per_id
+          args[id] = params[id].to_i
+        end
         get_result(args).all
       end
 

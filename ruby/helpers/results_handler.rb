@@ -48,7 +48,7 @@ module Perseus
 
     # Broadcast route results to localhost
     def broadcast_route params
-      results = Perseus::LocalDBConnection::Results.result_route(params)
+      results = Perseus::LocalDBConnection::Results.fetch(params)
       Thread.new { broadcast_to_localhost('/broadcast/result', results) }
     end
 
@@ -69,10 +69,11 @@ module Perseus
     #   mitigate any network latency effects. THis should in theory be unecessary for broadcasts
     #   to localhost but on the other hand, if such broadcasts have little or no latency then
     #   the relevant threads will be short lived.
+    # FIXME: Conceptually obsolete - broadcast_route and broadcast_route replace this...
     def broadcast_results params
-      # return 0 unless Perseus::LocalDBConnection::Results.result_person(params)
+      # return 0 unless Perseus::LocalDBConnection::Results.fetch(params).first
       # Fetch and broadcast the route result
-      updated_route_result = Perseus::LocalDBConnection::Results.result_route(params)
+      updated_route_result = Perseus::LocalDBConnection::Results.fetch(params)
       Thread.new { broadcast_to_localhost('/broadcast/result', updated_route_result) }
       # Fetch and broadcast the updated individual result
       # NOTE: Replace the general result_jsonb retrieved from the DB
