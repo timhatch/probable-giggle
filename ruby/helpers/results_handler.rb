@@ -52,6 +52,18 @@ module Perseus
       Thread.new { broadcast_to_localhost('/broadcast/result', results) }
     end
 
+    # Broadcast a single result to localhost and to eGroupware
+    def broadcast_person params
+      result = Perseus::LocalDBConnection::Results
+               .fetch(params)
+               .select { |x| x[:per_id] == params[:per_id] }
+               .first
+               .merge(result_jsonb: params[:result_jsonb])
+      # Use the endpoint /broadcast/stream for the live output stream
+      Thread.new { broadcast_to_localhost('/broadcast/stream', result) }
+      Thread.new { broadcast_to_egroupware(params) }
+    end
+
     # Broadcast results to localhost and egroupware
     # HACK: We contain each broadcast message within a separate thread in order to avoid to
     #   mitigate any network latency effects. THis should in theory be unecessary for broadcasts
