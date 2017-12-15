@@ -1,0 +1,185 @@
+#%RAML 1.0
+---
+title: Local Results System (Codename: Perseus) API 
+baseURI: http://{IP Address}/perseus
+  
+/results:
+  get:
+    description: |
+      Fetch results for a specified competition, category & round (phase) or, if either 
+      per_id/start_order are provided as parameters, for a single competitor
+    queryParameters:
+      wet_id:
+        type:         integer
+        description:  A unique value identifying the competition
+        required:     true
+        example:      1499
+      grp_id:
+        type:         integer
+        description:  A value identifying the competitor's category
+        required:     true
+        example:      5
+      route:
+        type:         integer
+        description:  A value identifying the round/route for the relevant results
+        required:     true
+        example:      0
+      per_id:
+        type:         integer
+        description:  A value identifying the competitor
+        required:     false
+        example:      6550
+      start_order:
+        type:         integer
+        description:  A value identifying the starting order of the competitor
+        required:     false
+        example:      1
+      responses:
+        200:
+          body:
+            application/json:
+              type:         array
+              description:  A json-formatted array of results
+              example: |
+                [{
+                  'per_id':         1030,
+                  'lastname':       'Bacher',
+                  'firstname':      'Barbara',
+                  'nation':         'AUT',
+                  'start_order':    1,
+                  'rank_prev_heat': 20,
+                  'sort_values':    [1,3,1,2]
+                  'result_jsonb':   {
+                    'p1': { 
+                      'a': 3, 
+                      'b': 2, 
+                      't': 3 
+                    },
+                    'p2': {
+                      'a': 3,
+                      'b': 0
+                    }
+                  },
+                  'result_rank':    1
+                }]
+  put:
+    description: Update results for a specified category/competitor and round (phase)
+    queryParameters:
+      wet_id:
+        type:         integer
+        description:  A unique value identifying the competition
+        example:      1499
+        required:     true
+      grp_id:
+        type:         integer
+        description:  A value identifying the competitor's category
+        example:      5
+        required:     true
+      per_id:
+        type:         integer
+        description:  A unique value identifying the competitor
+        example:      6550
+        required:     true
+      route:
+        type:         integer
+        description:  A value identifying the round/route for the relevant results
+        example:      0
+        required:     true
+      result_jsonb:
+        type:         object
+        description:  A json formatted results object
+        required:     true
+        example:
+          { 
+            'p1': { 
+              'a': 3, 
+              'b': 2, 
+              't': 3 
+            }
+          }
+        required: true
+    responses:
+      200:
+      501:
+  delete:
+    description: Delete (reset) results for a specified category/round or a specific competitor
+    queryParameters:
+      wet_id:
+        type:         integer
+        description:  A unique value identifying the competition
+        example:      1499
+        required:     true
+      grp_id:
+        type:         integer
+        description:  A value identifying the competitor's category
+        example:      5
+        required:     true
+      route:
+        type:         integer
+        description:  A value identifying the round/route for the relevant results
+        example:      0
+        required:     true
+      per_id:
+        type:         integer
+        description:  A value identifying the competitor
+        example:      6550
+        required:     false
+      start_order:
+        type:         integer
+        description:  A value identifying the starting order of the competitor
+        example:      1
+        required:     false
+    responses:
+      200:
+      501:
+  /lock:
+    put:
+      description: |
+        Freeze (lock) or unfreeze results for a specified category & round (phase), or where
+        a per_id/start_order value is provided, for a specific competitor.
+        If no locked parameter is provided, this call will lock the results as a fail-safe
+        If any required parameters (wet_id, grp_id or route) are not provided, the server will
+        ignore the call.
+      queryParameters:
+        wet_id:
+          type:         integer
+          description:  A unique value identifying the competition
+          required:     true
+          example:      1499
+        grp_id:
+          type:         integer
+          description:  A value identifying the competitor's category
+          required:     true
+          example:      5
+        route:
+          type:         integer
+          description:  A value identifying the round/route for the relevant results
+          required:     true
+          example:      0
+        per_id:
+          type:         integer
+          description:  A value identifying the competitor (where a single result is deleted/reset)
+          required:     false 
+          example:      6550
+        start_order:
+          type:         integer
+          description:  A value identifying the competitor
+          required:     false 
+          example:      1
+        locked:
+          type:         boolean
+          description:  A true/false declaration to set the state of the relevant results
+          required:     false
+          example:      true
+      responses:
+        200:
+        501:
+  /broadcast:
+    delete:
+      description: |
+        Purge the server event-stream (i.e. clear any existing messages) - Required when changing 
+        between rounds of a competetition where the same competitors are in a subsequent round
+      responses:
+        200:
+        501:
+  

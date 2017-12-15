@@ -1,0 +1,54 @@
+#%RAML 1.0
+---
+title:        Local Results System (Codename: Perseus) API 
+baseURI:      http://{IP Address}/perseus
+description:  API description to get/set session parameters for the application
+
+/session:
+  get:
+    description: Fetch session parameters (the current competition and any eGroupware authorisation)
+    responses:
+      200:
+        body:
+          application/json:
+            type:         object
+            description:  A JSON formatted results object
+            example:
+              {
+                'wet_id': 1499,
+                'auth': 'sessionid=qo5tji64a1cvobtkddnjktlth0'
+              }
+  post:
+    description: Set session parameters (the current competition and/or an eGroupware authorisation)
+    queryParameters: 
+      wet_id:
+        type:         integer
+        description:  A unique value identifying the competition
+        example:      1499
+        required:     false
+      auth:
+        type:         string
+        description:  An eGroupware sessionid parameter
+        example:      sessionid=qo5tji64a1cvobtkddnjktlth0 
+        required:     false
+    responses:
+      200:
+      501:
+  delete:
+    description: Reset (purge) the session parameters
+    responses:
+      200:
+      501:
+
+/connection:
+  get:
+    description: Get the IP address assigned to the server
+    responses:
+      200:
+        application/json:
+          type:   object
+          example:
+            {
+              hostname: 'copper.aircard',
+              address: '192.169.1.90'
+            }

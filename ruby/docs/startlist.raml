@@ -1,0 +1,91 @@
+#%RAML 1.0
+---
+title:        Local Results System (Codename: Perseus) API 
+baseURI:      http://{IP Address}/perseus
+description:  API description for competitor registration methods
+  
+/startlist:
+  /file:
+    post:
+      description: |
+        Create a startlist from a csv file containing a list of the competitors - 
+        per_id, start_order, rank_prev_heat
+      queryParameters:
+        wet_id:
+          type:         integer
+          description:  A unique value identifying the competition
+          example:      1499
+          required:     true
+        grp_id:
+          type:         integer
+          description:  A value identifying the category
+          required:     true
+          example:      5
+        route:
+          type:         integer
+          description:  A value identifying the round/route `for which` the startlist is to be created
+          required:     true
+          example:      0
+        file:
+          type:         file
+          description:  CSV file with headers
+          required:     true
+          example: |
+              per_id, start_order, rank_prev_heat
+              1030, 1, null
+      responses:
+        200:
+        501:
+  /ifsc:
+    post:
+      description:
+      queryParameters:
+        wet_id:
+          type:         integer
+          description:  A unique value identifying the competition
+          required:     true
+          example:      1499
+        grp_id:
+          type:         integer
+          description:  A value identifying the category
+          required:     true
+          example:      5
+        route:
+          type:         integer
+          description:  A value identifying the round/route `for which` the startlist is to be created
+          required:     true
+          example:      0
+      responses:
+        200:
+        501:
+  # FIXME: Doesn't handle 2 qualification routes.
+  # NOTE inconsistent behaviour with the two routes above
+  /new:
+    post:
+      description:    Generate a startlist from an existing set of results
+      queryParameters:
+        wet_id:
+          type:         integer
+          description:  A unique value identifying the competition
+          required:     true
+          example:      1499
+        grp_id:
+          type:         integer
+          description:  A value identifying the category
+          required:     true
+          example:      5
+        route:
+          type:         integer
+          description:  A value identifying the round/route `from which` the startlist is to be created
+          required:     true
+          example:      0
+        quota:
+          type:         integer
+          description:  the fixed (minimum) quota for the round
+          required:     true
+          example:      6
+      responses:
+        200:
+        501:
+
+
