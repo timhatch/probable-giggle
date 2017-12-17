@@ -11,7 +11,7 @@ module Perseus
   class SessionController < Perseus::ApplicationController
     # HELPERS
     helpers Perseus::LocalDBConnection
-    helpers Perseus::EGroupwareSessionAPI
+    # helpers Perseus::EGroupwareSessionAPI
 
     # symbolize route parameters (deliberately non-recursive)
     #
@@ -33,10 +33,10 @@ module Perseus
 
     # Update Session[:auth] by connecting to eGroupware with login credentials
     #
-    post '/login' do
-      sessionid = Perseus::EGroupwareSessionAPI.login(params)
-      Perseus::LocalDBConnection::Session.set(auth: sessionid) ? 200 : 501
-    end
+    # post '/login' do
+    #   sessionid = Perseus::EGroupwareSessionAPI.login(params)
+    #   Perseus::LocalDBConnection::Session.set(auth: sessionid) ? 200 : 501
+    # end
 
     # Reset the competition and authorisation parameters
     #
