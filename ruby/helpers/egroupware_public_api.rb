@@ -21,14 +21,14 @@ module Perseus
     #
     def self.get_json params
       url = 'http://egw.ifsc-climbing.org/egw/ranking/json.php'
-      begin
-        #  response = HTTParty.get(url, query: params, options: { timeout: 1 })
-        response = HTTParty.get(url, query: params)
-        response.code == 200 ? JSON.parse(response.body) : nil
-      rescue
-        puts 'Exception raised in EGroupwarePublicAPI:get_json'
-        nil # abort e.to_s
-      end
+      # Test server
+      # url = 'https://digitalrock.egroupware.de/egw/ranking/json.php'
+      params[:timestamp] = Time.now.to_i
+      response = HTTParty.get(url, query: params)
+      response.code == 200 ? JSON.parse(response.body) : nil
+    rescue
+      puts 'Exception raised in EGroupwarePublicAPI:get_json'
+      nil
     end
 
     module_function
