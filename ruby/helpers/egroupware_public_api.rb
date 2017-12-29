@@ -55,10 +55,17 @@ module Perseus
       data = get_json(args)
       data['participants'] unless data.nil?
     end
+
+    # Fetch the calendar for somw  year.
+    # Gets the current year if none provided
+    def get_calendar params
+      data = get_json(year: params[:year] || Date.now.year)
+      data['competitions'] unless data.nil?
+    end
   end
 end
 
 # puts Perseus::EGroupwarePublicAPI.get_starters(wet_id: 5759, grp_id: 81)
 # puts Perseus::EGroupwarePublicAPI.get_results(wet_id: 5759, grp_id: 81, route: 2)
 # puts Perseus::EGroupwarePublicAPI.get_starters(wet_id: 1572,  grp_id: 284)
-#
+# puts Perseus::EGroupwarePublicAPI.get_calendar(2017)
