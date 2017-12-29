@@ -68,7 +68,7 @@ module Perseus
 
     # Broadcast results to localhost and egroupware
     # HACK: We contain each broadcast message within a separate thread in order to avoid to
-    #   mitigate any network latency effects. THis should in theory be unecessary for broadcasts
+    #   mitigate any network latency effects. This should in theory be unnecessary for broadcasts
     #   to localhost but on the other hand, if such broadcasts have little or no latency then
     #   the relevant threads will be short lived.
     # FIXME: Conceptually obsolete - broadcast_route and broadcast_route replace this...
