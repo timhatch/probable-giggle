@@ -1,0 +1,112 @@
+#%RAML 1.0
+---
+
+wet_id:
+  type:         integer
+  description:  |
+    A unique value identifying the competition.  
+    Maps to the egroupware property 'WetId'
+  example:      1499
+grp_id:
+  type:         integer
+  description:  |
+    A value identifying a specific results category.  
+    Maps to the egroupware property 'GrpId'
+  example:      5
+per_id:
+  type:         integer
+  description:  |
+    A value identifying a specific competitor.  
+    Maps to the egroupware property 'PerId'
+  example:      6550
+firstname:
+  type:         string
+  description:  |
+    The first (given) name of a competitor (as a UTF-8 formatted string)
+    Maps to the egroupware property 'firstname'
+  example:      'Barbara'
+lastname:
+  type:         string
+  description:  | 
+    The last (family) name of a competitor (as a UTF-8 formatted string)  
+    Maps to the egroupware property 'lastname'
+  example:      'Bacher'
+nation:
+  type:         string
+  description:  |
+    The 3-letter IOC code for a competitors country of origin  
+    Maps to the egroupware property 'nation'
+  example:      'AUT'
+route:
+  type:         integer
+  description:  |
+    A value identifying the round/route for the relevant results.  
+    Maps to the egroupware property 'route'
+  example:      0
+start_order:
+  type:         integer
+  description:  | 
+    A value identifying the starting order for some competitor.  
+    Maps to the egroupware property 'start_order'
+  example:      1
+result_rank:
+  type:         integer
+  description:  |
+    The rank of the competitor within the relevant round.  
+    Maps to the egroupware property 'result_rank'
+  example:      2
+sort_values:
+  type:        integer[] 
+  description:  A null value may be returned where the relevant competitor has not yet started
+person_result:
+  type:         object
+  description: |
+    Results for a single competitor 
+  properties:
+    per_id:       per_id
+    lastname:     lastname
+    firstname:    firstname
+    nation:       nation
+    start_order:  start_order
+    sort_values:  integer[]
+    result_jsonb: 
+      type:         nil | object
+      description:  JSON object comprising one or more boulder_result 
+    result_rank?:  result_rank
+  example:      !include ./schema/person_results.json
+
+boulder_result:
+  type:         object 
+  description:  JSON object describing the a single boulder result
+  properties:
+    key:
+      type:         string
+      description:  The identifier for the boulder, p1, p2, p3, etc.
+    values:
+      type:         object
+      description:  |
+        A json object identifying the number of attempts made, the attempts to zone and attempts to top.  
+        The formatting of the json object is by design indicative of the status of the competitor.  
+  example:          !include ./schema/boulder_result.json 
+
+city:
+  type:         string
+  description:  |
+    Competition location 
+date:
+  type:         string
+  description:  |
+    Competition date  
+    (Maps to egroupware::calendar::competitions::competition['date'])
+  example:      2017-11-19
+title:  
+  type:         string
+  description:  |
+    Competition name.
+    Maps to egroupware::calendar::competitions:competition['name'], but since the IFSC  
+    uses no naming convention, this is not recommended
+cats:
+  type:         grp_id[]
+  description:  |
+    array listing the categories within the competitions by grp_id  
+    Maps to egroupware::calendar::competitions::cats.map(GrpId.to_i)

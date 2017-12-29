@@ -1,0 +1,51 @@
+[
+  {
+    "per_id":         5630,
+    "lastname":       "Anna",
+    "firstname":      "Stöhr",
+    "nation":         "AUT",
+    "start_order":    1,
+    "rank_prev_heat": 6,
+    "sort_values":    [1,3,2,3],
+    "result_jsonb":   {
+      "p1": { 
+        "a": 3, 
+        "b": 2, 
+        "t": 3 
+      },
+      "p2": {
+        "a": 3,
+        "b": 2
+      }
+    },
+    "result_rank":    2
+  },
+  {
+    "per_id":         6326,
+    "lastname":       "Akiyo",
+    "firstname":      "Noguchi",
+    "nation":         "JPN",
+    "start_order":    2,
+    "rank_prev_heat": 5,
+    "sort_values":    [1,2,1,2],
+    "result_jsonb":   {
+      "p1": { 
+        "a": 2, 
+        "b": 1, 
+        "t": 2 
+      }
+    },
+    "result_rank":    1
+  },
+  {
+    "per_id":         6064,
+    "lastname":       "Juliane",
+    "firstname":      "Wurm",
+    "nation":         "GER",
+    "start_order":    3,
+    "rank_prev_heat": 4,
+    "sort_values":    null,
+    "result_jsonb":   null,
+    "result_rank":    3
+  }
+]

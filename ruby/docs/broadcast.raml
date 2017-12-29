@@ -1,0 +1,124 @@
+#%RAML 1.0
+---
+title:        Perseus 
+baseURI:      http://{IP Address}/broadcast
+description:  |
+  The following API endpoints can be used to receive "push" updates from the local server,  
+  transmitted and received using the HTML EventSource protocol.
+
+/result:
+  get:
+    description:  |
+      Open an Eventstream listening for updates to the results for the routes/categories 
+      currently in progress.  
+      Note that the stream data does not explicitly identify the category/round for each 
+      broadcast - This requires the data to be interrogated and matched on a per-climber basis.  
+      Test url:-  
+      curl -v --request GET -H "Accept: text/json" http://{IP Address}/broadcast/result
+    responses:
+      200:
+        body:
+          text/event-stream:
+            properties:
+              id:   
+                type:         string
+                description:  An automatically-assigned identification parameter 
+                example:      '1514479776:0'
+              data: 
+                type:         RouteResult
+                description:  |
+                  A stringified json object containing the just-updated category/route result.  
+                example:  |
+                  [
+                    {
+                      "per_id": 12501,
+                      "lastname": "Ogata",
+                      "firstname": "Yoshiyuki",
+                      "nation": "JPN",
+                      "start_order": 4,
+                      "rank_prev_heat": 3,
+                      "sort_values":  [4,9,4,6],
+                      "result_jsonb": {
+                        "p1": { "a": 2,"b": 2,"t": 2 },
+                        "p2": { "a": 1,"b": 1,"t": 1 },
+                        "p3": { "a": 2,"b": 1,"t": 2 },
+                        "p4": { "a": 4,"b": 2,"t": 4 }
+                      },
+                      "result_rank": 1
+                    },
+                    {
+                      "per_id": 6623,
+                      "lastname": "Hojer",
+                      "firstname": "Jan",
+                      "nation": "GER",
+                      "start_order": 3,
+                      "rank_prev_heat": 4,
+                      "sort_values": [3,6,3,4],
+                      "result_jsonb": {
+                        "p1": { "a": 1, "b": 1, "t": 1 },
+                        "p2": { "a": 5, "b": 0, "t": null },
+                        "p3": { "a": 3, "b": 2, "t": 3 },
+                        "p4": { "a": 2, "b": 1, "t": 2 }
+                      },
+                      "result_rank": 2},
+                    {
+                      "per_id": 9046,
+                      "lastname":"Rubtsov",
+                      "firstname":"Alexei",
+                      "nation":"RUS",
+                      "start_order": 5,
+                      "rank_prev_heat": 2,
+                      "sort_values":[2,3,4,8],
+                      "result_jsonb":{
+                        "p1": { "a": 1, "b": 1, "t": 1 },
+                        "p2": { "a": 4, "b": 1, "t": 0 },
+                        "p3": { "a": 5, "b": 4, "t": 0 },
+                        "p4": { "a": 2, "b": 2, "t": 2 }
+                      },
+                      "result_rank": 3
+                    }
+                  ]
+      404:
+        description:  Connection error
+/stream:
+  get:
+    description:  |
+      Open an Eventstream listening for updates to the results for individual competitors.  
+      Note that the stream data does not explicitly identify the category/round for each  
+      broadcast - This requires the data to be interrogated and matched on a per-climber basis.  
+      Test url:-  
+      curl -v --request GET -H "Accept: text/json" http://{IP Address}/broadcast/stream
+    responses:
+      200:
+        body:
+          text/event-stream:
+            properties:
+              id:   
+                type:         string
+                description:  An automatically-assigned identification parameter 
+                example:      '1514479776:0'
+              data: 
+                type:         PersonResult
+                description:  |
+                  A stringified json object identifying the competitor whose result has just been posted, 
+                  and containing the updated 'result_rank' and 'sort_values' and 'result_jsonb' information  
+                    
+                  For boulder results, the 'sort_values' array indicates the current T/TA/B/BA values for 
+                  the relevant climber
+                example:      |
+                  {
+                    "per_id"      : 11091,
+                    "lastname"    : "Cornu",
+                    "firstname"   : "Manuel",
+                    "nation"      : "FRA",
+                    "start_order" : 1,
+                    "rank_prev_heat"  : 6,
+                    "sort_values" : [1, 5, 3, 8],
+                    "result_jsonb": {
+                      "p1" : { "a" : 5, "b" : 1, "t" : null }
+                    },
+                    "result_rank" : 6
+                  }
+      404:
+        description:  Connection error
+

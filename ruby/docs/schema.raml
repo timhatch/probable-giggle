@@ -1,0 +1,83 @@
+types:
+  Competition:
+    wet_id:       wet_id
+    city:         city
+    date:         date
+    title:  
+      type:         string
+      description:  |
+        Competition name.
+        Maps to egroupware::calendar::competitions:competition['name'], but since the IFSC
+        uses no naming convention, this is not recommended
+    cats:
+      type:         array[grp_id]
+      description:  |
+        array listing the categories within the competitions by grp_id
+        Maps to egroupware::calendar::competitions::cats.map(GrpId.to_i)
+    routes: |
+      {
+        '5' : [
+          { route: 3, starters: false, locked: false },
+          { route: 2, starters: true, locked: false },
+          { route: 1, starters: true, locked: true },
+          { route: 0, starters: true, locked: true}
+        ],
+        '6' : [
+          { route: 3, starters: false, locked: false },
+          { route: 2, starters: true, locked: false },
+          { route: 0, starters: true, locked: true },
+        ]
+      }
+
+        Discipline vs Age Group
+        L       B       S       C
+  O15   2, 1    5, 6    24, 23  42, 45
+  U20   18, 17  81, 84  59, 58  288, 291
+  U18   19, 15  79, 82  60, 57  286, 289
+  U16   20, 16  80, 83  61, 56  287, 290
+
+types:
+  RouteResult: array[Result]
+  Result: |
+    {
+      "per_id"        : 12501,
+      "lastname"      : "Ogata",
+      "firstname"     : "Yoshiyuki",
+      "nation"        : "JPN",
+      "start_order"   : 2,
+      "rank_prev_heat": 3,
+      "sort_values"   : [4,9,4,6]
+      "result_jsonb"  : {"p1":{"a":3,"b":1,"t":3}},
+      "result_rank"   : 1
+    }
+  sort_values:
+    type:         array
+    description:  |
+      For boulder, an array of integers corresponding to [T, TA, B, BA] (or in the `new` IFSC
+      scoring system , [T, B, TA, BA]).
+      For lead, an array of integers (arbitrary length) corresponding to the ranking on each route 
+      in the round.
+      Returns null if the climber has no result (i.e. has not started)
+  result_jsonb:
+    type:         object
+    description: |
+      JSON object containing -
+      For boulder, a set of JSON object of the on-boulder results for each boulder, e.g
+      {"p1":{"a":3,"b":1,"t":3}}
+      The content of the individual on-boulder result allows the status of the climber to be
+      inferred,
+      If either "b" or "t" >= 0 then the climber has finished the boulder e.g. 
+      {"p1":{"a":3,"b":null}} or {"p1":{"a":3,"b":null,"t":null}} infers that the climber is
+      currently on boulder1, (attempts are non-null)
+      {"p1":{"a":3,"b":0}} or {"p1":{"a":3,"b":0,"t":null}} or infers that the climber has completed
+      boulder1 with no bonus
+      {"p1":{"a":3,"b":1,"t":0}} infers that the climber has completed boulder1 with no top
+      For lead, a set of JSON objects 
+      If "h" = 0 then the climber has entered the field of play, but has not yet started 
+      {"r1":{"h":0,"m":null}}
+      If "h" is a positive integer but "t" === null, the climber is in progress
+      {"r1":{"h":11,"m":null,"t":null}} or {"r1":{"h":11,"m":"+","t":null}}
+      If "h" is a positive integer and "t" is a number, the climber has completed their attempt
+      {"r1":{"h":11,"m":null,"t":null}} or {"r1":{"h":11,"m":"+","t":null}}
+
+

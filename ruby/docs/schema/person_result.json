@@ -1,0 +1,21 @@
+{
+  "per_id":         1030,
+  "lastname":       "Bacher",
+  "firstname":      "Barbara",
+  "nation":         "AUT",
+  "start_order":    1,
+  "rank_prev_heat": 20,
+  "sort_values":    [1,3,1,2],
+  "result_jsonb":   {
+    "p1": { 
+      "a": 3, 
+      "b": 2, 
+      "t": 3 
+    },
+    "p2": {
+      "a": 3,
+      "b": 0
+    }
+  },
+  "result_rank":    1
+}

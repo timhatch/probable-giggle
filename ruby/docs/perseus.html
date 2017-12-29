@@ -1,0 +1,277 @@
+<!DOCTYPE HTML><html><head><title>Perseus API documentation</title><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="generator" content="https://github.com/raml2html/raml2html 6.4.2"><link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css" media="screen,projection"><style>
+        .badge {
+            text-transform: uppercase;
+            font-weight:bold !important;
+        }
+
+        .badge i {
+            float: left;
+            margin-right: 0.2rem;
+            line-height:1.4rem;
+            font-size:1rem;
+            width:auto;
+        }
+
+        .badge-get {
+            background-color: #2196f3 !important;
+        }
+
+        .badge-post {
+            background-color: #4caf50 !important;
+        }
+
+        .badge-delete {
+            background-color: #f44336 !important;
+        }
+
+        .badge-put {
+            background-color: #ff9800 !important;
+        }
+
+        .badge-patch {
+            background-color: #673ab7 !important;
+        }
+
+        .badge-head {
+            background-color: #222222 !important;
+        }
+
+        .badge-options {
+            background-color: #616161 !important;
+        }
+
+        .text-primary {
+            color: #ee6e73 !important;
+        }
+
+        .bg-primary {
+            background-color:#ee6e73 !important;
+        }
+
+        .tabs a {
+            color: #039be5 !important;
+        }
+
+        .tabs .indicator {
+            background-color: #039be5 !important;
+        }
+
+        .tabs.response a {
+            color: #4db6ac !important;
+        }
+        .tabs.response .indicator{
+            background-color: #4db6ac !important;
+        }
+
+        .space-between {
+            justify-content: space-between;
+        }
+
+        .d-flex {
+            display:flex;
+        }
+
+        .chip {
+            line-height: 22px;
+            font-size:15px;
+            height:22px;
+            margin-bottom:0;
+            border-radius:2px;
+            padding: 0 5px;
+            margin-left:5px;
+        }
+
+        ul.browser-default {
+            padding-left:20px;
+        }
+        ul.browser-default li {
+            margin-top:10px;
+        }
+
+        .example {
+            border: 1px solid #e0e0e0;
+        }
+
+        .example pre {
+            padding: 8px;
+            margin: 0px;
+        }
+
+        .modal {
+            height: 80% !important;
+            max-height: 80% !important;
+            width: 80% !important;
+         }
+        .container {
+          width: 80% !important;
+        }
+    </style></head><body><div class="section grey darken-4"><div class="container"><h3 class="white-text">Perseus API documentation</h3><p class="white-text"></p></div></div><div class="container"><div class="section"><h5>/broadcast</h5><ul class="collection"><li class="collection-item space-between d-flex"><span><span class="grey-text">/broadcast</span> <span>/result</span></span> <span><a href="#broadcast_result_get" class="waves-effect waves-light modal-trigger"><span class="new badge badge-get" data-badge-caption="get"></span></a></span></li><div id="broadcast_result_get" class="modal modal-fixed-footer"><div class="modal-content"><div class="section"><span class="new badge badge-get" data-badge-caption="get"></span> <strong><span class="parent">/broadcast</span>/result</strong><p></p><p>Open an Eventstream listening for updates to the results for the routes/categories currently in progress.<br>Note that the stream data does not explicitly identify the category/round for each broadcast - This requires the data to be interrogated and matched on a per-climber basis.<br>Test url:-<br>curl -v --request GET -H "Accept: text/json" <a href="http://{IP">http://{IP</a> Address}/broadcast/result</p><p></p></div><div class="section"><ul class="tabs"><li class="tab active"><a href="#broadcast_result_get_response">Response</a></li></ul><div id="broadcast_result_get_response"><ul class="tabs response"><li class="tab"><a href="#broadcast_result_get_response_200">200</a></li><li class="tab"><a href="#broadcast_result_get_response_404">404</a></li></ul><div id="broadcast_result_get_response_200"><ul class="collection with-header"><li class="collection-header"><h5>Body</h5></li><li class="collection-item"><p><strong>Media type</strong>: text/event-stream</p><p><strong>Type</strong>: object</p><strong>Properties</strong><ul class="browser-default"><li><strong>id:</strong> <span>string</span>&nbsp;<span class="blue-text">(required)</span><br>An automatically-assigned identification parameter<div><p><strong>Example</strong></p><div class="example grey lighten-4"><pre><code>1514479776:0</code></pre></div></div></li><li><strong>data:</strong> <span>RouteResult</span>&nbsp;<span class="blue-text">(required)</span><br>A stringified json object containing the just-updated category/route result.<div><p><strong>Example</strong></p><div class="example grey lighten-4"><pre><code>[
+  {
+    "per_id": 12501,
+    "lastname": "Ogata",
+    "firstname": "Yoshiyuki",
+    "nation": "JPN",
+    "start_order": 4,
+    "rank_prev_heat": 3,
+    "sort_values":  [4,9,4,6],
+    "result_jsonb": {
+      "p1": { "a": 2,"b": 2,"t": 2 },
+      "p2": { "a": 1,"b": 1,"t": 1 },
+      "p3": { "a": 2,"b": 1,"t": 2 },
+      "p4": { "a": 4,"b": 2,"t": 4 }
+    },
+    "result_rank": 1
+  },
+  {
+    "per_id": 6623,
+    "lastname": "Hojer",
+    "firstname": "Jan",
+    "nation": "GER",
+    "start_order": 3,
+    "rank_prev_heat": 4,
+    "sort_values": [3,6,3,4],
+    "result_jsonb": {
+      "p1": { "a": 1, "b": 1, "t": 1 },
+      "p2": { "a": 5, "b": 0, "t": null },
+      "p3": { "a": 3, "b": 2, "t": 3 },
+      "p4": { "a": 2, "b": 1, "t": 2 }
+    },
+    "result_rank": 2},
+  {
+    "per_id": 9046,
+    "lastname":"Rubtsov",
+    "firstname":"Alexei",
+    "nation":"RUS",
+    "start_order": 5,
+    "rank_prev_heat": 2,
+    "sort_values":[2,3,4,8],
+    "result_jsonb":{
+      "p1": { "a": 1, "b": 1, "t": 1 },
+      "p2": { "a": 4, "b": 1, "t": 0 },
+      "p3": { "a": 5, "b": 4, "t": 0 },
+      "p4": { "a": 2, "b": 2, "t": 2 }
+    },
+    "result_rank": 3
+  }
+]
+</code></pre></div></div></li></ul></li></ul></div><div id="broadcast_result_get_response_404"><ul class="collection with-header"><li class="collection-header"><h5>Description</h5></li><li class="collection-item"><p>Connection error</p></li></ul></div></div></div></div><div class="modal-footer"><a href="#!" class="modal-action modal-close waves-effect btn-flat">Close</a></div></div><li class="collection-item space-between d-flex"><span><span class="grey-text">/broadcast</span> <span>/stream</span></span> <span><a href="#broadcast_stream_get" class="waves-effect waves-light modal-trigger"><span class="new badge badge-get" data-badge-caption="get"></span></a></span></li><div id="broadcast_stream_get" class="modal modal-fixed-footer"><div class="modal-content"><div class="section"><span class="new badge badge-get" data-badge-caption="get"></span> <strong><span class="parent">/broadcast</span>/stream</strong><p></p><p>Open an Eventstream listening for updates to the results for individual competitors.<br>Note that the stream data does not explicitly identify the category/round for each<br>broadcast - This requires the data to be interrogated and matched on a per-climber basis.<br>Test url:-<br>curl -v --request GET -H "Accept: text/json" <a href="http://{IP">http://{IP</a> Address}/broadcast/stream</p><p></p></div><div class="section"><ul class="tabs"><li class="tab active"><a href="#broadcast_stream_get_response">Response</a></li></ul><div id="broadcast_stream_get_response"><ul class="tabs response"><li class="tab"><a href="#broadcast_stream_get_response_200">200</a></li><li class="tab"><a href="#broadcast_stream_get_response_404">404</a></li></ul><div id="broadcast_stream_get_response_200"><ul class="collection with-header"><li class="collection-header"><h5>Body</h5></li><li class="collection-item"><p><strong>Media type</strong>: text/event-stream</p><p><strong>Type</strong>: object</p><strong>Properties</strong><ul class="browser-default"><li><strong>id:</strong> <span>string</span>&nbsp;<span class="blue-text">(required)</span><br>An automatically-assigned identification parameter<div><p><strong>Example</strong></p><div class="example grey lighten-4"><pre><code>1514479776:0</code></pre></div></div></li><li><strong>data:</strong> <span>PersonResult</span>&nbsp;<span class="blue-text">(required)</span><br>A stringified json object identifying the competitor whose result has just been posted, and containing the updated 'result_rank' and 'sort_values' and 'result_jsonb' information For boulder results, the 'sort_values' array indicates the current T/TA/B/BA values for the relevant climber<div><p><strong>Example</strong></p><div class="example grey lighten-4"><pre><code>{
+  "per_id"      : 11091,
+  "lastname"    : "Cornu",
+  "firstname"   : "Manuel",
+  "nation"      : "FRA",
+  "start_order" : 1,
+  "rank_prev_heat"  : 6,
+  "sort_values" : [1, 5, 3, 8],
+  "result_jsonb": {
+    "p1" : { "a" : 5, "b" : 1, "t" : null }
+  },
+  "result_rank" : 6
+}
+</code></pre></div></div></li></ul></li></ul></div><div id="broadcast_stream_get_response_404"><ul class="collection with-header"><li class="collection-header"><h5>Description</h5></li><li class="collection-item"><p>Connection error</p></li></ul></div></div></div></div><div class="modal-footer"><a href="#!" class="modal-action modal-close waves-effect btn-flat">Close</a></div></div></ul></div><div class="section"><h5>/results</h5><ul class="collection"><li class="collection-item space-between d-flex"><span><span class="grey-text"></span> <span>/results</span></span> <span><a href="#results_get" class="waves-effect waves-light modal-trigger"><span class="new badge badge-get" data-badge-caption="get"></span></a> <a href="#results_put" class="waves-effect waves-light modal-trigger"><span class="new badge badge-put" data-badge-caption="put"></span></a> <a href="#results_delete" class="waves-effect waves-light modal-trigger"><span class="new badge badge-delete" data-badge-caption="delete"></span></a></span></li><div id="results_get" class="modal modal-fixed-footer"><div class="modal-content"><div class="section"><span class="new badge badge-get" data-badge-caption="get"></span> <strong><span class="parent"></span>/results</strong><p></p><p>For a specified competition and category, fetches results for either:-<br>(a) a specified round; or<br>(b) a specified competition where either per_id/start_order are provided as parameter.</p><p></p></div><div class="section"><ul class="tabs"><li class="tab active"><a href="#results_get_request">Request</a></li><li class="tab"><a href="#results_get_response">Response</a></li></ul><div id="results_get_request"><ul class="collection with-header"><li class="collection-header"><h5>Query Parameters</h5></li><li class="collection-item"><ul class="browser-default"><li><strong>wet_id:</strong> <span>integer</span>&nbsp;<span class="blue-text">(required)</span><br>A unique value identifying the competition. Maps to the egroupware property 'WetId'<div><p><strong>Example</strong></p><div class="example grey lighten-4"><pre><code>1499</code></pre></div></div></li><li><strong>grp_id:</strong> <span>integer</span>&nbsp;<span class="blue-text">(required)</span><br>A value identifying a specific results category. Maps to the egroupware property 'GrpId'<div><p><strong>Example</strong></p><div class="example grey lighten-4"><pre><code>5</code></pre></div></div></li><li><strong>route:</strong> <span>integer</span>&nbsp;<span class="blue-text">(required)</span><br>A value identifying the round/route for the relevant results. Maps to the egroupware property 'route'<div><p><strong>Example</strong></p><div class="example grey lighten-4"><pre><code>0</code></pre></div></div></li><li><strong>per_id:</strong> <span>integer</span><br>A value identifying a specific competitor. Maps to the egroupware property 'PerId'<div><p><strong>Example</strong></p><div class="example grey lighten-4"><pre><code>6550</code></pre></div></div></li><li><strong>start_order:</strong> <span>integer</span><br>A value identifying the starting order for some competitor. Maps to the egroupware property 'start_order'<div><p><strong>Example</strong></p><div class="example grey lighten-4"><pre><code>1</code></pre></div></div></li></ul></li></ul></div><div id="results_get_response"><ul class="tabs response"><li class="tab"><a href="#results_get_response_200">200</a></li><li class="tab"><a href="#results_get_response_404">404</a></li><li class="tab"><a href="#results_get_response_501">501</a></li></ul><div id="results_get_response_200"><ul class="collection with-header"><li class="collection-header"><h5>Description</h5></li><li class="collection-item"><p>Returns an array of results (The array may be empty if no results exist for the defined<br>queryParameters)</p></li></ul><ul class="collection with-header"><li class="collection-header"><h5>Body</h5></li><li class="collection-item"><p><strong>Media type</strong>: application/json</p><p><strong>Type</strong>: array of person_result</p><div><p><strong>Example</strong></p><div class="example grey lighten-4"><pre><code>[
+  {
+    "per_id":         5630,
+    "lastname":       "Anna",
+    "firstname":      "Stöhr",
+    "nation":         "AUT",
+    "start_order":    1,
+    "rank_prev_heat": 6,
+    "sort_values":    [1,3,2,3],
+    "result_jsonb":   {
+      "p1": { 
+        "a": 3, 
+        "b": 2, 
+        "t": 3 
+      },
+      "p2": {
+        "a": 3,
+        "b": 2
+      }
+    },
+    "result_rank":    2
+  },
+  {
+    "per_id":         6326,
+    "lastname":       "Akiyo",
+    "firstname":      "Noguchi",
+    "nation":         "JPN",
+    "start_order":    2,
+    "rank_prev_heat": 5,
+    "sort_values":    [1,2,1,2],
+    "result_jsonb":   {
+      "p1": { 
+        "a": 2, 
+        "b": 1, 
+        "t": 2 
+      }
+    },
+    "result_rank":    1
+  },
+  {
+    "per_id":         6064,
+    "lastname":       "Juliane",
+    "firstname":      "Wurm",
+    "nation":         "GER",
+    "start_order":    3,
+    "rank_prev_heat": 4,
+    "sort_values":    null,
+    "result_jsonb":   null,
+    "result_rank":    3
+  }
+]
+</code></pre></div></div></li></ul></div><div id="results_get_response_404"><ul class="collection with-header"><li class="collection-header"><h5>Description</h5></li><li class="collection-item"><p>Connection error</p></li></ul></div><div id="results_get_response_501"><ul class="collection with-header"><li class="collection-header"><h5>Description</h5></li><li class="collection-item"><p>Server error</p></li></ul></div></div></div></div><div class="modal-footer"><a href="#!" class="modal-action modal-close waves-effect btn-flat">Close</a></div></div><div id="results_put" class="modal modal-fixed-footer"><div class="modal-content"><div class="section"><span class="new badge badge-put" data-badge-caption="put"></span> <strong><span class="parent"></span>/results</strong><p></p><p>Update results for a specified category/competitor and round (phase)</p><p></p></div><div class="section"><ul class="tabs"><li class="tab active"><a href="#results_put_request">Request</a></li><li class="tab"><a href="#results_put_response">Response</a></li></ul><div id="results_put_request"><ul class="collection with-header"><li class="collection-header"><h5>Query Parameters</h5></li><li class="collection-item"><ul class="browser-default"><li><strong>wet_id:</strong> <span>integer</span>&nbsp;<span class="blue-text">(required)</span><br>A unique value identifying the competition. Maps to the egroupware property 'WetId'<div><p><strong>Example</strong></p><div class="example grey lighten-4"><pre><code>1499</code></pre></div></div></li><li><strong>grp_id:</strong> <span>integer</span>&nbsp;<span class="blue-text">(required)</span><br>A value identifying a specific results category. Maps to the egroupware property 'GrpId'<div><p><strong>Example</strong></p><div class="example grey lighten-4"><pre><code>5</code></pre></div></div></li><li><strong>route:</strong> <span>integer</span>&nbsp;<span class="blue-text">(required)</span><br>A value identifying the round/route for the relevant results. Maps to the egroupware property 'route'<div><p><strong>Example</strong></p><div class="example grey lighten-4"><pre><code>0</code></pre></div></div></li><li><strong>per_id:</strong> <span>integer</span>&nbsp;<span class="blue-text">(required)</span><br>A value identifying a specific competitor. Maps to the egroupware property 'PerId'<div><p><strong>Example</strong></p><div class="example grey lighten-4"><pre><code>6550</code></pre></div></div></li><li><strong>result_jsonb:</strong> <span>object</span>&nbsp;<span class="blue-text">(required)</span><br>JSON object describing the a single boulder result<ul class="browser-default"><li><strong>key:</strong> <span>string</span>&nbsp;<span class="blue-text">(required)</span><br>The identifier for the boulder, p1, p2, p3, etc.</li><li><strong>values:</strong> <span>object</span>&nbsp;<span class="blue-text">(required)</span><br>A json object identifying the number of attempts made, the attempts to zone and attempts to top. The formatting of the json object is by design indicative of the status of the competitor.<ul class="browser-default"></ul></li></ul><div><p><strong>Example</strong></p><div class="example grey lighten-4"><pre><code>/* Attempts in progress */
+{ 
+  "p1": { 
+    "a": 3, 
+    "b": null, 
+    "t": null 
+  }
+}
+/* Attempts complete, zone &amp; top */
+{ 
+  "p1": { 
+    "a": 3, 
+    "b": 2, 
+    "t": 3 
+  }
+}
+/* Attempts complete, no zone or top */
+{ 
+  "p1": { 
+    "a": 3, 
+    "b": 0, 
+    "t": null 
+  }
+}
+/* Attempts complete, zone but no top */
+{ 
+  "p1": { 
+    "a": 3, 
+    "b": 2, 
+    "t": 0
+  }
+}
+</code></pre></div></div></li></ul></li></ul></div><div id="results_put_response"><ul class="tabs response"><li class="tab"><a href="#results_put_response_200">200</a></li><li class="tab"><a href="#results_put_response_404">404</a></li><li class="tab"><a href="#results_put_response_501">501</a></li></ul><div id="results_put_response_200"><ul class="collection with-header"><li class="collection-header"><h5>Description</h5></li><li class="collection-item"><p>Message successfully processed by server</p></li></ul></div><div id="results_put_response_404"><ul class="collection with-header"><li class="collection-header"><h5>Description</h5></li><li class="collection-item"><p>Connection error</p></li></ul></div><div id="results_put_response_501"><ul class="collection with-header"><li class="collection-header"><h5>Description</h5></li><li class="collection-item"><p>Server error</p></li></ul></div></div></div></div><div class="modal-footer"><a href="#!" class="modal-action modal-close waves-effect btn-flat">Close</a></div></div><div id="results_delete" class="modal modal-fixed-footer"><div class="modal-content"><div class="section"><span class="new badge badge-delete" data-badge-caption="delete"></span> <strong><span class="parent"></span>/results</strong><p></p><p>Delete (reset) results for a specified category/round or a specific competitor</p><p></p></div><div class="section"><ul class="tabs"><li class="tab active"><a href="#results_delete_request">Request</a></li><li class="tab"><a href="#results_delete_response">Response</a></li></ul><div id="results_delete_request"><ul class="collection with-header"><li class="collection-header"><h5>Query Parameters</h5></li><li class="collection-item"><ul class="browser-default"><li><strong>wet_id:</strong> <span>integer</span>&nbsp;<span class="blue-text">(required)</span><br>A unique value identifying the competition. Maps to the egroupware property 'WetId'<div><p><strong>Example</strong></p><div class="example grey lighten-4"><pre><code>1499</code></pre></div></div></li><li><strong>grp_id:</strong> <span>integer</span>&nbsp;<span class="blue-text">(required)</span><br>A value identifying a specific results category. Maps to the egroupware property 'GrpId'<div><p><strong>Example</strong></p><div class="example grey lighten-4"><pre><code>5</code></pre></div></div></li><li><strong>route:</strong> <span>integer</span>&nbsp;<span class="blue-text">(required)</span><br>A value identifying the round/route for the relevant results. Maps to the egroupware property 'route'<div><p><strong>Example</strong></p><div class="example grey lighten-4"><pre><code>0</code></pre></div></div></li><li><strong>per_id:</strong> <span>integer</span><br>A value identifying a specific competitor. Maps to the egroupware property 'PerId'<div><p><strong>Example</strong></p><div class="example grey lighten-4"><pre><code>6550</code></pre></div></div></li><li><strong>start_order:</strong> <span>integer</span><br>A value identifying the starting order for some competitor. Maps to the egroupware property 'start_order'<div><p><strong>Example</strong></p><div class="example grey lighten-4"><pre><code>1</code></pre></div></div></li></ul></li></ul></div><div id="results_delete_response"><ul class="tabs response"><li class="tab"><a href="#results_delete_response_200">200</a></li><li class="tab"><a href="#results_delete_response_404">404</a></li><li class="tab"><a href="#results_delete_response_501">501</a></li></ul><div id="results_delete_response_200"><ul class="collection with-header"><li class="collection-header"><h5>Description</h5></li><li class="collection-item"><p>Message successfully processed by server</p></li></ul></div><div id="results_delete_response_404"><ul class="collection with-header"><li class="collection-header"><h5>Description</h5></li><li class="collection-item"><p>Connection error</p></li></ul></div><div id="results_delete_response_501"><ul class="collection with-header"><li class="collection-header"><h5>Description</h5></li><li class="collection-item"><p>Server error</p></li></ul></div></div></div></div><div class="modal-footer"><a href="#!" class="modal-action modal-close waves-effect btn-flat">Close</a></div></div><li class="collection-item space-between d-flex"><span><span class="grey-text">/results</span> <span>/lock</span></span> <span><a href="#results_lock_put" class="waves-effect waves-light modal-trigger"><span class="new badge badge-put" data-badge-caption="put"></span></a></span></li><div id="results_lock_put" class="modal modal-fixed-footer"><div class="modal-content"><div class="section"><span class="new badge badge-put" data-badge-caption="put"></span> <strong><span class="parent">/results</span>/lock</strong><p></p><p>Freeze (lock) or unfreeze results for a specified category &amp; round (phase), or where<br>a per_id/start_order value is provided, for a specific competitor. If no locked parameter is provided, this call will lock the results as a fail-safe If any required parameters (wet_id, grp_id or route) are not provided, the server will ignore the call.</p><p></p></div><div class="section"><ul class="tabs"><li class="tab active"><a href="#results_lock_put_request">Request</a></li><li class="tab"><a href="#results_lock_put_response">Response</a></li></ul><div id="results_lock_put_request"><ul class="collection with-header"><li class="collection-header"><h5>Query Parameters</h5></li><li class="collection-item"><ul class="browser-default"><li><strong>wet_id:</strong> <span>integer</span>&nbsp;<span class="blue-text">(required)</span><br>A unique value identifying the competition. Maps to the egroupware property 'WetId'<div><p><strong>Example</strong></p><div class="example grey lighten-4"><pre><code>1499</code></pre></div></div></li><li><strong>grp_id:</strong> <span>integer</span>&nbsp;<span class="blue-text">(required)</span><br>A value identifying a specific results category. Maps to the egroupware property 'GrpId'<div><p><strong>Example</strong></p><div class="example grey lighten-4"><pre><code>5</code></pre></div></div></li><li><strong>route:</strong> <span>integer</span>&nbsp;<span class="blue-text">(required)</span><br>A value identifying the round/route for the relevant results. Maps to the egroupware property 'route'<div><p><strong>Example</strong></p><div class="example grey lighten-4"><pre><code>0</code></pre></div></div></li><li><strong>per_id:</strong> <span>integer</span><br>A value identifying a specific competitor. Maps to the egroupware property 'PerId'<div><p><strong>Example</strong></p><div class="example grey lighten-4"><pre><code>6550</code></pre></div></div></li><li><strong>start_order:</strong> <span>integer</span><br>A value identifying the starting order for some competitor. Maps to the egroupware property 'start_order'<div><p><strong>Example</strong></p><div class="example grey lighten-4"><pre><code>1</code></pre></div></div></li><li><strong>locked:</strong> <span>boolean</span><br>A boolean to lock (true) or unlock (false) one or more results<div><p><strong>Example</strong></p><div class="example grey lighten-4"><pre><code>true</code></pre></div></div></li></ul></li></ul></div><div id="results_lock_put_response"><ul class="tabs response"><li class="tab"><a href="#results_lock_put_response_200">200</a></li><li class="tab"><a href="#results_lock_put_response_404">404</a></li><li class="tab"><a href="#results_lock_put_response_501">501</a></li></ul><div id="results_lock_put_response_200"><ul class="collection with-header"><li class="collection-header"><h5>Description</h5></li><li class="collection-item"><p>Message successfully processed by server</p></li></ul></div><div id="results_lock_put_response_404"><ul class="collection with-header"><li class="collection-header"><h5>Description</h5></li><li class="collection-item"><p>Connection error</p></li></ul></div><div id="results_lock_put_response_501"><ul class="collection with-header"><li class="collection-header"><h5>Description</h5></li><li class="collection-item"><p>Server error</p></li></ul></div></div></div></div><div class="modal-footer"><a href="#!" class="modal-action modal-close waves-effect btn-flat">Close</a></div></div><li class="collection-item space-between d-flex"><span><span class="grey-text">/results</span> <span>/broadcast</span></span> <span><a href="#results_broadcast_delete" class="waves-effect waves-light modal-trigger"><span class="new badge badge-delete" data-badge-caption="delete"></span></a></span></li><div id="results_broadcast_delete" class="modal modal-fixed-footer"><div class="modal-content"><div class="section"><span class="new badge badge-delete" data-badge-caption="delete"></span> <strong><span class="parent">/results</span>/broadcast</strong><p></p><p>Purge the server event-stream (i.e. clear any existing messages) - Required when changing between rounds of a competetition where the same competitors are in a subsequent round</p><p></p></div><div class="section"><ul class="tabs"><li class="tab active"><a href="#results_broadcast_delete_response">Response</a></li></ul><div id="results_broadcast_delete_response"><ul class="tabs response"><li class="tab"><a href="#results_broadcast_delete_response_410">410</a></li></ul><div id="results_broadcast_delete_response_410"></div></div></div></div><div class="modal-footer"><a href="#!" class="modal-action modal-close waves-effect btn-flat">Close</a></div></div></ul></div><div class="section"><h5>/session</h5><ul class="collection"><li class="collection-item space-between d-flex"><span><span class="grey-text"></span> <span>/session</span></span> <span><a href="#session_get" class="waves-effect waves-light modal-trigger"><span class="new badge badge-get" data-badge-caption="get"></span></a> <a href="#session_post" class="waves-effect waves-light modal-trigger"><span class="new badge badge-post" data-badge-caption="post"></span></a> <a href="#session_delete" class="waves-effect waves-light modal-trigger"><span class="new badge badge-delete" data-badge-caption="delete"></span></a></span></li><div id="session_get" class="modal modal-fixed-footer"><div class="modal-content"><div class="section"><span class="new badge badge-get" data-badge-caption="get"></span> <strong><span class="parent"></span>/session</strong><p></p><p>Fetch session parameters (the current competition and any eGroupware authorisation)</p><p></p></div><div class="section"><ul class="tabs"><li class="tab active"><a href="#session_get_response">Response</a></li></ul><div id="session_get_response"><ul class="tabs response"><li class="tab"><a href="#session_get_response_200">200</a></li></ul><div id="session_get_response_200"><ul class="collection with-header"><li class="collection-header"><h5>Body</h5></li><li class="collection-item"><p><strong>Media type</strong>: application/json</p><p><strong>Type</strong>: object</p><div><p><strong>Example</strong></p><div class="example grey lighten-4"><pre><code>{
+  "wet_id": 1499,
+  "auth": "sessionid=qo5tji64a1cvobtkddnjktlth0"
+}</code></pre></div></div></li></ul></div></div></div></div><div class="modal-footer"><a href="#!" class="modal-action modal-close waves-effect btn-flat">Close</a></div></div><div id="session_post" class="modal modal-fixed-footer"><div class="modal-content"><div class="section"><span class="new badge badge-post" data-badge-caption="post"></span> <strong><span class="parent"></span>/session</strong><p></p><p>Set session parameters (the current competition and/or an eGroupware authorisation)</p><p></p></div><div class="section"><ul class="tabs"><li class="tab active"><a href="#session_post_request">Request</a></li><li class="tab"><a href="#session_post_response">Response</a></li></ul><div id="session_post_request"><ul class="collection with-header"><li class="collection-header"><h5>Query Parameters</h5></li><li class="collection-item"><ul class="browser-default"><li><strong>wet_id:</strong> <span>integer</span><br>A unique value identifying the competition. Maps to the egroupware property 'WetId'<div><p><strong>Example</strong></p><div class="example grey lighten-4"><pre><code>1499</code></pre></div></div></li><li><strong>auth:</strong> <span>string</span><br>An eGroupware sessionid parameter<div><p><strong>Example</strong></p><div class="example grey lighten-4"><pre><code>sessionid=qo5tji64a1cvobtkddnjktlth0</code></pre></div></div></li></ul></li></ul></div><div id="session_post_response"><ul class="tabs response"><li class="tab"><a href="#session_post_response_200">200</a></li><li class="tab"><a href="#session_post_response_404">404</a></li><li class="tab"><a href="#session_post_response_501">501</a></li></ul><div id="session_post_response_200"><ul class="collection with-header"><li class="collection-header"><h5>Description</h5></li><li class="collection-item"><p>Message successfully processed by server</p></li></ul></div><div id="session_post_response_404"><ul class="collection with-header"><li class="collection-header"><h5>Description</h5></li><li class="collection-item"><p>Connection error</p></li></ul></div><div id="session_post_response_501"><ul class="collection with-header"><li class="collection-header"><h5>Description</h5></li><li class="collection-item"><p>Server error</p></li></ul></div></div></div></div><div class="modal-footer"><a href="#!" class="modal-action modal-close waves-effect btn-flat">Close</a></div></div><div id="session_delete" class="modal modal-fixed-footer"><div class="modal-content"><div class="section"><span class="new badge badge-delete" data-badge-caption="delete"></span> <strong><span class="parent"></span>/session</strong><p></p><p>Reset (purge) the session parameters</p><p></p></div><div class="section"><ul class="tabs"><li class="tab active"><a href="#session_delete_response">Response</a></li></ul><div id="session_delete_response"><ul class="tabs response"><li class="tab"><a href="#session_delete_response_200">200</a></li><li class="tab"><a href="#session_delete_response_404">404</a></li><li class="tab"><a href="#session_delete_response_501">501</a></li></ul><div id="session_delete_response_200"><ul class="collection with-header"><li class="collection-header"><h5>Description</h5></li><li class="collection-item"><p>Message successfully processed by server</p></li></ul></div><div id="session_delete_response_404"><ul class="collection with-header"><li class="collection-header"><h5>Description</h5></li><li class="collection-item"><p>Connection error</p></li></ul></div><div id="session_delete_response_501"><ul class="collection with-header"><li class="collection-header"><h5>Description</h5></li><li class="collection-item"><p>Server error</p></li></ul></div></div></div></div><div class="modal-footer"><a href="#!" class="modal-action modal-close waves-effect btn-flat">Close</a></div></div><li class="collection-item space-between d-flex"><span><span class="grey-text">/session</span> <span>/connection</span></span> <span><a href="#session_connection_get" class="waves-effect waves-light modal-trigger"><span class="new badge badge-get" data-badge-caption="get"></span></a></span></li><div id="session_connection_get" class="modal modal-fixed-footer"><div class="modal-content"><div class="section"><span class="new badge badge-get" data-badge-caption="get"></span> <strong><span class="parent">/session</span>/connection</strong><p></p><p>Get the hostname and IP address assigned to the local server</p><p></p></div><div class="section"><ul class="tabs"><li class="tab active"><a href="#session_connection_get_response">Response</a></li></ul><div id="session_connection_get_response"><ul class="tabs response"><li class="tab"><a href="#session_connection_get_response_200">200</a></li></ul><div id="session_connection_get_response_200"><ul class="collection with-header"><li class="collection-header"><h5>Body</h5></li><li class="collection-item"><p><strong>Media type</strong>: application/json</p><p><strong>Type</strong>: object</p><div><p><strong>Example</strong></p><div class="example grey lighten-4"><pre><code>{
+  hostname: &#39;copper.aircard&#39;,
+  address: &#39;192.169.1.90&#39;
+}
+</code></pre></div></div></li></ul></div></div></div></div><div class="modal-footer"><a href="#!" class="modal-action modal-close waves-effect btn-flat">Close</a></div></div></ul></div><div class="section"><h5>/starters</h5><ul class="collection"><li class="collection-item space-between d-flex"><span><span class="grey-text">/starters</span> <span>/file</span></span> <span><a href="#starters_file_post" class="waves-effect waves-light modal-trigger"><span class="new badge badge-post" data-badge-caption="post"></span></a></span></li><div id="starters_file_post" class="modal modal-fixed-footer"><div class="modal-content"><div class="section"><span class="new badge badge-post" data-badge-caption="post"></span> <strong><span class="parent">/starters</span>/file</strong><p></p><p>Create a startlist from a csv file containing a list of the competitors - per_id, start_order, rank_prev_heat</p><p></p></div><div class="section"><ul class="tabs"><li class="tab active"><a href="#starters_file_post_request">Request</a></li><li class="tab"><a href="#starters_file_post_response">Response</a></li></ul><div id="starters_file_post_request"><ul class="collection with-header"><li class="collection-header"><h5>Query Parameters</h5></li><li class="collection-item"><ul class="browser-default"><li><strong>wet_id:</strong> <span>integer</span>&nbsp;<span class="blue-text">(required)</span><br>A unique value identifying the competition. Maps to the egroupware property 'WetId'<div><p><strong>Example</strong></p><div class="example grey lighten-4"><pre><code>1499</code></pre></div></div></li><li><strong>grp_id:</strong> <span>integer</span>&nbsp;<span class="blue-text">(required)</span><br>A value identifying a specific results category. Maps to the egroupware property 'GrpId'<div><p><strong>Example</strong></p><div class="example grey lighten-4"><pre><code>5</code></pre></div></div></li><li><strong>route:</strong> <span>integer</span>&nbsp;<span class="blue-text">(required)</span><br>A value identifying the round/route for the relevant results. Maps to the egroupware property 'route'<div><p><strong>Example</strong></p><div class="example grey lighten-4"><pre><code>0</code></pre></div></div></li><li><strong>file:</strong> <span>file</span>&nbsp;<span class="blue-text">(required)</span><br>CSV file with headers<div><p><strong>Example</strong></p><div class="example grey lighten-4"><pre><code>per_id, start_order, rank_prev_heat
+1030, 1, null
+</code></pre></div></div></li></ul></li></ul></div><div id="starters_file_post_response"><ul class="tabs response"><li class="tab"><a href="#starters_file_post_response_200">200</a></li><li class="tab"><a href="#starters_file_post_response_404">404</a></li><li class="tab"><a href="#starters_file_post_response_501">501</a></li></ul><div id="starters_file_post_response_200"><ul class="collection with-header"><li class="collection-header"><h5>Description</h5></li><li class="collection-item"><p>Message successfully processed by server</p></li></ul></div><div id="starters_file_post_response_404"><ul class="collection with-header"><li class="collection-header"><h5>Description</h5></li><li class="collection-item"><p>Connection error</p></li></ul></div><div id="starters_file_post_response_501"><ul class="collection with-header"><li class="collection-header"><h5>Description</h5></li><li class="collection-item"><p>Server error</p></li></ul></div></div></div></div><div class="modal-footer"><a href="#!" class="modal-action modal-close waves-effect btn-flat">Close</a></div></div><li class="collection-item space-between d-flex"><span><span class="grey-text">/starters</span> <span>/ifsc</span></span> <span><a href="#starters_ifsc_post" class="waves-effect waves-light modal-trigger"><span class="new badge badge-post" data-badge-caption="post"></span></a></span></li><div id="starters_ifsc_post" class="modal modal-fixed-footer"><div class="modal-content"><div class="section"><span class="new badge badge-post" data-badge-caption="post"></span> <strong><span class="parent">/starters</span>/ifsc</strong></div><div class="section"><ul class="tabs"><li class="tab active"><a href="#starters_ifsc_post_request">Request</a></li><li class="tab"><a href="#starters_ifsc_post_response">Response</a></li></ul><div id="starters_ifsc_post_request"><ul class="collection with-header"><li class="collection-header"><h5>Query Parameters</h5></li><li class="collection-item"><ul class="browser-default"><li><strong>wet_id:</strong> <span>integer</span>&nbsp;<span class="blue-text">(required)</span><br>A unique value identifying the competition. Maps to the egroupware property 'WetId'<div><p><strong>Example</strong></p><div class="example grey lighten-4"><pre><code>1499</code></pre></div></div></li><li><strong>grp_id:</strong> <span>integer</span>&nbsp;<span class="blue-text">(required)</span><br>A value identifying a specific results category. Maps to the egroupware property 'GrpId'<div><p><strong>Example</strong></p><div class="example grey lighten-4"><pre><code>5</code></pre></div></div></li><li><strong>route:</strong> <span>integer</span>&nbsp;<span class="blue-text">(required)</span><br>A value identifying the round/route for the relevant results. Maps to the egroupware property 'route'<div><p><strong>Example</strong></p><div class="example grey lighten-4"><pre><code>0</code></pre></div></div></li></ul></li></ul></div><div id="starters_ifsc_post_response"><ul class="tabs response"><li class="tab"><a href="#starters_ifsc_post_response_200">200</a></li><li class="tab"><a href="#starters_ifsc_post_response_404">404</a></li><li class="tab"><a href="#starters_ifsc_post_response_501">501</a></li></ul><div id="starters_ifsc_post_response_200"><ul class="collection with-header"><li class="collection-header"><h5>Description</h5></li><li class="collection-item"><p>Message successfully processed by server</p></li></ul></div><div id="starters_ifsc_post_response_404"><ul class="collection with-header"><li class="collection-header"><h5>Description</h5></li><li class="collection-item"><p>Connection error</p></li></ul></div><div id="starters_ifsc_post_response_501"><ul class="collection with-header"><li class="collection-header"><h5>Description</h5></li><li class="collection-item"><p>Server error</p></li></ul></div></div></div></div><div class="modal-footer"><a href="#!" class="modal-action modal-close waves-effect btn-flat">Close</a></div></div><li class="collection-item space-between d-flex"><span><span class="grey-text">/starters/registration</span> <span>/file</span></span> <span><a href="#starters_registration_file_post" class="waves-effect waves-light modal-trigger"><span class="new badge badge-post" data-badge-caption="post"></span></a></span></li><div id="starters_registration_file_post" class="modal modal-fixed-footer"><div class="modal-content"><div class="section"><span class="new badge badge-post" data-badge-caption="post"></span> <strong><span class="parent">/starters/registration</span>/file</strong><p></p><p>Upload a csv file containing the details of climbers registered for the competition</p><p></p></div><div class="section"><ul class="tabs"><li class="tab active"><a href="#starters_registration_file_post_request">Request</a></li><li class="tab"><a href="#starters_registration_file_post_response">Response</a></li></ul><div id="starters_registration_file_post_request"><ul class="collection with-header"><li class="collection-header"><h5>Query Parameters</h5></li><li class="collection-item"><ul class="browser-default"><li><strong>file:</strong> <span>file</span>&nbsp;<span class="blue-text">(required)</span><br>CSV file with headers<div><p><strong>Example</strong></p><div class="example grey lighten-4"><pre><code>per_id, lastname, firstname, federation, nation, birthyear
+6550, Bacher, Barbara, OEAV Inneroetztal, AUT, 1980
+</code></pre></div></div></li></ul></li></ul></div><div id="starters_registration_file_post_response"><ul class="tabs response"><li class="tab"><a href="#starters_registration_file_post_response_200">200</a></li><li class="tab"><a href="#starters_registration_file_post_response_404">404</a></li><li class="tab"><a href="#starters_registration_file_post_response_501">501</a></li></ul><div id="starters_registration_file_post_response_200"><ul class="collection with-header"><li class="collection-header"><h5>Description</h5></li><li class="collection-item"><p>Message successfully processed by server</p></li></ul></div><div id="starters_registration_file_post_response_404"><ul class="collection with-header"><li class="collection-header"><h5>Description</h5></li><li class="collection-item"><p>Connection error</p></li></ul></div><div id="starters_registration_file_post_response_501"><ul class="collection with-header"><li class="collection-header"><h5>Description</h5></li><li class="collection-item"><p>Server error</p></li></ul></div></div></div></div><div class="modal-footer"><a href="#!" class="modal-action modal-close waves-effect btn-flat">Close</a></div></div><li class="collection-item space-between d-flex"><span><span class="grey-text">/starters/registration</span> <span>/ifsc</span></span> <span><a href="#starters_registration_ifsc_post" class="waves-effect waves-light modal-trigger"><span class="new badge badge-post" data-badge-caption="post"></span></a></span></li><div id="starters_registration_ifsc_post" class="modal modal-fixed-footer"><div class="modal-content"><div class="section"><span class="new badge badge-post" data-badge-caption="post"></span> <strong><span class="parent">/starters/registration</span>/ifsc</strong><p></p><p>Fetch a list of registered climbers from eGroupware</p><p></p></div><div class="section"><ul class="tabs"><li class="tab active"><a href="#starters_registration_ifsc_post_request">Request</a></li><li class="tab"><a href="#starters_registration_ifsc_post_response">Response</a></li></ul><div id="starters_registration_ifsc_post_request"><ul class="collection with-header"><li class="collection-header"><h5>Query Parameters</h5></li><li class="collection-item"><ul class="browser-default"><li><strong>wet_id:</strong> <span>integer</span>&nbsp;<span class="blue-text">(required)</span><br>A unique value identifying the competition. Maps to the egroupware property 'WetId'<div><p><strong>Example</strong></p><div class="example grey lighten-4"><pre><code>1499</code></pre></div></div></li></ul></li></ul></div><div id="starters_registration_ifsc_post_response"><ul class="tabs response"><li class="tab"><a href="#starters_registration_ifsc_post_response_200">200</a></li><li class="tab"><a href="#starters_registration_ifsc_post_response_404">404</a></li><li class="tab"><a href="#starters_registration_ifsc_post_response_501">501</a></li></ul><div id="starters_registration_ifsc_post_response_200"><ul class="collection with-header"><li class="collection-header"><h5>Description</h5></li><li class="collection-item"><p>Message successfully processed by server</p></li></ul></div><div id="starters_registration_ifsc_post_response_404"><ul class="collection with-header"><li class="collection-header"><h5>Description</h5></li><li class="collection-item"><p>Connection error</p></li></ul></div><div id="starters_registration_ifsc_post_response_501"><ul class="collection with-header"><li class="collection-header"><h5>Description</h5></li><li class="collection-item"><p>Server error</p></li></ul></div></div></div></div><div class="modal-footer"><a href="#!" class="modal-action modal-close waves-effect btn-flat">Close</a></div></div></ul></div></div><script src="https://code.jquery.com/jquery-2.1.1.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script><script>
+        $(document).ready(function () {
+            $('.modal').modal({
+                ready: function()  {
+                    $('ul.tabs').tabs();
+                }
+            });
+        });
+
+        $(document).ready(function(){
+            $('ul.tabs').tabs();
+        });
+
+    </script></body></html>

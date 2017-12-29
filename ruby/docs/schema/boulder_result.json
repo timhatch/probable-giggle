@@ -1,0 +1,32 @@
+/* Attempts in progress */
+{ 
+  "p1": { 
+    "a": 3, 
+    "b": null, 
+    "t": null 
+  }
+}
+/* Attempts complete, zone & top */
+{ 
+  "p1": { 
+    "a": 3, 
+    "b": 2, 
+    "t": 3 
+  }
+}
+/* Attempts complete, no zone or top */
+{ 
+  "p1": { 
+    "a": 3, 
+    "b": 0, 
+    "t": null 
+  }
+}
+/* Attempts complete, zone but no top */
+{ 
+  "p1": { 
+    "a": 3, 
+    "b": 2, 
+    "t": 0
+  }
+}
