@@ -51,5 +51,27 @@ module Perseus
       params[:competitors] = Perseus::EGroupwarePublicAPI.get_results(params)
       Perseus::LocalDBConnection::Startlist.insert(params) ? 200 : 501
     end
+
+    # Add to the list of registered climbers by reading from a CSV formatted file
+    # Assume that the CSV file contains the following data:
+    # per_id, lastname, firstname, club (federation), nation, birthyear
+    # @params
+    # - a csv file
+    # REVIEW: This function not yet tested
+    post '/registration/file' do
+      data = Perseus::CSVParser.parse_csv_file(file: params.delete(:file))
+      Perseus::LocalDBConnection::Competitors.insert(data) ? 200 : 501
+    end
+
+    # Fetch a list of climbers from eGroupware (actually fetches the list of climbers registered
+    # for a specific competition.
+    # @params
+    # - wet_id
+    # This method simply passes the require parameters to the EGroupwarePublicAPI.get_starters
+    # method for validation and action
+    post '/registration/ifsc' do
+      data = Perseus::EGroupwarePublicAPI.get_starters(params)
+      Perseus::LocalDBConnection::Competitors.insert(data) ? 200 : 501
+    end
   end
 end

@@ -11,7 +11,6 @@ use Rack::PostBodyContentTypeParser
 # run Perseus::App
 map('/')             { run Perseus::ApplicationController }
 map('/results')      { run Perseus::ResultsController }
-map('/registration') { run Perseus::RegistrationController }
 map('/startlist')    { run Perseus::StartlistController }
 map('/session')      { run Perseus::SessionController }
 
