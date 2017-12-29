@@ -31,6 +31,10 @@ module Perseus
       Perseus::LocalDBConnection::Session.set(params) ? 200 : 501
     end
 
+    get '/connection' do
+      Perseus::LocalDBConnection::Session.connection
+    end
+
     # Update Session[:auth] by connecting to eGroupware with login credentials
     #
     # post '/login' do

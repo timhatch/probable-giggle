@@ -8,7 +8,6 @@
 require 'sequel'
 require 'pg'
 require 'json'
-require 'socket'
 
 module Perseus
   class ApplicationController < Sinatra::Base
@@ -23,18 +22,5 @@ module Perseus
     # get '/' do
     #   haml :index
     # end
-
-    # Get connection details for the local results server
-    # See
-    # http://stackoverflow.com/questions/42566/getting-the-hostname-or-ip-in-ruby-on-rails
-    #
-    get '/connection' do
-      begin
-        addr = Socket.ip_address_list.find { |ai| ai.ipv4? && !ai.ipv4_loopback? }.ip_address
-      rescue
-        addr = nil
-      end
-      Hash[hostname: Socket.gethostname, address: addr].to_json
-    end
   end
 end

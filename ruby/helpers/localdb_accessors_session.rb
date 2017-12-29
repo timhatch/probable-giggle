@@ -5,6 +5,7 @@
 require 'sequel'
 require 'pg'
 require 'json'
+require 'socket'
 
 # Session data getter/setters
 # The Session table contains only one entry by design
@@ -13,6 +14,19 @@ module Perseus
   module LocalDBConnection
     module Session
       module_function
+
+      # Get connection details for the local results server
+      # See
+      # http://stackoverflow.com/questions/42566/getting-the-hostname-or-ip-in-ruby-on-rails
+      #
+      def connection
+        begin
+          addr = Socket.ip_address_list.find { |ai| ai.ipv4? && !ai.ipv4_loopback? }.ip_address
+        rescue
+          addr = nil
+        end
+        Hash[hostname: Socket.gethostname, address: addr].to_json
+      end
 
       # Get the session data
       #
