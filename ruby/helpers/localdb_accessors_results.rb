@@ -43,8 +43,11 @@ module Perseus
       # within the round. Prefer the per_id if both are provided
       def self.query params
         args = Hash[@default_route.map { |k, v| [k, params[k].to_i || v] }]
-        id   = params[:per_id].nil? ? :start_order : :per_id
-        args.merge(id => params[id].to_i)
+        if params.key?(:per_id) || params.key?(:start_order)
+          id       = params[:per_id].nil? ? :start_order : :per_id
+          args[id] = params[id].to_i
+        end
+        args
       end
 
       module_function
@@ -52,8 +55,7 @@ module Perseus
       # Helper method to delete a startlist or a person (use per_id as an optional
       # parameter to delete an individual rather than the complete list
       def delete params
-        args          = Hash[@default_route.map { |k, v| [k, params[k].to_i || v] }]
-        args[:per_id] = params[:per_id].to_i unless params[:per_id].nil?
+        args = query(params)
         DB[:Results].where(args).delete
       end
 
@@ -69,11 +71,14 @@ module Perseus
       # Fetch results for a category/route or for a single person (if either per_id or start_order
       # are defined. If both per_id and start_order are defined, user the per_id value
       def fetch params
+        args = query(params)
+        get_result(args).all
+      end
+
+      # FIXME: This method retained pending resolution of backward-compatibility issues for
+      #        broadcast results
+      def result_route params
         args = Hash[@default_route.map { |k, v| [k, params[k].to_i || v] }]
-        if params.key?(:per_id) || params.key?(:start_order)
-          id       = params[:per_id].nil? ? :start_order : :per_id
-          args[id] = params[id].to_i
-        end
         get_result(args).all
       end
 
