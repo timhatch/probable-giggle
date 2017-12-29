@@ -49,12 +49,9 @@ module Perseus
     # Fetch the startlist/resultslist for a given round
     # (gives the general result is route = -1)
     def get_results params
-      args = {
-        comp: params[:wet_id].to_i || 0,
-        cat:  params[:grp_id].to_i || 0,
-        route: params[:route].to_i || -1
-      }
-
+      args = Hash[comp: params[:wet_id].to_i || 0,
+                  cat:  params[:grp_id].to_i || 0,
+                  route: params[:route].to_i || -1]
       data = get_json(args)
       data['participants'] unless data.nil?
     end
