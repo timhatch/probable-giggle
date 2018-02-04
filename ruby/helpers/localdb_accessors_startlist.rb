@@ -34,7 +34,7 @@ module Perseus
 
       # Helper method to import a startlist into the LAN database
       #
-      # The data is assumed to ne an array competitors, each a ruby Hash containing at least
+      # The data is assumed to an array of competitors, each a ruby Hash containing at least
       # a per_id (or PerId) and start_order parameter
       #
       # @params
