@@ -1,7 +1,7 @@
 #%RAML 1.0
 ---
 title:        Perseus 
-baseURI:      http://{IP Address}/broadcast
+baseURI:      http://{ip_address}/broadcast
 description:  |
   The following API endpoints can be used to receive "push" updates from the local server,  
   transmitted and received using the HTML EventSource protocol.
@@ -14,7 +14,7 @@ description:  |
       Note that the stream data does not explicitly identify the category/round for each 
       broadcast - This requires the data to be interrogated and matched on a per-climber basis.  
       Test url:-  
-      curl -v --request GET -H "Accept: text/json" http://{IP Address}/broadcast/result
+      curl -v --request GET -H "Accept: text/json" http://{ip_address}/broadcast/result
     responses:
       200:
         body:
@@ -80,6 +80,68 @@ description:  |
                   ]
       404:
         description:  Connection error
+  put:
+    description: Broadcast updated results for a specified category/competitor and round (phase)
+    queryParameters:
+      body: 
+        type:   BoulderResult
+        description:  |
+          A json object containing the just-updated category/route result.  
+        example:  |
+          [
+            {
+              "per_id": 12501,
+              "lastname": "Ogata",
+              "firstname": "Yoshiyuki",
+              "nation": "JPN",
+              "start_order": 4,
+              "rank_prev_heat": 3,
+              "sort_values":  [4,9,4,6],
+              "result_jsonb": {
+                "p1": { "a": 2,"b": 2,"t": 2 },
+                "p2": { "a": 1,"b": 1,"t": 1 },
+                "p3": { "a": 2,"b": 1,"t": 2 },
+                "p4": { "a": 4,"b": 2,"t": 4 }
+              },
+              "result_rank": 1
+            },
+            {
+              "per_id": 6623,
+              "lastname": "Hojer",
+              "firstname": "Jan",
+              "nation": "GER",
+              "start_order": 3,
+              "rank_prev_heat": 4,
+              "sort_values": [3,6,3,4],
+              "result_jsonb": {
+                "p1": { "a": 1, "b": 1, "t": 1 },
+                "p2": { "a": 5, "b": 0, "t": null },
+                "p3": { "a": 3, "b": 2, "t": 3 },
+                "p4": { "a": 2, "b": 1, "t": 2 }
+              },
+              "result_rank": 2},
+            {
+              "per_id": 9046,
+              "lastname":"Rubtsov",
+              "firstname":"Alexei",
+              "nation":"RUS",
+              "start_order": 5,
+              "rank_prev_heat": 2,
+              "sort_values":[2,3,4,8],
+              "result_jsonb":{
+                "p1": { "a": 1, "b": 1, "t": 1 },
+                "p2": { "a": 4, "b": 1, "t": 0 },
+                "p3": { "a": 5, "b": 4, "t": 0 },
+                "p4": { "a": 2, "b": 2, "t": 2 }
+              },
+              "result_rank": 3
+            }
+          ]
+  responses:
+    200:
+      description:  Message successfully processed by server
+    404:
+      description:  Connection error
 /stream:
   get:
     description:  |
@@ -121,4 +183,31 @@ description:  |
                   }
       404:
         description:  Connection error
+  put:
+    description: Broadcast the last updated results for a specified competitor
+    queryParameters:
+      body: 
+        type:   PersonResult
+        description:  |
+          A json object containing the just-updated category/route result.  
+        example:      |
+          {
+            "per_id"      : 11091,
+            "lastname"    : "Cornu",
+            "firstname"   : "Manuel",
+            "nation"      : "FRA",
+            "start_order" : 1,
+            "rank_prev_heat"  : 6,
+            "sort_values" : [1, 5, 3, 8],
+            "result_jsonb": {
+              "p1" : { "a" : 5, "b" : 1, "t" : null }
+            },
+            "result_rank" : 6
+          }
+  responses:
+    200:
+      description:  Message successfully processed by server
+    404:
+      description:  Connection error
+
 

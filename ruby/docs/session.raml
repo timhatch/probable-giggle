@@ -5,25 +5,38 @@ baseURI:      http://{IP Address}/session
 description:  API description to get/set session parameters for the application
 
 get:
-  description: Fetch session parameters (the current competition and any eGroupware authorisation)
+  description: |
+    Fetch current session parameters, specifically:-
+    - the wet_id identifier for the current competition; and
+    - the status of any live connection to eGroupware (returns null if not connected, or the last 
+      used sessionid authorisation if connected)
   responses:
     200:
       body:
         application/json:
           type:         object
-          description:  A JSON formatted results object
-          example:
+          example: |
+            // Pre-existing eGroupware connection
             {
-              'wet_id': 1499,
-              'auth': 'sessionid=qo5tji64a1cvobtkddnjktlth0'
+              "wet_id": 1499,
+              "auth"  : 'sessionid=qo5tji64a1cvobtkddnjktlth0'
             }
+            // No eGroupware connection
+            {
+              "wet_id": 1499,
+              "auth"  : null
+            }
+    404:
+      description:  Connection error
+    501:
+      description:  Server error
 post:
   description: Set session parameters (the current competition and/or an eGroupware authorisation)
   queryParameters: 
     wet_id?:        wet_id
     auth?:
       type:         string
-      description:  An eGroupware sessionid parameter
+      description:  Contains an eGroupware sessionid parameter (where bror null
       example:      sessionid=qo5tji64a1cvobtkddnjktlth0 
   responses:
     200:

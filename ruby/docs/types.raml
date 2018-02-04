@@ -10,54 +10,55 @@ wet_id:
 grp_id:
   type:         integer
   description:  |
-    A value identifying a specific results category.  
-    Maps to the egroupware property 'GrpId'
+    A value identifying a specific results category.
+    - Maps to the egroupware property 'GrpId'
   example:      5
 per_id:
   type:         integer
   description:  |
-    A value identifying a specific competitor.  
-    Maps to the egroupware property 'PerId'
+    A value identifying a specific competitor.
+    - Maps to the egroupware property 'PerId'
   example:      6550
 firstname:
   type:         string
   description:  |
-    The first (given) name of a competitor (as a UTF-8 formatted string)
-    Maps to the egroupware property 'firstname'
+    The first (given) name of a competitor (as a UTF-8 formatted string). 
+    - Maps to the egroupware property 'firstname'
   example:      'Barbara'
 lastname:
   type:         string
   description:  | 
-    The last (family) name of a competitor (as a UTF-8 formatted string)  
-    Maps to the egroupware property 'lastname'
+    The last (family) name of a competitor (as a UTF-8 formatted string). 
+    - Maps to the egroupware property 'lastname'
   example:      'Bacher'
 nation:
   type:         string
   description:  |
-    The 3-letter IOC code for a competitors country of origin  
-    Maps to the egroupware property 'nation'
+    The 3-letter IOC code for a competitors country of origin.
+    - Maps to the egroupware property 'nation'
   example:      'AUT'
 route:
   type:         integer
   description:  |
-    A value identifying the round/route for the relevant results.  
-    Maps to the egroupware property 'route'
+    A value identifying the round/route for the relevant results.
+    - Maps to the egroupware property 'route'
   example:      0
 start_order:
   type:         integer
   description:  | 
     A value identifying the starting order for some competitor.  
-    Maps to the egroupware property 'start_order'
+    - Maps to the egroupware property 'start_order'
   example:      1
 result_rank:
   type:         integer
   description:  |
     The rank of the competitor within the relevant round.  
-    Maps to the egroupware property 'result_rank'
+    - Maps to the egroupware property 'result_rank'
   example:      2
 sort_values:
-  type:        integer[] 
-  description:  A null value may be returned where the relevant competitor has not yet started
+  type:         integer[] 
+  description:  |
+    A null value may be returned where the relevant competitor has not yet started.
 person_result:
   type:         object
   description: |
