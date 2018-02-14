@@ -108,7 +108,7 @@ DROP TRIGGER test_trigger on "Results"
 -- CREATING STARTLISTS FROM EXISTING DATA
 -- Creating Startlists
 INSERT OR REPLACE INTO "Results" FROM
-(SELECT * FROM "Ranking" WHERE wet_id=? AND grp_id=? AND route=? AND rank_this_heat<(QUOTA+1) 
+(SELECT * FROM "Results" WHERE wet_id=? AND grp_id=? AND route=? AND rank_this_heat<(QUOTA+1) 
   ORDER BY rank_this_heat ASC)
 
 
