@@ -174,3 +174,12 @@ data = DB[:Results].where(params)
 data.select(:per_id)
     .select_append(&method(:rank))
     .each { |x| data.where(per_id: x[:per_id]).update(rank_this_heat: x[:result_rank]) }
+    
+-- USE A FILTER TO SCREEN OUT JUNIORS (CWIF)
+
+--date = Sequel.cast(Date.today,DateTime)
+-- year = Sequel.extract(:year, date).cast(Integer)
+year    = Sequel.cast(Date.today, DateTime).extract(:year).cast(Integer)
+juniors = DB[:Climbers].where{birthyear > year - 19}
+
+
