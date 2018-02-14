@@ -1,10 +1,8 @@
-#
-# Calculate result_rank on querying results
-#
-# Method A - Use a view.
-# + faster
-# - hardwires ranking methodology into the database
-
+-- Calculate result_rank on querying results
+--
+-- Method A - Use a view.
+-- + faster
+-- - hardwires ranking methodology into the database
 CREATE VIEW "BoulderRanking" AS
 SELECT
   wet_id, grp_id, route, locked,
@@ -16,10 +14,9 @@ FROM "Results"
 JOIN "Climbers" USING (per_id)
 WHERE locked IS false
 
-# Method B - Create the ranking on the fly when querying.
-# + more flexible?
-# - slower
-
+-- Method B - Create the ranking on the fly when querying.
+-- + more flexible?
+-- - slower
 DB[:Results]
 .join(:Climbers, [:per_id])
 .where(params)
@@ -37,17 +34,14 @@ DB[:Results]
   ).as(:result_rank)
 }
 
-# Postgres column types
-#
-# Add a column of type integer Array
+-- Postgres column types
+-- Add a column of type integer Array
 ALTER TABLE "Results" ADD COLUMN "sort_values" INTEGER[4]
-# Add a column of type jsonb type
+-- Add a column of type jsonb type
 ALTER TABLE "Results" ADD COLUMN "result_jsonb" jsonb
 
-# Postgres triggers 
-#
-# Triggers in POSTGRESQL use functions, like so...
-#
+-- Postgres triggers 
+-- Triggers in POSTGRESQL use functions, like so...
 CREATE OR REPLACE FUNCTION test_function()
   RETURNS trigger AS
   $BODY$
@@ -60,10 +54,29 @@ CREATE OR REPLACE FUNCTION test_function()
   
 CREATE TRIGGER test_trigger AFTER UPDATE OF route ON "Results" FOR EACH ROW EXECUTE PROCEDURE test_function();
 
-# To remove/delete/drop
+-- To remove/delete/drop
 DROP FUNCTION test_function()
 DROP TRIGGER test_trigger on "Results"
 
-# Creating Startlists
-#
+-- Creating Startlists
 SELECT * FROM "Ranking" WHERE wet_id=? AND grp_id=? AND route=? AND result_rank<(QUOTA+1) ORDER BY result_rank ASC
+
+-- PostGres query to calculate and insert a rank (rank_this_heat) using a window function
+-- NOTE: See if we could run this via a trigger...
+UPDATE "Results" r 
+SET rank_this_heat = calc_rank 
+FROM (
+  SELECT 
+    per_id, 
+    rank() 
+    OVER (
+      PARTITION BY 
+        wet_id, 
+        grp_id, 
+        route 
+      ORDER BY 
+        sort_values[1] DESC NULLS LAST, sort_values[2] ASC, sort_values[3] DESC, sort_values[4] ASC, rank_prev_heat ASC
+    ) AS calc_rank FROM "Results" r
+  ) rr
+WHERE r.wet_id=31 AND r.route=2 AND r.per_id = rr.per_id
+
