@@ -71,12 +71,15 @@ module Perseus
       #
       def generate params
         quota    = params[:quota].to_i || 1
+        # Fetch an ordered list - for now this doesnt rely on the relevant results being locked or
+        # having a 'final' rank
         starters = Perseus::LocalDBConnection::Results
                    .fetch(params)
                    .keep_if { |x| x[:result_rank] <= quota }
                    .reverse.map.with_index(1) { |x, i|
-                     Hash['per_id' => x[:per_id], 'start_order' => i,
-                          'rank_prev_heat' => x[:result_rank]]
+                     Hash[per_id: x[:per_id], 
+                          start_order: i,
+                          rank_prev_heat: x[:rank_this_heat]]
                    }
         route = params.delete(:route).to_i + 1
         insert(params.merge(route: route, competitors: starters))
