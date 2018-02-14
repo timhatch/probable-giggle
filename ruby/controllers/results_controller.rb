@@ -46,9 +46,9 @@ module Perseus
 
     # Reset a __single__ result
     # Convert the received parameters into hash symbols and call
-    # LocalDBConnection.result_reset
+    # LocalDBConnection::Results.reset
     delete '/person' do
-      LocalDBConnection::Results.result_reset(params)
+      LocalDBConnection::Results.reset(params)
       ResultsHandler.broadcast_route(params) ? 200 : 501
     end
 
