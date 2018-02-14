@@ -6,7 +6,6 @@ tests needed for:
 
 Add scripts to:
 - reset stream
-- output CSV files of results
 - create startlists
 
 Create Excel templates
