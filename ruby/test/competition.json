@@ -1,0 +1,42 @@
+[
+    {
+        "cats": [
+            5,
+            6
+        ],
+        "city": "Wroclaw",
+        "date": "2017-07-21",
+        "routes": {
+            "5": {
+                "0": {
+                    "locked": true,
+                    "quota": 6,
+                    "starters": true,
+                    "title": "qualification"
+                },
+                "2": {
+                    "locked": false,
+                    "quota": 0,
+                    "starters": true,
+                    "title": "final"
+                }
+            },
+            "6": {
+                "0": {
+                    "locked": true,
+                    "quota": 6,
+                    "starters": true,
+                    "title": "qualification"
+                },
+                "2": {
+                    "locked": false,
+                    "quota": 0,
+                    "starters": true,
+                    "title": "final"
+                }
+            }
+        },
+        "title": "World Games 2017",
+        "wet_id": 1611
+    }
+]
