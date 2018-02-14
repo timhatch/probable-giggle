@@ -1,13 +1,21 @@
--- Calculate result_rank on querying results
+-- This file contains SQL snippets and corresponding/complimentary Sequel snippets
+-- The contents are as much an aide-memoire as anything
+
+
+-- DYNAMIC RANKING METHODS
 --
+-- Calculate result_rank on querying results
+-- Note that both methods here use the pre-2018 ranking methodology
+
 -- Method A - Use a view.
--- + faster
+-- + faster?
+-- + may allow single queries to be made TBC
 -- - hardwires ranking methodology into the database
+--
 CREATE VIEW "BoulderRanking" AS
 SELECT
   wet_id, grp_id, route, locked,
   per_id, lastname, firstname, nation, 
-  (CAST(sort_values[1] AS TEXT) || 't' || CAST(sort_values[2] AS TEXT) || ' ' || CAST(sort_values[3] AS TEXT) || 'b' || CAST(sort_values[4] AS TEXT)) AS result,
   result_jsonb, rank_prev_heat, start_order, sort_values,
   rank() OVER (PARTITION BY wet_id, grp_id, route ORDER BY sort_values[1] DESC NULLS LAST, sort_values[2] ASC, sort_values[3] DESC, sort_values[4] ASC, rank_prev_heat ASC) AS result_rank
 FROM "Results"
@@ -16,7 +24,10 @@ WHERE locked IS false
 
 -- Method B - Create the ranking on the fly when querying.
 -- + more flexible?
--- - slower
+-- - slower?
+-- - result_rank can only be calculated where a full route is queried, if a single resukt is retrieved then result_rank is always 1
+--   because the partition over which rank is created is just the one climber
+--
 DB[:Results]
 .join(:Climbers, [:per_id])
 .where(params)
@@ -34,35 +45,78 @@ DB[:Results]
   ).as(:result_rank)
 }
 
--- Postgres column types
--- Add a column of type integer Array
+
+-- CASTING DATA IN POSTGRESQL
+--
+-- Translate the sort_values array into a string representation of the result (pre-2018 ranking method)
+--
+SELECT per_id, (CAST(sort_values[1] AS TEXT) || 't' || CAST(sort_values[2] AS TEXT) || ' ' || CAST(sort_values[3] AS TEXT) || 'b' || CAST(sort_values[4] AS TEXT)) AS result
+FROM "Results"
+WHERE...
+
+
+-- ADDING COMPLEX DATA TYPES
+--
+-- Add a column of type (integer Array)
 ALTER TABLE "Results" ADD COLUMN "sort_values" INTEGER[4]
--- Add a column of type jsonb type
+-- Add a column of type (jsonb)
 ALTER TABLE "Results" ADD COLUMN "result_jsonb" jsonb
 
--- Postgres triggers 
--- Triggers in POSTGRESQL use functions, like so...
-CREATE OR REPLACE FUNCTION test_function()
-  RETURNS trigger AS
-  $BODY$
-  BEGIN
-  UPDATE "Results" SET test = CAST(sort_values[1] AS TEXT) || 't';
-  RETURN null;
-  END;
-  $BODY$
-  LANGUAGE plpgsql VOLATILE
-  
-CREATE TRIGGER test_trigger AFTER UPDATE OF route ON "Results" FOR EACH ROW EXECUTE PROCEDURE test_function();
 
+-- USING TRIGGERS IN POSTGRESQL
+--
+-- Example of how to use triggers in POSTGRES
+-- Triggers can be run BEFORE, AFTER or INSTEAD OF one of the following events:
+-- INSERT UPDATE DELETE TRUNCATE
+-- Triggers can be run FOR EACH ROW or once per statement (default) via FOR EACH STATEMENT
+-- Triggers in POSTGRESQL use functions, like so...
+--
+CREATE TRIGGER test_trigger 
+AFTER UPDATE OF route ON "Results" 
+FOR EACH ROW 
+EXECUTE PROCEDURE my_function();
+
+-- The POSTGRESQL manual gives the following example:
+CREATE OR REPLACE FUNCTION log_last_name_changes()
+  RETURNS trigger AS
+$BODY$
+BEGIN
+ IF NEW.last_name <> OLD.last_name THEN
+ INSERT INTO employee_audits(employee_id,last_name,changed_on)
+ VALUES(OLD.id,OLD.last_name,now());
+ END IF;
+ RETURN NEW;
+END;
+$BODY$
+
+-- some web examples however require a language to be associated with the function
+CREATE OR REPLACE FUNCTION myfunction()
+  RETURNS trigger AS
+$BODY$
+BEGIN
+  UPDATE "Results" SET test_column = CAST(sort_values[1] AS TEXT) || 't';
+  RETURN null;
+END;
+$BODY$
+LANGUAGE plpgsql VOLATILE
+  
 -- To remove/delete/drop
-DROP FUNCTION test_function()
+DROP FUNCTION myfunction()
 DROP TRIGGER test_trigger on "Results"
 
--- Creating Startlists
-SELECT * FROM "Ranking" WHERE wet_id=? AND grp_id=? AND route=? AND result_rank<(QUOTA+1) ORDER BY result_rank ASC
 
--- PostGres query to calculate and insert a rank (rank_this_heat) using a window function
--- NOTE: See if we could run this via a trigger...
+-- CREATING STARTLISTS FROM EXISTING DATA
+-- Creating Startlists
+INSERT OR REPLACE INTO "Results" FROM
+(SELECT * FROM "Ranking" WHERE wet_id=? AND grp_id=? AND route=? AND rank_this_heat<(QUOTA+1) 
+  ORDER BY rank_this_heat ASC)
+
+
+-- INSERT A RANK INTO THE RESULTS TABLE
+--
+-- POSTGRESQL query to calculate and insert a rank (rank_this_heat) using a window function
+-- This is a similar concept to dynamic rank calculation
+--
 UPDATE "Results" r 
 SET rank_this_heat = calc_rank 
 FROM (
@@ -80,3 +134,43 @@ FROM (
   ) rr
 WHERE r.wet_id=31 AND r.route=2 AND r.per_id = rr.per_id
 
+-- The simplest implementation of the above in Sequel would follow the following:
+data = DB[:Results].where(params)
+
+data.select(:per_id)
+    .select_append {
+      rank.function.over(
+        partition: [:wet_id, :grp_id, :route],
+        order: [
+          Sequel.desc(Sequel.pg_array_op(:sort_values)[1], :nulls=>:last),
+          Sequel.pg_array_op(:sort_values)[2],
+          Sequel.desc(Sequel.pg_array_op(:sort_values)[3]),
+          Sequel.pg_array_op(:sort_values)[3],
+          :rank_prev_heat
+        ]
+      ).as(:result_rank)
+    }
+    .each { |x| data.where(per_id: x[:per_id]).update(rank_this_heat: x[:result_rank]) }
+-- there may be more efficient means of doing this, the above method relies on Sequel datasets 
+-- being iterable objects in Ruby. But as a corollary, it infers that this emthod will make n 
+-- serial writes to the database.
+-- There may be a better way of doing this
+-- We can also extract the ranking function into a separate method, e.g.
+
+def self.rank 
+  Sequel.function(:rank).over(        
+    partition: [:wet_id, :grp_id, :route],
+    order: [
+      Sequel.desc(Sequel.pg_array_op(:sort_values)[1], :nulls=>:last),
+      Sequel.pg_array_op(:sort_values)[2],
+      Sequel.desc(Sequel.pg_array_op(:sort_values)[3]),
+      Sequel.pg_array_op(:sort_values)[3],
+      :rank_prev_heat
+    ]
+  ).as(:result_rank)
+end
+
+data = DB[:Results].where(params)
+data.select(:per_id)
+    .select_append(&method(:rank))
+    .each { |x| data.where(per_id: x[:per_id]).update(rank_this_heat: x[:result_rank]) }
