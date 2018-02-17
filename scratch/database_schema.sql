@@ -161,10 +161,10 @@ def self.rank
   Sequel.function(:rank).over(        
     partition: [:wet_id, :grp_id, :route],
     order: [
-      Sequel.desc(Sequel.pg_array_op(:sort_values)[1], :nulls=>:last),
+      Sequel.pg_array_op(:sort_values)[1].desc(nulls::last),
       Sequel.pg_array_op(:sort_values)[2],
-      Sequel.desc(Sequel.pg_array_op(:sort_values)[3]),
-      Sequel.pg_array_op(:sort_values)[3],
+      Sequel.pg_array_op(:sort_values)[3].desc,
+      Sequel.pg_array_op(:sort_values)[4],
       :rank_prev_heat
     ]
   ).as(:result_rank)
