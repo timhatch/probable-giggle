@@ -7,24 +7,24 @@ require 'optparse'
 
 options = {}
 ARGV << '-h' if ARGV.empty?
+
 OptionParser.new do |opts|
   opts.banner = 'Usage: csv_export.rb [options]'
 
-  opts.on('-w', '--wet_id WETID', 'Competition ID')  { |v| options[:wet_id] = v.to_i || 0 }
-  opts.on('-r', '--route ROUTE', 'Current Route')    { |v| options[:route]  = v.to_i || 0 }
-  opts.on('-c', '--grp_id GRPID', 'Active Category') { |v| options[:grp_id] = v.to_i || 0 }
+  opts.on('-w', '--wetid WETID', Integer, 'Competition ID')  { |v| options[:wet_id] = v }
+  opts.on('-r', '--route ROUTE', Integer, 'Current Route')   { |v| options[:route]  = v }
+  opts.on('-c', '--grpid GRPID', Integer, 'Active Category') { |v| options[:grp_id] = v }
 
   opts.on('-h', '--help', 'Display this screen') do
     puts opts
-    puts 'Require arguments -w <wet_id> -c <grp_id> -r <route>'
+    puts 'Require arguments -w [wet_id] -c [grp_id] -r [route]'
     exit
   end
 end.parse!
 
 # If we haven't exited (where no options have been passed) then run the script
-@params = options
+@params = { wet_id: 0, route: 0, grp_id: 0 }.merge(options)
 @url    = 'http://localhost/results/route'
-
 # Convert the results_jsonb data into an array of values
 # NOTE: No explicit check is made as to the order, we presume that the order of boulders
 # is always p1, p2... and within each always a, b, t
