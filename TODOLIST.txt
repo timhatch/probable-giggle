@@ -1,14 +1,10 @@
-helpers/event_manager_helper.rb
-
-tests needed for:
+Tests needed for:
   LocalDBConnection::Session.authorisation
   LocalDBConnection::Session.competition
 
 Add scripts to:
-- reset stream
 - create startlists
 
 Create Excel templates
-
 Check results input and displays
 
