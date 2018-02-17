@@ -7,6 +7,7 @@ require 'pg'
 require 'json'
 
 require_relative 'localdb_accessors'
+require_relative 'ifsc_boulder_modus'
 # Results data getters/setters
 #
 module Perseus
@@ -154,4 +155,34 @@ module Perseus
   end
 end
 # Perseus::LocalDBConnection::Results.rank_this_heat(wet_id: 31, route: 2, grp_id: 6)
-p Perseus::LocalDBConnection::Results.fetch(wet_id: 31, route: 2, grp_id: 6, per_id: 29)
+# Perseus::LocalDBConnection::Results.fetch(wet_id: 31, route: 2, grp_id: 6, per_id: 29)
+# Perseus::LocalDBConnection::Results.append_rank(wet_id: 31, grp_id: 5, route: 0)
+
+# Experimental Method to finalise rank for CWIF Qualification
+module Perseus
+  module LocalDBConnection
+    module CWIFResults
+      def self.rank
+        Sequel.function(:rank).over(
+          partition: [:wet_id, :grp_id, :route],
+          order: [
+            ((13 * Sequel.pg_array_op(:sort_values)[1]) -
+             (3 * Sequel.pg_array_op(:sort_values)[2])).desc(nulls: :last),
+            Sequel.pg_array_op(:sort_values)[3].desc
+          ]
+        ).as(:result_rank)
+      end
+
+      module_function
+
+      def append_rank params
+        data = DB[:Results].where(params)
+
+        data.select(:per_id)
+            .select_append(&method(:rank))
+            .each { |x| data.where(per_id: x[:per_id]).update(rank_this_heat: x[:result_rank]) }
+      end
+    end
+  end
+end
+# Perseus::LocalDBConnection::CWIFResults.append_rank(wet_id: 31, route: 0, grp_id: 5)
