@@ -24,16 +24,17 @@ module Perseus
 
     module_function
 
+    # NOTE: Updated 18-02-2018 to use the revised scoring system for 2018
     # Sequel helper function to calculate a rank-order value sorting a boulder result by
-    # tops (descending), top attempts (ascending), bonuses (descending), bonus attempts
+    # tops (descending), bonuses (descending), top attempts (ascending), bonus attempts
     # (ascending). The desc(nulls: :last) postfix ensures that results with a null value
     # are ranked lower than results with a value of 0 (i.e. competitors who havenot started
     # are always ranked below competitors who have started
     def rank_generator
       [
         Sequel.pg_array_op(:sort_values)[1].desc(nulls: :last),
-        Sequel.pg_array_op(:sort_values)[2],
         Sequel.pg_array_op(:sort_values)[3].desc,
+        Sequel.pg_array_op(:sort_values)[2],
         Sequel.pg_array_op(:sort_values)[4],
         :rank_prev_heat
       ]
