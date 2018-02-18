@@ -6,5 +6,3 @@ Add scripts to:
 - create startlists
 
 Create Excel templates
-Check results input and displays
-
