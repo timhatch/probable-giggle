@@ -1,5 +1,8 @@
 #!/usr/bin/ruby
 
+# Command Line script to output results data in CSV format
+#
+
 require 'httparty'
 require 'json'
 require 'csv'
@@ -38,8 +41,8 @@ def transpose array
 end
 
 # Fetch a response from the results service
-response = HTTParty.get(@url, query: @params)
-data = response.code == 200 ? JSON.parse(response.body) : nil
+resp = HTTParty.get(@url, query: @params)
+data = resp.code == 200 ? JSON.parse(resp.body) : nil
 
 # Convert the response and write to a csv file
 file = "./#{options[:wet_id]}_#{options[:grp_id]}_#{options[:route]}.csv"
