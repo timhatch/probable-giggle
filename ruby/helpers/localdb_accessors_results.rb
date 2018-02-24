@@ -182,7 +182,20 @@ module Perseus
             .select_append(&method(:rank))
             .each { |x| data.where(per_id: x[:per_id]).update(rank_this_heat: x[:result_rank]) }
       end
+      # Hack method to renumber any starters not IFSC registered into the 1_000_000 range of ids
+      def renumber_starters
+        DB[:Climbers].where { per_id > 999_999 }.delete
+        data = DB[:Climbers].where { Sequel.|({ per_id: 20_000...21_000 }, (per_id < 1000)) }.all
+
+        data.each.with_index do |x, i|
+          origin     = x[:per_id]
+          x[:per_id] = 1_000_000 + i
+          DB[:Results].where(per_id: origin).update(per_id: x[:per_id])
+          DB[:Climbers].insert(x)
+        end
+      end
     end
   end
 end
 # Perseus::LocalDBConnection::CWIFResults.append_rank(wet_id: 31, route: 0, grp_id: 5)
+# Perseus::LocalDBConnection::CWIFResults.renumber_starters
