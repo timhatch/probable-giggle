@@ -27,3 +27,10 @@ module Perseus
     end
   end
 end
+
+# NOTE: Try also the following
+# def parse_csv_file params
+#   params[:file]
+#   ? CSV.read(params[:file][:tempfile], headers: true, converters: numeric).map(&:to_hash)
+#   : []
+# end
