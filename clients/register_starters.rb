@@ -2,7 +2,6 @@
 
 # Commoand Line script to register climbers and create a new qualification startlist
 #
-#
 require 'sequel'
 require 'pg'
 require 'json'
@@ -65,7 +64,7 @@ module Perseus
           csv << cols
           data.each { |row| csv << row.values }
         end
-        File.open('./starters.csv', 'w:UTF-8') { |f| f.write(cstr) }
+        File.open('./starters.csv', 'w') { |f| f.write(cstr) }
 
         # Create a new startlist
         DB[:Results].where(wet_id: 30, route: 0).delete

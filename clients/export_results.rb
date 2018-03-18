@@ -37,7 +37,7 @@ end
 
 # Transpose TA and Z (so that we present TN/ZN/TA/ZA per the 2018 ranking methodology)
 def transpose array
-  [array[0], array[2], array[1], array[3]]
+  array.nil? ? [] : [array[0], array[2], array[1], array[3]] 
 end
 
 # Fetch a response from the results service
@@ -50,7 +50,9 @@ CSV.open(file, 'wb') do |csv|
   csv << %w(Bib Lastname Firstname Nation Start Prev Rank Results)
   data.map do |person|
     boulder_res = to_array(person.delete('result_jsonb'))
+    person.delete('result_jsonb')
     final_res   = transpose(person.delete('sort_values'))
     csv << person.values.concat(boulder_res).concat(final_res)
+    # csv << person.values.concat(final_res)
   end
 end
