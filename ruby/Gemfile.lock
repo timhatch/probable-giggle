@@ -1,0 +1,44 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    csv (3.0.0)
+    daemons (1.2.6)
+    date (1.0.0)
+    eventmachine (1.2.7)
+    httparty (0.16.2)
+      multi_xml (>= 0.5.2)
+    json (2.1.0)
+    multi_xml (0.6.0)
+    mustermann (1.0.2)
+    pg (1.0.0)
+    rack (2.0.5)
+    rack-protection (2.0.3)
+      rack
+    sequel (5.11.0)
+    sinatra (2.0.3)
+      mustermann (~> 1.0)
+      rack (~> 2.0)
+      rack-protection (= 2.0.3)
+      tilt (~> 2.0)
+    thin (1.7.2)
+      daemons (~> 1.0, >= 1.0.9)
+      eventmachine (~> 1.0, >= 1.0.4)
+      rack (>= 1, < 3)
+    tilt (2.0.8)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  csv
+  date
+  httparty
+  json
+  pg
+  rack
+  sequel
+  sinatra
+  thin
+
+BUNDLED WITH
+   1.16.1

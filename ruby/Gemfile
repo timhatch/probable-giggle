@@ -1,0 +1,12 @@
+# Use bundler to install dependencies
+source 'https://rubygems.org'
+
+gem 'csv'
+gem 'date'
+gem 'httparty'
+gem 'json'
+gem 'pg'
+gem 'sequel'
+gem 'sinatra'
+gem 'socket'
+gem 'thin'
