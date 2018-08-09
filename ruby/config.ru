@@ -1,7 +1,15 @@
 require 'sinatra/base'
 require 'rack/contrib'
 
-Dir.glob('./{helpers,controllers}/*.rb').each { |file| require file }
+# Lazy load helpers (for some reason, the same doesn't work with controllers in 10.13/Homebrew ruby) 
+Dir.glob('./{helpers}/*.rb').each { |file| require_relative file }
+
+# Direct includes are required on OX 10.13 / ruby 2.5.1 (installed via homebrew)
+# May be installation specific 
+require_relative './controllers/application_controller.rb'
+require_relative './controllers/results_controller.rb'
+require_relative './controllers/startlist_controller.rb'
+require_relative './controllers/session_controller.rb'
 
 # Rack options
 # \ --host 0.0.0.0
