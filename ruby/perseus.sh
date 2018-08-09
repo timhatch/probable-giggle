@@ -18,7 +18,7 @@ do
     if ! [ -n "$param" ] ; then echo "start|stop required"
     elif [ $param = "start" ] ; then
       thin -s 1 -C config.yml -R config.ru start
-      sudo nginx 
+      sudo nginx -c "$PWD/nginx/nginx.conf" 
     elif [ $param = "stop" ] ; then
       sudo nginx -s stop
       thin -s 1 -C config.yml stop
