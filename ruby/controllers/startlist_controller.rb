@@ -42,14 +42,14 @@ module Perseus
     # line
     post '/file' do
       params[:competitors] = Perseus::CSVParser.parse_csv_file(file: params.delete(:file))
-      Perseus::LocalDBConnection::Startlist.insert(params) ? 200 : 501
+      # Perseus::LocalDBConnection::Startlist.insert(params) ? 200 : 501
     end
 
     # Import a startlist for some given competition/category/round from eGroupware
     # @params = { wet_id: int, grp_id: int, route: int }
     post '/ifsc' do
       params[:competitors] = Perseus::EGroupwarePublicAPI.get_results(params)
-      Perseus::LocalDBConnection::Startlist.insert(params) ? 200 : 501
+      # Perseus::LocalDBConnection::Startlist.insert(params) ? 200 : 501
     end
 
     # Add to the list of registered climbers by reading from a CSV formatted file
@@ -60,7 +60,7 @@ module Perseus
     # REVIEW: This function not yet tested
     post '/registration/file' do
       data = Perseus::CSVParser.parse_csv_file(file: params.delete(:file))
-      Perseus::LocalDBConnection::Competitors.insert(data) ? 200 : 501
+      # Perseus::LocalDBConnection::Competitors.insert(data) ? 200 : 501
     end
 
     # Fetch a list of climbers from eGroupware (actually fetches the list of climbers registered
@@ -71,6 +71,9 @@ module Perseus
     # method for validation and action
     post '/registration/ifsc' do
       data = Perseus::EGroupwarePublicAPI.get_starters(params)
+      # Perseus::LocalDBConnection::Competitors.insert(data) ? 200 : 501
+    end
+
       Perseus::LocalDBConnection::Competitors.insert(data) ? 200 : 501
     end
   end
