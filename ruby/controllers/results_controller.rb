@@ -44,12 +44,17 @@ module Perseus
       LocalDBConnection::Results.lock(params) ? 200 : 501
     end
 
-    # Reset a __single__ result
+    # Reset one or more resulta
     # Convert the received parameters into hash symbols and call
     # LocalDBConnection::Results.reset
-    delete '/person' do
+    delete '/reset' do
       LocalDBConnection::Results.reset(params)
       ResultsHandler.broadcast_route(params) ? 200 : 501
+    end
+
+    # Delete one or more resulta
+    delete '/delete' do
+      LocalDBConnection::Results.delete(params) ? 200 : 501
     end
 
     # Delete any results in the broadcast pipeline
