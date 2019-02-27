@@ -74,6 +74,16 @@ module Perseus
       # Perseus::LocalDBConnection::Competitors.insert(data) ? 200 : 501
     end
 
+    post '/json' do
+      data = JSON.parse(params[:data], symbolize_names: true)
+      Perseus::LocalDBConnection::Startlist.insert(data) ? 200 : 501
+    end
+
+    # Receive a json-encoded list of climbers and insert_or_ignore into the database
+    # @params
+    # - data: a json encoded array of climber objects
+    post '/registration/json' do
+      data = JSON.parse(params[:data], symbolize_names: true)
       Perseus::LocalDBConnection::Competitors.insert(data) ? 200 : 501
     end
   end

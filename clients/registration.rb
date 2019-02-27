@@ -14,8 +14,10 @@ require 'optparse'
 # import :: (str) -> ([{a}])
 # Reads the file at the given pathname and outputs an array of climber hashes
 def import file
+  extract = ->(x) { x.slice(:per_id, :lastname, :firstname, :nation, :birthyear, :gender) }
   CSV.read(file, headers: true, header_converters: :symbol, converters: :integer)
      .map(&:to_hash)
+     .map(&extract)
 end
 
 # upload :: (str) -> ()
