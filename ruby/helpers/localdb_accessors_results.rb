@@ -60,21 +60,18 @@ module Perseus
 
       module_function
 
-      # Helper method to delete a startlist or a person (use per_id as an optional
-      # parameter to delete an individual rather than the complete list
-      # required @params - :wet_id, :grp_id, :route
-      # optional @params - :per_id | :start_order
-      #
+      # delete :: ({:wet_id, :grp_id, :route[, :per_id]}) -> (1|0)
+      # Delete the complete entry for a given UNLOCKED route | competitor
+      # returns 1|0 if successful|unsuccessful
       def delete params
         args = query(params).merge(locked: false)
         DB[:Results].where(args).delete
       end
 
-      # Helper method to reset results (i.e. to restore the state of one or more competitors to
-      # that of a non-starter)
-      # required @params - :wet_id, :grp_id, :route
-      # optional @params - :per_id | :start_order
-      #
+      # reset :: ({:wet_id, :grp_id, :route[, :per_id]}) -> (1|0)
+      # Reset the sort_values and result_jsonb fields to nil values for a given
+      # UNLOCKED route | competitor
+      # returns 1|0 if successful|unsuccessful
       def reset params
         args = query(params).merge(locked: false)
         DB[:Results]
