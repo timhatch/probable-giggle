@@ -40,7 +40,7 @@ module Perseus
         DB[:Results]
           .join(:Climbers, [:per_id])
           .where(params)
-          .select(:per_id, :lastname, :firstname, :nation, :start_order,
+          .select(:per_id, :lastname, :firstname, :nation, :birthyear, :start_order,
                   :rank_prev_heat, :sort_values, :result_jsonb)
           .select_append(&method(:rank))
           .order(order_by.to_sym)
