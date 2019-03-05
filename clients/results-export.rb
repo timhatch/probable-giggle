@@ -48,11 +48,11 @@ data = resp.code == 200 ? JSON.parse(resp.body) : nil
 # Convert the response and write to a csv file
 file = "./#{options[:wet_id]}_#{options[:grp_id]}_#{options[:route]}.csv"
 CSV.open(file, 'wb') do |csv|
-  csv << %w[Bib Lastname Firstname Nation Start Prev Rank Results]
+  csv << %w[Bib Lastname Firstname Nation Year Start Prev Rank Results]
   data.map do |person|
     boulder_res = to_array(person.delete('result_jsonb'))
     final_res   = transpose(person.delete('sort_values'))
 
-    csv << person.values.concat(final_res).concat(boulder_res)
+    csv << person.values.concat(final_res) # .concat(boulder_res)
   end
 end
