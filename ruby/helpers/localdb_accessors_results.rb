@@ -66,7 +66,7 @@ module Perseus
       # optional @params - :per_id | :start_order
       #
       def delete params
-        args = query(params)
+        args = query(params).merge(locked: false)
         DB[:Results].where(args).delete
       end
 
@@ -76,7 +76,7 @@ module Perseus
       # optional @params - :per_id | :start_order
       #
       def reset params
-        args = query(params)
+        args = query(params).merge(locked: false)
         DB[:Results]
           .where(args)
           .update(sort_values: nil, result_jsonb: nil)
