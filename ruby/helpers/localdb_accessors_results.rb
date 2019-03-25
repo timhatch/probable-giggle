@@ -26,7 +26,7 @@ module Perseus
       #
       def self.rank
         Sequel.function(:rank).over(
-          partition: [:wet_id, :grp_id, :route],
+          partition: %i[wet_id grp_id route],
           order: Perseus::IFSCBoulderModus.rank_generator
         ).as(:result_rank)
       end
