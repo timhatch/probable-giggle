@@ -87,16 +87,6 @@ module Perseus
         get_result(args).all
       end
 
-      # Fetch results for a category/route (if :per_id|:start_order are not defined
-      # NOTE: This method retained pending resolution of backward-compatibility issues for
-      #       broadcast results
-      # required @params - :wet_id, :grp_id, :route
-      #
-      def result_route params
-        args = Hash[@default_route.map { |k, v| [k, params[k].to_i || v] }]
-        get_result(args).all
-      end
-
       # Update results for a __single__ competitor
       # Updates (a) the result_jsonb property for the specific set of results and (b) the
       # sort_values property used for ranking

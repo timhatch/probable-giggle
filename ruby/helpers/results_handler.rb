@@ -50,14 +50,14 @@ module Perseus
     # FIXME: This is only going to work if the parameters passed in retrive route results...
     #        i.e. not individual results
     def broadcast_route params
-      results = Perseus::LocalDBConnection::Results.result_route(params)
+      results = Perseus::LocalDBConnection::Results.fetch(params)
       Thread.new { broadcast_to_localhost('/broadcast/result', results) }
     end
 
     # Broadcast a single result to localhost and to eGroupware
     def broadcast_person params
       result = Perseus::LocalDBConnection::Results
-               .result_route(params)
+               .fetch(params)
                .select { |x| x[:per_id] == params[:per_id] }
                .first
                .merge(result_jsonb: params[:result_jsonb])
@@ -77,7 +77,7 @@ module Perseus
     def broadcast_results params
       # return 0 unless Perseus::LocalDBConnection::Results.fetch(params).first
       # Fetch and broadcast the route result
-      updated_route_result = Perseus::LocalDBConnection::Results.result_route(params)
+      updated_route_result = Perseus::LocalDBConnection::Results.fetch(params)
       Thread.new { broadcast_to_localhost('/broadcast/result', updated_route_result) }
       # Fetch and broadcast the updated individual result
       # NOTE: Replace the general result_jsonb retrieved from the DB
