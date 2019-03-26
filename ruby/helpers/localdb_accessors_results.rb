@@ -47,8 +47,6 @@ module Perseus
 
       # rubocop:disable AlignHash
       def self.update_result results, data
-        p results.first
-        p data
         new_result = Perseus::IFSCBoulderModus.merge(results.first[:result_jsonb], data)
         sort_array = Perseus::IFSCBoulderModus.sort_values(new_result)
 
