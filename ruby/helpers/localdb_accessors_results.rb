@@ -4,11 +4,13 @@
 #
 require 'sequel'
 require 'pg'
-require 'json'
+# require 'json'
 
 # Debugging
 require_relative 'localdb_accessors'
 require_relative 'ifsc_boulder_modus'
+require_relative 'query_types'
+
 # Results data getters/setters
 #
 module Perseus
@@ -43,99 +45,85 @@ module Perseus
           .order(order_by.to_sym)
       end
 
-      # Check that a specified climber is identified by either their per_id or their start_number
-      # within the round. Prefer the per_id if both are provided
-      #
-      def self.query params
-        args = Hash[@default_route.map { |k, v| [k, params[k].to_i || v] }]
-        if params.key?(:per_id) || params.key?(:start_order)
-          id       = params[:per_id].nil? ? :start_order : :per_id
-          args[id] = params[id].to_i
-        end
-        args
+      # rubocop:disable AlignHash
+      def self.update_result results, data
+        p results.first
+        p data
+        new_result = Perseus::IFSCBoulderModus.merge(results.first[:result_jsonb], data)
+        sort_array = Perseus::IFSCBoulderModus.sort_values(new_result)
+
+        results.update(
+          sort_values:  Sequel.pg_array(sort_array),
+          result_jsonb: Sequel.pg_jsonb(new_result)
+        )
       end
+      # rubocop:enable AlignHash
 
       module_function
 
       # delete :: ({:wet_id, :grp_id, :route[, :per_id]}) -> (1|0)
       # Delete the complete entry for a given UNLOCKED route | competitor
-      # returns 1|0 if successful|unsuccessful
+      # returns 1|0 if successful|unsuccessful or if an error is thrown
       def delete params
-        args = query(params).merge(locked: false)
-        DB[:Results].where(args).delete
+        DB[:Results].where(QueryType.result[params].merge(locked: false))
+                    .delete
+      rescue StandardError
+        0
       end
 
-      # reset :: ({:wet_id, :grp_id, :route[, :per_id]}) -> (1|0)
+      # reset :: (a) -> (1|0)
       # Reset the sort_values and result_jsonb fields to nil values for a given
       # UNLOCKED route | competitor
-      # returns 1|0 if successful|unsuccessful
+      # returns 1|0 if successful|unsuccessful or if an error is thrown
       def reset params
-        args = query(params).merge(locked: false)
-        DB[:Results]
-          .where(args)
-          .update(sort_values: nil, result_jsonb: nil)
+        DB[:Results].where(QueryType.result[params].merge(locked: false))
+                    .update(sort_values: nil, result_jsonb: nil)
+      rescue StandardError
+        0
       end
 
-      # Fetch results for for a single person (if :per_id|:start_order are defined)
-      # Fetch results for a category/route (if :per_id|:start_order are not defined
-      # If both :per_id and :start_order are defined, use the per_id value
-      # required @params - :wet_id, :grp_id, :route
-      # optional @params - :per_id | :start_order
-      #
+      # fetch :: (a) -> ([b])
+      # Fetch an array of results <[b]> for a route <a>
       def fetch params
-        args = query(params)
-        get_result(args).all
+        QueryType.result[params].yield_self { |x| get_result(x).all }
+      rescue StandardError
+        []
       end
 
       # Update results for a __single__ competitor
-      # Updates (a) the result_jsonb property for the specific set of results and (b) the
-      # sort_values property used for ranking
-      # NOTE: No update is posted if the results in question are locked on the server
-      # required @params - Hash formatted as follow:
       # {
       #   wet_id: 0, grp_id: 0, route: 0, per_id: 0,
-      #   result_jsonb: { 'p1' => { 'a' => 2, 'b' => 1, 't' => 2 }}
+      #   result_jsonb: { 'p1' => { 'a' => 2, 'b' => 1, 't' => 2 } }
       # }
-      #
+      # TODO: Validation for :result_jsonb
       def update_single params
-        args = query(params).merge(locked: false)
         data = params[:result_jsonb] || {}
-
-        results = DB[:Results].where(args)
-        return nil if results.all.empty?
-
-        new_result = Perseus::IFSCBoulderModus.merge(results.first[:result_jsonb], data)
-        sort_array = Perseus::IFSCBoulderModus.sort_values(new_result)
-
-        results.update(
-          sort_values: Sequel.pg_array(sort_array),
-          result_jsonb: Sequel.pg_jsonb(new_result)
-        )
+        DB[:Results].where(QueryType.result[params].merge(locked: false))
+                    .yield_self { |x| x.all.empty? ? 0 : update_result(x, data) }
+      rescue StandardError
+        0
       end
 
-      # Lock or unlock results for one or more competitors (if no :locked parameter is provided
-      # the relevant results will be locked automatically
-      # required @params - :wet_id, :grp_id, :route
-      # optional @params - :per_id | :start_order
-      #
+      # lock :: (a) -> (1|0)
+      # Lock (default) or unlock results for a route|competitor
+      # returns 1|0 if successful|unsuccessful or if an error is thrown
       def lock params
-        args = query(params)
-        lock = params.key?(:locked) ? params[:locked] : true
-        DB[:Results].where(args).update(locked: lock)
+        DB[:Results].where(QueryType.result[params])
+                    .update(locked: params.key?(:locked) ? params[:locked] : true)
+      rescue StandardError
+        0
       end
 
       # Update database entries with a result_rank value
       # Call this value 'rank_this_heat' to distinguish it from the 'result_rank' value that
       # is calculated on-the-fly
       #
-      def append_rank params
-        args = query(params)
-        data = DB[:Results].where(args)
-
-        data.select(:per_id)
-            .select_append(&method(:rank))
-            .each { |x| data.where(per_id: x[:per_id]).update(rank_this_heat: x[:result_rank]) }
-      end
+      # def append_rank params
+      #   data = DB[:Results].where(QueryType.result[params])
+      #   data.select(:per_id)
+      #       .select_append(&method(:rank))
+      #       .each { |x| data.where(per_id: x[:per_id]).update(rank_this_heat: x[:result_rank]) }
+      # end
     end
   end
 end
