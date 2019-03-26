@@ -9,10 +9,6 @@
 #
 module Perseus
   class SessionController < Perseus::ApplicationController
-    # HELPERS
-    helpers Perseus::LocalDBConnection
-    # helpers Perseus::EGroupwareSessionAPI
-
     # symbolize route parameters (deliberately non-recursive)
     #
     before do
