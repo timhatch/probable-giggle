@@ -12,7 +12,6 @@ module Perseus
   class StartlistController < Perseus::ApplicationController
     # HELPERS
     helpers Perseus::EGroupwarePublicAPI
-    helpers Perseus::LocalDBConnection
     helpers Perseus::CSVParser
 
     # symbolize route parameters (deliberately non-recursive)

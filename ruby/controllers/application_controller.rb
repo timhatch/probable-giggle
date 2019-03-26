@@ -7,13 +7,12 @@
 #
 require 'sequel'
 require 'pg'
-require 'json'
 
 module Perseus
   class ApplicationController < Sinatra::Base
     # Set the path to views, public, etc.
-    set :views, File.expand_path('../../views', __FILE__)
-    set :public_folder, File.expand_path('../../public', __FILE__)
+    # set :views, File.expand_path('../../views', __FILE__)
+    # set :public_folder, File.expand_path('../../public', __FILE__)
 
     helpers Perseus::LocalDBConnection
 
