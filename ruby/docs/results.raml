@@ -17,13 +17,12 @@ get:
   description: |
     For a specified competition and category, fetches results for either:-  
     (a) a specified round; or  
-    (b) a specified competition where either per_id/start_order are provided as parameter. 
+    (b) a specified competitor where per_id is provided as parameter. 
   queryParameters:
     wet_id:       wet_id
     grp_id:       grp_id
     route:        route
     per_id?:      per_id
-    start_order?: start_order
   responses:
     200:
       description: |
@@ -59,7 +58,6 @@ delete:
     grp_id:       grp_id
     route:        route
     per_id?:      per_id
-    start_order?: start_order
   responses:
     200:
       description:  Message successfully processed by server
@@ -71,7 +69,7 @@ delete:
   put:
     description: |
       Freeze (lock) or unfreeze results for a specified category & round (phase), or where  
-      a per_id/start_order value is provided, for a specific competitor.
+      a per_id value is provided, for a specific competitor.
       If no locked parameter is provided, this call will lock the results as a fail-safe
       If any required parameters (wet_id, grp_id or route) are not provided, the server will
       ignore the call.
@@ -80,7 +78,6 @@ delete:
       grp_id:       grp_id
       route:        route
       per_id?:      per_id
-      start_order?: start_order
       locked?:      
         type:         boolean
         description:  A boolean to lock (true) or unlock (false) one or more results
