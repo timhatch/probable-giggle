@@ -2,8 +2,8 @@
 # Module  EGroupwarePublicAPI     - Helper functions to access the eGroupware Public API
 #
 require 'httparty'
-require 'json'
-require 'date'
+
+require_relative 'query_types'
 
 #
 # PUBLIC API
@@ -11,24 +11,27 @@ require 'date'
 module Perseus
   # EGroupwarePublicAPI - Helper functions to access the eGroupware Public API
   module EGroupwarePublicAPI
-    private_class_method
+    @url = 'http://egw.ifsc-climbing.org/egw/ranking/json.php'
+    # @url = 'https://digitalrock.egroupware.de/egw/ranking/json.php'
 
     # API Accessor
     # Interrogate EGroupware using the JSON API, Aborting if the site cannot be accessed or the
     # server returns a null response
     # Returns a JSON object (with keys represented as strings not symbols)
     # @params - Hash object containing variables (see the EGroupware API reference for options
-    #
     def self.get_json params
-      url = 'http://egw.ifsc-climbing.org/egw/ranking/json.php'
-      # Test server
-      # url = 'https://digitalrock.egroupware.de/egw/ranking/json.php'
-      params[:timestamp] = Time.now.to_i
-      response = HTTParty.get(url, query: params)
-      response.code == 200 ? JSON.parse(response.body) : nil
-    rescue
+      HTTParty.get(@url, query: params.merge(timestamp: Time.now.to_i))
+              .yield_self { |r| r.code == 200 ? JSON.parse(r.body) : nil }
+    rescue StandardError
       puts 'Exception raised in EGroupwarePublicAPI:get_json'
       nil
+    end
+
+    # to_egw_results_query :: -> ()
+    # Return a proc to convert between perseus and egroupware query formats
+    def self.to_egw_results_query
+      egw_keys = { comp: :wet_id, cat: :grp_id, route: :route }
+      ->(x) { Hash[egw_keys.map { |k, v| [k, x[v]] }] }
     end
 
     module_function
@@ -39,6 +42,7 @@ module Perseus
       grpid = params[:grp_id].to_i || 0
       data  = get_json(comp: params[:wet_id].to_i || 0, type: 'starters')
       return if data.nil?
+
       if grpid > 0
         data['athletes'].select! { |x| x['cat'].to_i == grpid }
       else
@@ -46,26 +50,24 @@ module Perseus
       end
     end
 
+    # get_results :: (a) -> ([b])
     # Fetch the startlist/resultslist for a given round
-    # (gives the general result is route = -1)
     def get_results params
-      args = Hash[comp: params[:wet_id].to_i || 0,
-                  cat:  params[:grp_id].to_i || 0,
-                  route: params[:route].to_i || -1]
-      data = get_json(args)
-      data['participants'] unless data.nil?
+      QueryType.result[params]
+               .yield_self(&to_egw_results_query)
+               .yield_self(&method(:get_json))['participants']
     end
 
     # Fetch the calendar for somw  year.
     # Gets the current year if none provided
     def get_calendar params
-      data = get_json(year: params[:year] || Date.now.year)
-      data['competitions'] unless data.nil?
+      get_json(year: params[:year] || Date.now.year)['competitions']
     end
   end
 end
 
-# puts Perseus::EGroupwarePublicAPI.get_starters(wet_id: 5759, grp_id: 81)
+# puts Perseus::EGroupwarePublicAPI.get_starters(wet_id: 5759, grp_id: 81, route: 3)
 # puts Perseus::EGroupwarePublicAPI.get_results(wet_id: 5759, grp_id: 81, route: 2)
 # puts Perseus::EGroupwarePublicAPI.get_starters(wet_id: 1572,  grp_id: 284)
-# puts Perseus::EGroupwarePublicAPI.get_calendar(2017)
+# p Perseus::EGroupwarePublicAPI.get_calendar(year: 2019)
+# p Perseus::EGroupwarePublicAPI.get_calendar(year: 2023).nil?
