@@ -17,8 +17,8 @@ module Perseus
 
     # Handle the application's root view
     #
-    # get '/' do
-    #   haml :index
-    # end
+    get '/test' do
+      [200, { body: 'string' }.to_json]
+    end
   end
 end

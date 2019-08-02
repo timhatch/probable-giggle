@@ -24,7 +24,7 @@ end
 # Read a CSV file list of climbers and upload to the LAN database
 def upload file
   data = import(file).to_json
-  HTTParty.post('http://localhost/startlist/registration/json', body: { data: data })
+  HTTParty.post('http://localhost/registration/json', body: { data: data })
 end
 
 # Parse options
