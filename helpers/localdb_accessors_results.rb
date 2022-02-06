@@ -4,7 +4,7 @@
 #
 require 'sequel'
 require 'pg'
-# require 'json'
+require 'json'
 
 # Debugging
 require_relative 'localdb_accessors'
