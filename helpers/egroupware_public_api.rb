@@ -3,7 +3,7 @@
 #
 require 'httparty'
 
-require_relative 'query_types'
+require_relative 'query-types'
 
 #
 # PUBLIC API
