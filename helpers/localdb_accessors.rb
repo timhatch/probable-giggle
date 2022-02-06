@@ -17,7 +17,7 @@ require 'json'
 module Perseus
   module LocalDBConnection
     # Instantiate database access
-    DB = Sequel.connect(ENV['DATABASE_URL'] || 'postgres://timhatch@localhost:5432/test')
+    DB = Sequel.connect(ENV['DATABASE_URL'] || 'postgres://timhatch@localhost:5432/perseus')
     DB.extension :pg_array, :pg_json  # Needed to insert arrays
     Sequel.extension :pg_array_ops    # Needed to query stored arrays
     Sequel.extension :pg_json
