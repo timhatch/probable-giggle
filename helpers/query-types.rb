@@ -35,7 +35,7 @@ module QueryType
 end
 
 # test = { firstname: 123, lastname: 'bacher' }
-
+#
 # begin
 #  args = QueryType.person[test]
 #  p args

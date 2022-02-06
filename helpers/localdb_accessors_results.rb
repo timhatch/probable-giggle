@@ -9,7 +9,7 @@ require 'pg'
 # Debugging
 require_relative 'localdb_accessors'
 require_relative 'ifsc_boulder_modus'
-require_relative 'query_types'
+require_relative 'query-types'
 
 # Results data getters/setters
 #
