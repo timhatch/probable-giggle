@@ -1,4 +1,5 @@
 #!/bin/bash
+
 # Perseus run script
 # Basic scripting guide is here:
 # https://likegeeks.com/linux-bash-scripting-awesome-guide-part3/#Bash-Scripting-Options
@@ -13,15 +14,16 @@ while [ -n "$1" ]
 do
   case "$1" in
 
-  # Run in production mode - spin up a thin instance reversed proxied through a NGINX webserver
+  # TODO: Re-implment for any new reverse proxy
+  # Run in production mode - spin up a thin instance on port 5000
   -p) param=$2
     if ! [ -n "$param" ] ; then echo "start|stop required"
     elif [ $param = "start" ] ; then
-      thin -s 1 -C config.yml -R config.ru start
-      sudo nginx -c "$PWD/nginx/nginx.conf" 
+      echo "start"
+      # thin -s 1 -C config.yml -R config.ru start
     elif [ $param = "stop" ] ; then
-      sudo nginx -s stop
-      thin -s 1 -C config.yml stop
+      echo "stop"
+      # thin -s 1 -C config.yml stop
     fi
     shift ;;
 
@@ -29,9 +31,10 @@ do
   -d) param="$2"
     if ! [ -n "$param" ] ; then echo "start|stop required"
     elif [ $param = "start" ] ; then
-      thin -s 1 -C config.yml -R config.ru start
+      thin -R ./config.ru -a 127.0.0.1 -p 5000 start
     elif [ $param = "stop" ] ; then
-      thin -s 1 -C config.yml stop
+      echo "stop"
+      # thin stop
     fi
     shift ;;
   
@@ -42,5 +45,3 @@ do
   esac
   shift
 done
-
-
