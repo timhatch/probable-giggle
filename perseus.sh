@@ -19,11 +19,9 @@ do
   -p) param=$2
     if ! [ -n "$param" ] ; then echo "start|stop required"
     elif [ $param = "start" ] ; then
-      echo "start"
-      # thin -s 1 -C config.yml -R config.ru start
+      thin -s 1 -C config.yml -R config.ru start
     elif [ $param = "stop" ] ; then
-      echo "stop"
-      # thin -s 1 -C config.yml stop
+      thin -s 1 -C config.yml stop
     fi
     shift ;;
 
@@ -31,10 +29,9 @@ do
   -d) param="$2"
     if ! [ -n "$param" ] ; then echo "start|stop required"
     elif [ $param = "start" ] ; then
-      thin -R ./config.ru -a 127.0.0.1 -p 5000 start
+      thin -s 1 -C config.yml -R config.ru start
     elif [ $param = "stop" ] ; then
-      echo "stop"
-      # thin stop
+      thin -s 1 -C config.yml stop
     fi
     shift ;;
   
