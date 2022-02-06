@@ -1,8 +1,0 @@
-Tests needed for:
-  LocalDBConnection::Session.authorisation
-  LocalDBConnection::Session.competition
-
-Add scripts to:
-- create startlists
-
-Create Excel templates
