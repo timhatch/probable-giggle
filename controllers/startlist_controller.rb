@@ -46,6 +46,16 @@ module Perseus
       Perseus::LocalDBConnection::Startlist.insert(data) ? 200 : 501
     end
 
+    post '/file' do
+      if params[:file]
+        # filename = params[:file][:filename]
+        data = params[:file][:tempfile]
+        return [200, { body: data.read}.to_json]
+
+      end
+      501
+    end
+
     # Receive a json-encoded list of climbers and insert_or_ignore into the database
     # @params
     # - data: a json encoded array of climber objects
