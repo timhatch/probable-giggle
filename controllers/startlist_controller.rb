@@ -29,7 +29,7 @@ module Perseus
     # @params = { wet_id: int, grp_id: int, route: int }
     #
     post '/new' do
-      Perseus::LocalDBConnection::Startlist.generate(params) ? 200 : 501
+      # Perseus::LocalDBConnection::Startlist.generate(params) ? 200 : 501
     end
 
     # Import a startlist for some given competition/category/round from eGroupware
@@ -42,23 +42,27 @@ module Perseus
     end
 
     post '/json' do
-      data = JSON.parse(params[:data], symbolize_names: true)
-      Perseus::LocalDBConnection::Startlist.insert(data) ? 200 : 501
-    end
-
-    post '/file' do
-      if params[:file]
-        # filename = params[:file][:filename]
-        data = params[:file][:tempfile]
-        return [200, { body: data.read}.to_json]
-
-      end
-      501
+      # data = JSON.parse(params[:data], symbolize_names: true)
+      # Perseus::LocalDBConnection::Startlist.insert(data) ? 200 : 501
     end
 
     # Receive a json-encoded list of climbers and insert_or_ignore into the database
-    # @params
-    # - data: a json encoded array of climber objects
+    post '/file' do
+      return 501 unless params[:file]
+
+      data   = params[:file][:tempfile]
+      hash   = JSON.parse(data.read, symbolize_names: true)
+      round  = hash.slice(:wet_id, :route, :grp_id)
+      starts = hash[:starters]
+               .map { _1.slice(:per_id, :start_order, :rank_prev_heat).merge(round) }
+      # TODO: Comment out the database connection until we've checked the client-side code
+      #       The connection works for properly formatted JSON data inserted via curl
+      # Perseus::LocalDBConnection::Startlist.insert(starts) ? 200 : 501
+      # TEST RESPONSE
+      [200, { body: starts }.to_json]
+    rescue StandardError
+      501
+    end
   end
 end
 
