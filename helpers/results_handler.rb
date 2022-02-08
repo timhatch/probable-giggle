@@ -27,7 +27,7 @@ module Perseus
     def self.broadcast_to_localhost path, data
       url     = @default_url + path
       options = { body: data.to_json }
-      HTTParty.post(url, options)
+      # HTTParty.post(url, options)
     rescue StandardError
       puts 'Exception raised in ResultsHandler.broadcast_to_localhost'
       nil
@@ -37,8 +37,8 @@ module Perseus
     # We use the presence of an authorisation key in the session parameters to determine
     # whether or not to send a message to eGroupware
     def self.broadcast_to_egroupware data
-      auth = LocalDBConnection::Session.get[:auth]
-      EGroupwarePrivateAPI.ranking_boulder_measurement(auth, data) unless auth.nil?
+      # auth = LocalDBConnection::Session.get[:auth]
+      # EGroupwarePrivateAPI.ranking_boulder_measurement(auth, data) unless auth.nil?
     rescue StandardError
       puts 'Exception raised in ResultsHandler.broadcast_to_egroupware'
       nil
