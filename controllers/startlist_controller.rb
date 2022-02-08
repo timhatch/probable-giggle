@@ -35,9 +35,9 @@ module Perseus
     # Import a startlist for some given competition/category/round from eGroupware
     # @params = { wet_id: int, grp_id: int, route: int }
     post '/ifsc' do
-    # NOTE: Deactiviate eGroupware interface
-    #   params[:competitors] = Perseus::EGroupwarePublicAPI.get_results(params)
-    #   Perseus::LocalDBConnection::Startlist.insert(params) ? 200 : 501
+      # NOTE: Deactiviate eGroupware interface
+      # params[:competitors] = Perseus::EGroupwarePublicAPI.get_results(params)
+      # Perseus::LocalDBConnection::Startlist.insert(params) ? 200 : 501
       501
     end
 
