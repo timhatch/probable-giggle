@@ -13,10 +13,29 @@ require 'json'
 module Perseus
   module LocalDBConnection
     module Competitors
+      REQUIRED = [:firstname, :lastname, :birthyear, :gender, :nation]
+
       # Notionally private methods
       private_class_method
 
       module_function
+
+      # NOTE: Raises KeyError if @person doesn't contain a required value
+      def has_required_values?(person)
+        person.fetch_values(*REQUIRED)
+      end
+
+      # Helper method to import a single competitor into the local database
+      # @person is a hash with mandatory [optional] properties:
+      # @person = :firstname, :lastname, :nation, :birthyear, :gender, [:club, :active]
+      def insert_single(person)
+        params = person.slice(:firstname, :lastname, :nation, :birthyear, :gender, :club)
+        has_required_values?(params)
+
+        record = DB[:Climbers].where(person.slice(*REQUIRED))
+        # NOTE: If a record exists, return that and otherwise create (and return) a new record 
+        record.first || DB[:Climbers].returning.insert(params).first 
+      end
 
       # Helper method to import competitors into the local database
       # We assume that the competitors parameter is an array of hash objects, each object
