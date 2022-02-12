@@ -19,7 +19,8 @@ module QueryType
     Types::Hash.schema(wet_id: Types::Coercible::Integer,
                        grp_id: Types::Coercible::Integer,
                        route:  Types::Coercible::Integer.default(-1),
-                       per_id: Types::Coercible::Integer.meta(omittable: true))
+                       per_id: Types::Coercible::Integer.meta(omittable: true),
+                       locked: Types::Params::Bool.meta(omittable: true))
                .with_key_transform(&:to_sym)
   end
 

@@ -42,8 +42,8 @@ module Perseus
     end
 
     # Lock or unlock results for a complete route to disable/enable editing
-    put '/lock' do
-      LocalDBConnection::Results.lock(params) ? 200 : 501
+    post '/lock' do
+      LocalDBConnection::Results.lockstate(params)
     end
 
     # Reset one or more resulta

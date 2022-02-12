@@ -40,7 +40,7 @@ module Perseus
           .join(:Climbers, [:per_id])
           .where(params)
           .select(:per_id, :lastname, :firstname, :nation, :birthyear, :start_order,
-                  :rank_prev_heat, :sort_values, :result_jsonb)
+                  :rank_prev_heat, :sort_values, :result_jsonb, :locked)
           .select_append(&method(:rank))
           .order(order_by.to_sym)
       end
@@ -105,11 +105,14 @@ module Perseus
       # lock :: (a) -> (1|0)
       # Lock (default) or unlock results for a route|competitor
       # returns 1|0 if successful|unsuccessful or if an error is thrown
-      def lock params
-        DB[:Results].where(QueryType.result[params])
-                    .update(locked: params.key?(:locked) ? params[:locked] : true)
+      def lockstate(params)
+        query = { wet_id: params['wet_id'], grp_id: params['grp_id'], route: params['route'] }
+        state = params['locked']
+        resp = DB[:Results].returning(:per_id, :locked).where(query)
+                           .update(locked: state)
+        [200, resp.to_json]
       rescue StandardError
-        0
+        [500, 'fail']
       end
 
       # Update database entries with a result_rank value
