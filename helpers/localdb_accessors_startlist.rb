@@ -11,11 +11,28 @@ require 'json'
 module Perseus
   module LocalDBConnection
     module Startlist
+      REQUIRED = [:wet_id, :grp_id, :route, :per_id]
       @default_route = { wet_id: 0, grp_id: 0, route: 0 }
 
       private_class_method
 
       module_function
+
+      # NOTE: Raises KeyError if @person doesn't contain a required value
+      def has_required_values?(person)
+        person.fetch_values(*REQUIRED)
+      end
+
+      # @person is a hash with mandatory [optional] properties:
+      # @person = :wet_id, :grp_id, :route, :per_id, [:start_order, :rank_prev_heat, ...]
+      def insert_single(person)
+        params = person.slice(:wet_id, :grp_id, :route, :per_id, :start_order, :rank_prev_heat)
+        has_required_values?(params)
+
+        record = DB[:Results].where(person.slice(*REQUIRED))
+        # NOTE: If a record exists, return that and otherwise create (and return) a new record 
+        record.first || DB[:Results].returning.insert(params).first
+      end
 
       # Helper method to import a startlist into the LAN database
       #
