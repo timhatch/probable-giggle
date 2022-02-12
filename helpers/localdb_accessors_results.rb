@@ -103,8 +103,7 @@ module Perseus
       end
 
       # lock :: (a) -> (1|0)
-      # Lock (default) or unlock results for a route|competitor
-      # returns 1|0 if successful|unsuccessful or if an error is thrown
+      # TODO: Not clear why this method is sensitive to parameters being supplied as string
       def lockstate(params)
         query = { wet_id: params['wet_id'], grp_id: params['grp_id'], route: params['route'] }
         state = params['locked']
