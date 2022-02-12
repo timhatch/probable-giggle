@@ -15,7 +15,7 @@ require_relative './controllers/session_controller.rb'
 # Rack options
 # \ --host 0.0.0.0
 # Sinatra has a mare dealing with JSON encoded requests - Rack deals with this
-use Rack::PostBodyContentTypeParser
+use Rack::JSONBodyParser
 
 # run Perseus::App
 map('/')             { run Perseus::ApplicationController  }
