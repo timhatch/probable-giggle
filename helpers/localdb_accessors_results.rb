@@ -130,20 +130,6 @@ module Perseus
       rescue StandardError => error
         [500, {body: error.message}.to_json]
       end
-
-      # Update database entries with a result_rank value
-      # Call this value 'rank_this_heat' to distinguish it from the 'result_rank' value that
-      # is calculated on-the-fly
-      #
-      # def append_rank params
-      #   data = DB[:Results].where(QueryType.result[params])
-      #   data.select(:per_id)
-      #       .select_append(&method(:rank))
-      #       .each { |x| data.where(per_id: x[:per_id]).update(rank_this_heat: x[:result_rank]) }
-      # end
     end
   end
 end
-# Perseus::LocalDBConnection::Results.rank_this_heat(wet_id: 31, route: 2, grp_id: 6)
-# Perseus::LocalDBConnection::Results.fetch(wet_id: 31, route: 2, grp_id: 6, per_id: 29)
-# Perseus::LocalDBConnection::Results.append_rank(wet_id: 31, grp_id: 5, route: 0)
