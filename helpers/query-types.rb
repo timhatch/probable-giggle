@@ -20,7 +20,7 @@ module QueryType
                        grp_id: Types::Coercible::Integer,
                        route:  Types::Coercible::Integer.default(-1),
                        per_id: Types::Coercible::Integer.meta(omittable: true),
-                       locked: Types::Params::Bool.meta(omittable: true))
+                       locked: Types::Strict::Bool.meta(omittable: true))
                .with_key_transform(&:to_sym)
   end
 

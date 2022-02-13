@@ -103,15 +103,15 @@ module Perseus
       end
 
       # lock :: (a) -> (1|0)
-      # TODO: Not clear why this method is sensitive to parameters being supplied as string
+      # NOTE: Use QueryType to handle string vs. symbol hash issues
       def lockstate(params)
-        query = { wet_id: params['wet_id'], grp_id: params['grp_id'], route: params['route'] }
-        state = params['locked']
+        query = QueryType.result[params].slice(:wet_id, :grp_id, :route)
+        state = QueryType.result[params].fetch(:locked)
         resp = DB[:Results].returning(:per_id, :locked).where(query)
                            .update(locked: state)
-        [200, resp.to_json]
-      rescue StandardError
-        [500, 'fail']
+        [200, {body: resp}.to_json]
+      rescue StandardError => error
+        [500, {body: error.message}.to_json]
       end
 
       # Update database entries with a result_rank value
