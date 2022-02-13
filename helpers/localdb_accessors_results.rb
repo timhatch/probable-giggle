@@ -57,6 +57,18 @@ module Perseus
       end
       # rubocop:enable AlignHash
 
+      # Change the status of some results to locked == false
+      # @query = :wet_id, :grp_id, :route[, :per_id]
+      def self.unlock(query)
+        DB[:Results].returning(:per_id, :locked).where(query).update(locked: false)
+      end
+
+      # Change the status of some results to locked == true
+      # @query = :wet_id, :grp_id, :route
+      def self.lock(query)
+        DB[:Results].returning(:per_id, :locked).where(query).update(locked: true)        
+      end
+
       module_function
 
       # delete :: ({:wet_id, :grp_id, :route[, :per_id]}) -> (1|0)
@@ -107,8 +119,7 @@ module Perseus
       def lockstate(params)
         query = QueryType.result[params].slice(:wet_id, :grp_id, :route)
         state = QueryType.result[params].fetch(:locked)
-        resp = DB[:Results].returning(:per_id, :locked).where(query)
-                           .update(locked: state)
+        resp  = state.eql?(true) ? lock(query) : unlock(query)
         [200, {body: resp}.to_json]
       rescue StandardError => error
         [500, {body: error.message}.to_json]
