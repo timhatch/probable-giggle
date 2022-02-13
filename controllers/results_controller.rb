@@ -49,19 +49,20 @@ module Perseus
     # Reset one or more resulta
     # Convert the received parameters into hash symbols and call
     # LocalDBConnection::Results.reset
-    delete '/reset' do
-      LocalDBConnection::Results.reset(params)
-      ResultsHandler.broadcast_route(params) ? 200 : 501
+    put '/reset' do
+
+      LocalDBConnection::Results.reset(params) ? 200 : 501
+      # ResultsHandler.broadcast_route(params) ? 200 : 501
     end
 
     # Delete one or more resulta
-    delete '/delete' do
+    put '/delete' do
       LocalDBConnection::Results.delete(params) ? 200 : 501
     end
 
     # Delete any results in the broadcast pipeline
-    delete '/broadcast' do
-      ResultsHandler.purge_eventstream ? 200 : 501
-    end
+    # delete '/broadcast' do
+    #   ResultsHandler.purge_eventstream ? 200 : 501
+    # end
   end
 end
