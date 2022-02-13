@@ -66,7 +66,13 @@ module Perseus
       # Change the status of some results to locked == true
       # @query = :wet_id, :grp_id, :route
       def self.lock(query)
-        DB[:Results].returning(:per_id, :locked).where(query).update(locked: true)        
+        dataset = DB[:Results].select(:per_id).where(query)
+
+        # Calculate :result_rank for the group and then update each result
+        dataset.select_append(&method(:rank)).all.each do |entry|
+          dataset.where(per_id: entry[:per_id])
+                 .update(rank_this_heat: entry[:result_rank], locked: true)
+        end
       end
 
       module_function
