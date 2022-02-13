@@ -75,7 +75,7 @@ module Perseus
       # returns 1|0 if successful|unsuccessful or if an error is thrown
       def reset params
         DB[:Results].where(QueryType.result[params].merge(locked: false))
-                    .update(sort_values: nil, result_jsonb: nil)
+                    .update(sort_values: nil, result_jsonb: nil, rank_this_heat: nil)
       rescue StandardError
         0
       end
