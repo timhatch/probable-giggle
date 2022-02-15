@@ -45,7 +45,7 @@ module Perseus
           .order(order_by.to_sym)
       end
 
-      # rubocop:disable AlignHash
+      # rubocop:disable Layout/HashAlignment
       def self.update_result results, data
         new_result = Perseus::IFSCBoulderModus.merge(results.first[:result_jsonb], data)
         sort_array = Perseus::IFSCBoulderModus.sort_values(new_result)
@@ -55,7 +55,7 @@ module Perseus
           result_jsonb: Sequel.pg_jsonb(new_result)
         )
       end
-      # rubocop:enable AlignHash
+      # rubocop:enable Layout/HashAlignment
 
       # Change the status of some results to locked == false
       # @query = :wet_id, :grp_id, :route[, :per_id]
