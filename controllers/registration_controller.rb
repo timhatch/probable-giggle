@@ -5,6 +5,9 @@
 #
 # RegistrationController  manages interactions creating/updating/deleting competitor data
 
+# Debugging
+# require_relative 'query-types'
+
 module Perseus
   class RegistrationController < Perseus::ApplicationController
     # NOTE: sinatra uses indifferent hashes, so in theory has symbol and string keys
@@ -12,9 +15,9 @@ module Perseus
     #   params.keys.each { |k| params[k.to_sym] = params.delete(k) }
     # end
     def startlist_info?(person)
-      Perseus::LocalDBConnection::Startlist.required_values?(person)
+      QueryType.starter[person]
       true
-    rescue KeyError
+    rescue StandardError
       false
     end
 
@@ -40,8 +43,6 @@ module Perseus
         Perseus::LocalDBConnection::Startlist.insert_single(person) if startlist_info?(person)
       end
       [200, { body: "registered #{athletes.count} athletes" }.to_json]
-    rescue KeyError => e
-      [500, { body: e.message }.to_json]
     rescue StandardError => e
       [500, { body: e.message }.to_json]
     end

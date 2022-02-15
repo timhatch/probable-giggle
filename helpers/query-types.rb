@@ -10,10 +10,15 @@ module QueryType
   module_function
 
   def person
-    Types::Hash.schema(lastname:  Types::Strict::String,
+    Types::Hash.schema(lastname: Types::Strict::String,
                        firstname: Types::Strict::String,
-                       nation:    Types::Strict::String.meta(omittable: true)
-               .with_key_transform(&:to_sym))
+                       gender: Types::Strict::String,
+                       birthyear: Types::Coercible::Integer,
+                       nation: Types::Strict::String,
+                       club: Types::Strict::String.meta(omittable: true),
+                       active: Types::Strict::Bool.meta(omittable: true))
+               .with_key_transform(&:to_sym)
+  end
 
   def starter
     Types::Hash.schema(wet_id: Types::Coercible::Integer,
