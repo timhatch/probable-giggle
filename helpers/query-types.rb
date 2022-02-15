@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'dry-types'
 
 module Types
@@ -7,7 +9,6 @@ end
 module QueryType
   module_function
 
-  # rubocop:disable AlignHash
   def person
     Types::Hash.schema(lastname:  Types::Strict::String,
                        firstname: Types::Strict::String,
@@ -28,7 +29,7 @@ module QueryType
   def result
     Types::Hash.schema(wet_id: Types::Coercible::Integer,
                        grp_id: Types::Coercible::Integer,
-                       route:  Types::Coercible::Integer.default(-1),
+                       route: Types::Coercible::Integer.default(-1),
                        per_id: Types::Coercible::Integer.meta(omittable: true),
                        locked: Types::Strict::Bool.meta(omittable: true))
                .with_key_transform(&:to_sym)
@@ -36,13 +37,12 @@ module QueryType
 
   def competition
     Types::Hash.schema(wet_id: Types::Coercible::Integer,
-                       city:   Types::Strict::String,
-                       date:   Types::Coercible::String,
-                       type:   Types::Strict::String,
-                       title:  Types::Strict::String)
+                       city: Types::Strict::String,
+                       date: Types::Coercible::String,
+                       type: Types::Strict::String,
+                       title: Types::Strict::String)
                .with_key_transform(&:to_sym)
   end
-  # rubocop:enable AlignHash
 end
 
 # rubocop:disable Style/BlockComments
