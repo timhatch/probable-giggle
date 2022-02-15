@@ -128,9 +128,9 @@ module Perseus
         query = QueryType.result[params].slice(:wet_id, :grp_id, :route)
         state = QueryType.result[params].fetch(:locked)
         resp  = state.eql?(true) ? lock(query) : unlock(query)
-        [200, {body: resp}.to_json]
-      rescue StandardError => error
-        [500, {body: error.message}.to_json]
+        [200, { body: resp }.to_json]
+      rescue StandardError => e
+        [500, { body: e.message }.to_json]
       end
     end
   end
