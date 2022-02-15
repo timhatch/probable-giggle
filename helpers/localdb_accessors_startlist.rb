@@ -8,6 +8,9 @@ require 'sequel'
 require 'pg'
 require 'json'
 
+# Debugging
+require_relative 'query-types'
+
 # Startlist data getter/setters
 # REVIEW: To be checked
 module Perseus
@@ -20,18 +23,12 @@ module Perseus
 
       module_function
 
-      # NOTE: Raises KeyError if @person doesn't contain a required value
-      def required_values?(person)
-        person.fetch_values(*REQUIRED)
-      end
-
       # @person is a hash with mandatory [optional] properties:
       # @person = :wet_id, :grp_id, :route, :per_id, [:bib_nr, :start_order, :rank_prev_heat, ...]
       def insert_single(person)
-        params = person.slice(:wet_id, :grp_id, :route, :per_id, :bib_nr, :start_order, :rank_prev_heat)
-        required_values?(params)
+        params = QueryType.starter[person]
 
-        record = DB[:Results].where(person.slice(*REQUIRED))
+        record = DB[:Results].where(params.slice(*REQUIRED))
         # NOTE: If a record exists, return that and otherwise create (and return) a new record
         record.first || DB[:Results].returning.insert(params).first
       end
@@ -39,6 +36,11 @@ module Perseus
       # Helper method to import a startlist into the LAN database
       def insert_many(data)
         data.each { insert_single(_1) }
+      end
+
+      def from_json(data)
+        JSON.parse(data, symbolize_names: true)
+            .each { insert_single(_1) }
       end
     end
   end

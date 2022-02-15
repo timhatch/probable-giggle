@@ -9,8 +9,6 @@
 
 module Perseus
   class StartlistController < Perseus::ApplicationController
-    ALLOWED = %i[wet_id route grp_id per_id bib_nr start_order rank_prev_heat].freeze
-
     # NOTE: sinatra uses indifferent hashes, so in theory has symbol and string keys
     # before do
     #   params.keys.each { |k| params[k.to_sym] = params.delete(k) }
@@ -22,11 +20,7 @@ module Perseus
       return 501 unless params[:file]
 
       data = params[:file][:tempfile].read
-      list = JSON.parse(data, symbolize_names: true).map { _1.slice(*ALLOWED) }
-
-      Perseus::LocalDBConnection::Startlist.insert_many(list) ? 200 : 500
-      # DEBUG: TEST RESPONSE
-      # [200, {body: starters}.to_json]
+      LocalDBConnection::Startlist.from_json(data) ? 200 : 500
     rescue StandardError => e
       [500, { body: e.message }.to_json]
     end

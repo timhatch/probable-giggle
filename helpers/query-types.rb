@@ -13,6 +13,16 @@ module QueryType
                        firstname: Types::Strict::String,
                        nation:    Types::Strict::String.meta(omittable: true)
                .with_key_transform(&:to_sym))
+
+  def starter
+    Types::Hash.schema(wet_id: Types::Coercible::Integer,
+                       grp_id: Types::Coercible::Integer,
+                       route: Types::Coercible::Integer.default(0),
+                       per_id: Types::Coercible::Integer,
+                       bib_nr: Types::Coercible::Integer.meta(omittable: true),
+                       start_order: Types::Coercible::Integer.meta(omittable: true),
+                       rank_prev_heat: Types::Coercible::Integer.meta(omittable: true))
+               .with_key_transform(&:to_sym)
   end
 
   def result
@@ -35,13 +45,13 @@ module QueryType
   # rubocop:enable AlignHash
 end
 
-# test = { firstname: 123, lastname: 'bacher' }
-#
-# begin
-#  args = QueryType.person[test]
-#  p args
-# rescue StandardError
-#  p 'error'
-# end
-# p QueryType.result[wet_id: 12, grp_id: '3']
-# p QueryType.result['wet_id' => 12, 'grp_id' => '3']
+# rubocop:disable Style/BlockComments
+=begin
+people = [
+  {wet_id: 12, grp_id: 3, route: 3, per_id: 3, firstname: 'tim', bib_nr: 4},
+  {wet_id: 13, grp_id: 3, route: 3, per_id: 3, firstname: 'tim', bib_nr: 4}
+]
+
+p people.each(&QueryType.starter)
+=end
+# rubocop:enable Style/BlockComments
