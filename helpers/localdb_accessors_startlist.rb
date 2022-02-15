@@ -26,9 +26,9 @@ module Perseus
       end
 
       # @person is a hash with mandatory [optional] properties:
-      # @person = :wet_id, :grp_id, :route, :per_id, [:start_order, :rank_prev_heat, ...]
+      # @person = :wet_id, :grp_id, :route, :per_id, [:bib_nr, :start_order, :rank_prev_heat, ...]
       def insert_single(person)
-        params = person.slice(:wet_id, :grp_id, :route, :per_id, :start_order, :rank_prev_heat)
+        params = person.slice(:wet_id, :grp_id, :route, :per_id, :bib_nr, :start_order, :rank_prev_heat)
         required_values?(params)
 
         record = DB[:Results].where(person.slice(*REQUIRED))
