@@ -10,17 +10,6 @@
 
 module Perseus
   class RegistrationController < Perseus::ApplicationController
-    # NOTE: sinatra uses indifferent hashes, so in theory has symbol and string keys
-    # before do
-    #   params.keys.each { |k| params[k.to_sym] = params.delete(k) }
-    # end
-    def startlist_info?(person)
-      QueryType.starter[person]
-      true
-    rescue StandardError
-      false
-    end
-
     # Register an athlete, and return the athlete data with the relevant per_id added
     def register(athlete, index)
       start_order = athlete.include?(:start_order) ? athlete[:start_order] : index
@@ -40,7 +29,11 @@ module Perseus
       athletes.each.with_index(1) do |athlete, index|
         person = register(athlete, index)
         # If startlist data is included, then add the relevant information
-        Perseus::LocalDBConnection::Startlist.insert_single(person) if startlist_info?(person)
+        begin
+          Perseus::LocalDBConnection::Startlist.insert_single(person)
+        rescue StandardError
+          next
+        end
       end
       [200, { body: "registered #{athletes.count} athletes" }.to_json]
     rescue StandardError => e
