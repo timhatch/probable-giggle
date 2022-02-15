@@ -1,25 +1,39 @@
+# frozen_string_literal: true
+
 # Module  Perseus                 - The namespace for all application code
 # Class   StartlistController     - Subclasses ApplicationController
 #
 # StartlistController manages interactions creating/updating/deleting startlist data
 # Currently implements:
-# - A Setter to import a new startlist from a formatted UTF-8 CSV file
-# - A Setter creating a new startlist from the results of a previous round (CWIF scramble format)
-# - A Setter creating a new startlist from the results of a previous round (IFSC format)
-#
+# - A Setter to import a new startlist from a formatted UTF-8 JSON file
 
 module Perseus
   class StartlistController < Perseus::ApplicationController
-    # HELPERS
-    helpers Perseus::EGroupwarePublicAPI
-    helpers Perseus::CSVParser
-
-    # symbolize route parameters (deliberately non-recursive)
-    before do
-      params.keys.each { |k| params[k.to_sym] = params.delete(k) }
-    end
+    # NOTE: sinatra uses indifferent hashes, so in theory has symbol and string keys
+    # before do
+    #   params.keys.each { |k| params[k.to_sym] = params.delete(k) }
+    # end
 
     # ROUTES
+    # Receive a json-encoded list of climbers and insert_or_ignore into the database
+    post '/file' do
+      return 501 unless params[:file]
+
+      data = params[:file][:tempfile].read
+      list = JSON.parse(data, symbolize_names: true)
+                 .map { _1.slice(:wet_id, :route, :grp_id, :per_id, :start_order, :rank_prev_heat) }
+
+      Perseus::LocalDBConnection::Startlist.insert_many(list) ? 200 : 500
+      # DEBUG: TEST RESPONSE
+      # [200, {body: starters}.to_json]
+    rescue StandardError => e
+      [500, { body: e.message }.to_json]
+    end
+  end
+end
+
+# rubocop:disable Style/BlockComments
+=begin
     #
     # Create a startlist from the results of the current round
     # TODO: Re-architect this as it has to be able to deal with:
@@ -47,32 +61,5 @@ module Perseus
       # data = JSON.parse(params[:data], symbolize_names: true)
       # Perseus::LocalDBConnection::Startlist.insert(data) ? 200 : 501
     end
-
-    # Receive a json-encoded list of climbers and insert_or_ignore into the database
-    post '/file' do
-      return 501 unless params[:file]
-
-      data     = params[:file][:tempfile].read
-      starters = JSON.parse(data, symbolize_names: true)
-                     .map { _1.slice(:wet_id, :route, :grp_id, :per_id, :start_order, :rank_prev_heat) }
-      
-      Perseus::LocalDBConnection::Startlist.insert(starters) ? 200 : 500
-      # DEBUG: TEST RESPONSE
-      # [200, {body: starters}.to_json]
-    rescue StandardError
-      500
-    end
-  end
-end
-
-# Create a startlist from a CSV formatted file
-# @params = { wet_id: int, grp_id: int, route: int }
-# Assume that the CSV file contains the following data:
-# - [wet_id,] [grp_id,] [route,] per_id, start_order, [rank_prev_heat]
-#
-# NOTE: The order of parameters is unimportant, but the CSV file MUST contain a header
-# line
-# post '/file' do
-#   params[:competitors] = Perseus::CSVParser.parse_csv_file(file: params.delete(:file))
-#   # Perseus::LocalDBConnection::Startlist.insert(params) ? 200 : 501
-# end
+=end
+# rubocop:enable Style/BlockComments

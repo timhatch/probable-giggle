@@ -13,15 +13,15 @@ require 'json'
 module Perseus
   module LocalDBConnection
     module Competitors
-      REQUIRED = [:firstname, :lastname, :birthyear, :gender, :nation]
+      REQUIRED = %i[firstname lastname birthyear gender nation].freeze
 
       # Notionally private methods
-      private_class_method
+      # private_class_method
 
       module_function
 
       # NOTE: Raises KeyError if @person doesn't contain a required value
-      def has_required_values?(person)
+      def required_values?(person)
         person.fetch_values(*REQUIRED)
       end
 
@@ -30,13 +30,18 @@ module Perseus
       # @person = :firstname, :lastname, :nation, :birthyear, :gender, [:club, :active]
       def insert_single(person)
         params = person.slice(:firstname, :lastname, :nation, :birthyear, :gender, :club)
-        has_required_values?(params)
+        required_values?(params)
 
         record = DB[:Climbers].where(person.slice(*REQUIRED))
-        # NOTE: If a record exists, return that and otherwise create (and return) a new record 
-        record.first || DB[:Climbers].returning.insert(params).first 
+        # NOTE: If a record exists, return that and otherwise create (and return) a new record
+        record.first || DB[:Climbers].returning.insert(params).first
       end
+    end
+  end
+end
 
+# rubocop:disable Style/BlockComments
+=begin
       # Helper method to import competitors into the local database
       # We assume that the competitors parameter is an array of hash objects, each object
       # containing some or all of the following parameters:
@@ -45,14 +50,8 @@ module Perseus
       # NOTE: This method deliberately will not overwrite any existing competitor
       # HACK: If using Postgres 9.5, could try insert_conflict.insert(args)
       #
-      def insert competitors
-        competitors.each do |person|
-          record = DB[:Climbers].where(per_id: person[:per_id])
-          next if record.first
-
-          record.insert(person)
-        end
+      def insert_many competitors
+        competitors.each { insert_single(_1) }
       end
-    end
-  end
-end
+=end
+# rubocop:enable Style/BlockComments

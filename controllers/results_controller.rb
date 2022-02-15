@@ -15,16 +15,13 @@ module Perseus
     helpers Perseus::ResultsHandler
 
     # symbolize route parameters (deliberately non-recursive)
-    # FIXME: Not sure this actually works... sinatra has some kind of indifferent access going on
-    # under the hood
+    # FIXME: Not sure this actually works
     before do
       params.keys.each { |k| params[k.to_sym] = params.delete(k) }
       # params.transform_keys!(&:to_sym)
     end
 
     # Fetch either __multiple__ or (if either per_id or start_order are given) a __single__ result
-    # Convert the received parameters into hash symbols and call
-    # LocalDBConnection::Results.fetch
     # Returns either an array of results or a single result as appropriate
     fetch = -> { LocalDBConnection::Results.fetch(params).to_json }
 
@@ -33,24 +30,21 @@ module Perseus
     get '/:per_id', &fetch
 
     # Update a __single__ result
-    # Convert the received parameters into hash symbols and call
-    # LocalDBConnection.set_result_single
     put '/person' do
-      if LocalDBConnection::Results.update_single(params)
-        ResultsHandler.broadcast_results(params) ? 200 : 501
-      end
+      LocalDBConnection::Results.update_single(params) ? 200 : 501
+      # if LocalDBConnection::Results.update_single(params)
+      #   ResultsHandler.broadcast_results(params) ? 200 : 501
+      # end
     end
 
-    # Lock or unlock results for a complete route to disable/enable editing
-    post '/lock' do
+    # Lock or unlock results for the round | athlete defined by @params
+    # TODO: Change this from POST to PUT
+    put '/lock' do
       LocalDBConnection::Results.lockstate(params)
     end
 
-    # Reset one or more resulta
-    # Convert the received parameters into hash symbols and call
-    # LocalDBConnection::Results.reset
+    # Erase all results for the round | athlete defined by @params
     put '/reset' do
-
       LocalDBConnection::Results.reset(params) ? 200 : 501
       # ResultsHandler.broadcast_route(params) ? 200 : 501
     end

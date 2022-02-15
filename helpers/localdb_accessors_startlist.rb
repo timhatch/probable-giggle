@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Module  Perseus                 - The namespace for all application code
 # Module  LocalDBConnection       - Helper methods to access the LAN database
 # Module  Startlist               - Startlist creation methods
@@ -11,15 +13,15 @@ require 'json'
 module Perseus
   module LocalDBConnection
     module Startlist
-      REQUIRED = [:wet_id, :grp_id, :route, :per_id]
-      @default_route = { wet_id: 0, grp_id: 0, route: 0 }
+      REQUIRED = %i[wet_id grp_id route per_id].freeze
 
-      private_class_method
+      # Notionally private methods
+      # private_class_method
 
       module_function
 
       # NOTE: Raises KeyError if @person doesn't contain a required value
-      def has_required_values?(person)
+      def required_values?(person)
         person.fetch_values(*REQUIRED)
       end
 
@@ -27,26 +29,23 @@ module Perseus
       # @person = :wet_id, :grp_id, :route, :per_id, [:start_order, :rank_prev_heat, ...]
       def insert_single(person)
         params = person.slice(:wet_id, :grp_id, :route, :per_id, :start_order, :rank_prev_heat)
-        has_required_values?(params)
+        required_values?(params)
 
         record = DB[:Results].where(person.slice(*REQUIRED))
-        # NOTE: If a record exists, return that and otherwise create (and return) a new record 
+        # NOTE: If a record exists, return that and otherwise create (and return) a new record
         record.first || DB[:Results].returning.insert(params).first
       end
 
       # Helper method to import a startlist into the LAN database
-      #
-      # The data is assumed to an array of competitors, each a ruby Hash containing at least
-      # a per_id (or PerId) and start_order parameter
-      def insert data
-        data.each do |person|
-          record = DB[:Results].where(person)
-          next if record.first
-
-          record.insert(person)
-        end
+      def insert_many(data)
+        data.each { insert_single(_1) }
       end
+    end
+  end
+end
 
+# rubocop:disable Style/BlockComments
+=begin
       # Simple startlist creator
       # @params
       # A hash containing
@@ -64,16 +63,15 @@ module Perseus
                    .fetch(params)
                    .keep_if { |x| x[:result_rank] <= quota }
                    .reverse.map.with_index(1) { |x, i|
-                     Hash[per_id: x[:per_id], 
+                     Hash[per_id: x[:per_id],
                           start_order: i,
                           rank_prev_heat: x[:rank_this_heat]]
                    }
         route = params.delete(:route).to_i + 1
         insert(params.merge(route: route, competitors: starters))
       end
-    end
-  end
-end
+=end
+# rubocop:enable Style/BlockComments
 
 # require_relative './localdb_accessors'
 # require_relative './localdb_accessors_results'
