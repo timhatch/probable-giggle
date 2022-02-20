@@ -117,9 +117,9 @@ module Perseus
       # }
       # TODO: Validation for :result_jsonb
       def update_single params
-        data = params[:result_jsonb] || {}
-        DB[:Results].where(QueryType.result[params].merge(locked: false))
-                    .yield_self { |x| x.all.empty? ? 0 : update_result(x, data) }
+        json    = params[:result_jsonb] || {}
+        dataset = DB[:Results].where(QueryType.result[params].merge(locked: false))
+        dataset.all.empty? ? 0 : update_result(dataset, json)
       rescue StandardError
         0
       end
