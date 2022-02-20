@@ -10,6 +10,9 @@ Style/MethodDefParentheses:
 Documentation:
   Enabled: false
 
+Style/LambdaCall:
+  EnforcedStyle: braces
+
 # Allow multi-line blocks delimited by {...}
 # Useful for Sequel statements
 Style/BlockDelimiters:
