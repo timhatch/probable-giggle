@@ -65,10 +65,11 @@ module Perseus
 
       # Change the status of some results to locked == true
       # @query = :wet_id, :grp_id, :route
+      # rubocop:disable Metrics/AbcSize
       def self.lock(query)
         dataset = DB[:Results].select(:per_id).select_append(&method(:rank)).where(query)
         DB.transaction do
-          DB.create_table!(:Ranks, temp: true, as: dataset) 
+          DB.create_table!(:Ranks, temp: true, as: dataset)
 
           DB[:Results]
             .from(:Results, :Ranks)
@@ -76,6 +77,7 @@ module Perseus
             .update(rank_this_heat: Sequel[:Ranks][:result_rank], locked: true)
         end
       end
+      # rubocop:enable Metrics/AbcSize
 
       module_function
 
