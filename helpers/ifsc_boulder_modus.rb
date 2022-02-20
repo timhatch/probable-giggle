@@ -73,38 +73,3 @@ module Perseus
     end
   end
 end
-
-# params = { wet_id: 99, grp_id: 5, route: 2 }
-# puts Perseus::LocalDBConnection::Results.fetch(params)
-
-# puts Perseus::LocalDBConnection::Results.fetch(params.merge(per_id: 1030)).first
-
-# puts Perseus::LocalDBConnection.delete_route(wet_id: 0)
-# puts Perseus::LocalDBConnection.delete_person(99,1030)
-# puts Perseus::LocalDBConnection.get_result(wet_id: 99, route: 2, grp_id: 5).all
-
-# params = { wet_id: 99,
-#           grp_id: 5,
-#           route: 2,
-#           per_id: 1030,
-#           result_jsonb: { 'p2' => { 'a' => 2, 'b' => 2, 't' => 2 } } }
-# Perseus::LocalDBConnection::Results.update_single(params)
-
-#
-#
-# defs  = { wet_id: 99, per_id: 1030 }
-# input = { route: 2, nation: 'AUT' }
-#
-# puts defs.merge input
-#
-# h1 = { wet: 0, grp: 0}
-# h2 = { 'wet' => 3, 'rte' => { "p1" => { "a" => 1, "b" => 1 }}}
-# p Hash[h1.map { |k,v| [k, h2[k.to_s] || v]}]
-# p h2
-
-# Check delete_results function
-# Perseus::LocalDBConnection.delete_results(wet_id: 1572)
-
-# hash =  { "test" => 1, "result_jsonb" => { "p1" => { "a" => 1, "b" => 1 }} }
-# hash.keys.each { |key| hash[key.to_sym] = hash.delete(key) }
-# puts hash
