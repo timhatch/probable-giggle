@@ -124,6 +124,16 @@ module Perseus
         0
       end
 
+      # "Unsafe" updates - Stored sort_values and results are overwritten without checks
+      def update_single!(params)
+        dataset = DB[:Results].where(QueryType.result[params].merge(locked: false))
+
+        dataset.update(
+          sort_values: Sequel.pg_array(params.fetch(:sort_values, [0, 0, 0, 0])),
+          result_jsonb: Sequel.pg_jsonb(params.fetch(:result_jsonb, {}))
+        )
+      end
+
       # lock :: (a) -> (1|0)
       # NOTE: Use QueryType to handle string vs. symbol hash issues
       def lockstate(params)

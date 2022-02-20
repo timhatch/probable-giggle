@@ -68,7 +68,7 @@ module Perseus
       DB.transaction do
         list.each do |result|
           LocalDBConnection::Results.reset(result)
-          LocalDBConnection::Results.update_single(result)
+          LocalDBConnection::Results.update_single!(result)
         end
       end
       [200, { body: list }.to_json]
