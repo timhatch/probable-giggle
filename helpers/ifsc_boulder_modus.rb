@@ -68,13 +68,10 @@ module Perseus
       tarr = [0, 0]
 
       # TODO: Maybe fix this dependency on string keys using dry-types?
-      # TODO: Refactor to address rubocop Style/SafeNavigation warning, e.g. results_jsonb&.each
-      unless result_jsonb.nil?
-        result_jsonb.each do |_k, v|
-          v.transform_keys!(&:to_s)
-          set_atts(barr, v['b']) unless v['b'].nil?
-          set_atts(tarr, v['t']) unless v['t'].nil?
-        end
+      result_jsonb&.each do |_k, v|
+        v.transform_keys!(&:to_s)
+        set_atts(barr, v['b']) unless v['b'].nil?
+        set_atts(tarr, v['t']) unless v['t'].nil?
       end
 
       tarr + barr
