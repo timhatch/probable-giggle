@@ -53,6 +53,29 @@ module Perseus
       LocalDBConnection::Results.delete(params) ? 200 : 501
     end
 
+    # Update results from some json file upload
+    # NOTE: As implemented, we're merely re-refreshing the results, not completely deleting
+    # them. So as a recursor to using this route:
+    # 1. The relevant results must be unlocked
+    # 2. A valid startlist for the round must exist
+    post '/file' do
+      return 501 unless params[:file]
+
+      data = params[:file][:tempfile].read
+      list = JSON.parse(data, symbolize_names: true)
+      # TODO: Using a temporary table is likely to be more efficient than the iterative
+      # update here, but as this method is rarely used, we can probably leaev this for now
+      DB.transaction do
+        list.each do |result|
+          LocalDBConnection::Results.reset(result)
+          LocalDBConnection::Results.update_single(result)
+        end
+      end
+      [200, { body: list }.to_json]
+    rescue StandardError => e
+      [500, { body: e.message }.to_json]
+    end
+
     # Delete any results in the broadcast pipeline
     # delete '/broadcast' do
     #   ResultsHandler.purge_eventstream ? 200 : 501
