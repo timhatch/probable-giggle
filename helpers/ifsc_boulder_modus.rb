@@ -56,19 +56,27 @@ module Perseus
 
     # Calculate the overall result for the competitor (i.e. 1t2 3b4), storing the result in
     # an array.
-    # @params
-    # - A hash containing the result, e.g.
-    # { p1: { a: 1, b: 1, t:1 }, p2: { a: 3, b: 3 } }
-    def sort_values result_jsonb
+    # @results is a hash of hash results, e.g.
+    # {
+    #   p1: { 'a' => 1, 'b' => 1, 't' => 1 },
+    #   'p2' => { 'a' => 3, 'b' => 3 }
+    # }
+    # NOTE: This method appears to be sensitive to whether the keys for any given result
+    # are symbols or strings.
+    def sort_values(result_jsonb)
       barr = [0, 0]
       tarr = [0, 0]
 
+      # TODO: Maybe fix this dependency on string keys using dry-types?
+      # TODO: Refactor to address rubocop Style/SafeNavigation warning, e.g. results_jsonb&.each
       unless result_jsonb.nil?
         result_jsonb.each do |_k, v|
+          v.transform_keys!(&:to_s)
           set_atts(barr, v['b']) unless v['b'].nil?
           set_atts(tarr, v['t']) unless v['t'].nil?
         end
       end
+
       tarr + barr
     end
   end
