@@ -46,11 +46,11 @@ module Perseus
       end
 
       # rubocop:disable Layout/HashAlignment
-      def self.update_result results, data
-        new_result = Perseus::IFSCBoulderModus.merge(results.first[:result_jsonb], data)
-        sort_array = Perseus::IFSCBoulderModus.sort_values(new_result)
+      def self.update_result(dataset, data)
+        new_result = Perseus::IFSCBoulderModus.merge(dataset.first[:result_jsonb], data)
+        sort_array = Perseus::IFSCBoulderModus.sort_values(new_result) 
 
-        results.update(
+        dataset.update(
           sort_values:  Sequel.pg_array(sort_array),
           result_jsonb: Sequel.pg_jsonb(new_result)
         )
