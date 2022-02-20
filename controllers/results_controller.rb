@@ -18,7 +18,6 @@ module Perseus
     # FIXME: Not sure this actually works
     before do
       params.keys.each { |k| params[k.to_sym] = params.delete(k) }
-      # params.transform_keys!(&:to_sym)
     end
 
     # Fetch either __multiple__ or (if either per_id or start_order are given) a __single__ result
