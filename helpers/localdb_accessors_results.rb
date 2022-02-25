@@ -105,7 +105,7 @@ module Perseus
       # fetch :: (a) -> ([b])
       # Fetch an array of results <[b]> for a route <a>
       def fetch params
-        QueryType.result[params].yield_self { |x| get_result(x).all }
+        get_result(QueryType.result[params]).all
       rescue StandardError
         []
       end
