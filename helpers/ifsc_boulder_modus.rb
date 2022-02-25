@@ -8,7 +8,7 @@ require 'json'
 
 module Perseus
   module IFSCBoulderModus
-    private_class_method
+    # private_class_method
 
     # Simple helper to calculate tops/bonuses and the relevant number of attempts
     # This function is not called if the relevant value is nil (doesn't exist), so
@@ -38,20 +38,6 @@ module Perseus
         Sequel.pg_array_op(:sort_values)[4],
         :rank_prev_heat
       ]
-    end
-
-    # Merge any update into the results, e.g.
-    # { p1: { a: 1, b: 1, t:1 }, p2: { a: 2 } }.merge( p2: { a: 3, b: 3 })
-    # becomes
-    # { p1: { a: 1, b: 1, t:1 }, p2: { a: 3, b: 3 } }
-    # @params
-    # - A Hash containing the unmodified result
-    # - A Hash containing the new result to be merged in
-    # NOTE: PostGreSQL's jsonb functionality may allow this to be dispensed with.
-    #
-    def merge result, update
-      result ||= {}
-      result.merge(update)
     end
 
     # Calculate the overall result for the competitor (i.e. 1t2 3b4), storing the result in
