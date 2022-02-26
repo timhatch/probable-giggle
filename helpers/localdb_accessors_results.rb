@@ -13,48 +13,65 @@ require_relative 'localdb_accessors'
 require_relative 'ifsc_boulder_modus'
 require_relative 'query-types'
 
+# Dataset operations
+#
+module Perseus
+  module LocalDBConnection
+    module Results
+      # Return the dataset of unlocked competitors given @params
+      # (Hash query) -> (Sequel::Dataset)
+      def self.unlocked(query)
+        DB[:Results].where(query.merge(locked: false))
+      end
+
+      # Return the dataset joining climber info and results for some given @query
+      # (Hash query) -> (Sequel::Dataset)
+      def self.personalia(query)
+        DB[:Results]
+          .join(:Climbers, [:per_id])
+          .where(query)
+          .select(:per_id, :lastname, :firstname, :nation, :birthyear, :start_order,
+                  :rank_prev_heat, :sort_values, :result_jsonb, :locked)
+      end
+    end
+  end
+end
+
 # Results data getters/setters
 #
 module Perseus
   module LocalDBConnection
     module Results
-      # Return a sequel object to fetch either __single__ or __multiple__ results
-      #
-      def self.get_result(params, order_by: 'result_rank')
-        DB[:Results]
-          .join(:Climbers, [:per_id])
-          .where(params)
-          .select(:per_id, :lastname, :firstname, :nation, :birthyear, :start_order,
-                  :rank_prev_heat, :sort_values, :result_jsonb, :locked)
+      # Append ranking data and return the sort sequel dataset @dataset
+      # (Sequel::Dataset dataset, ?order_by: String) -> (Sequel::Dataset)
+      def self.get_result(dataset, order_by: 'result_rank')
+        dataset
           .select_append(Perseus::IFSCBoulderModus.ranker.as(:result_rank))
           .order(order_by.to_sym)
       end
 
-      # rubocop:disable Layout/HashAlignment
+      # (Sequel::Dataset dataset, Hash data) -> (Integer) # Returns the number of records updated
       def self.update_result(dataset, data)
         new_result = dataset.first&.fetch(:result_jsonb, {})&.merge(data) || data
         sort_array = Perseus::IFSCBoulderModus.sort_values(new_result)
 
         dataset.update(
-          sort_values:  Sequel.pg_array(sort_array),
+          sort_values: Sequel.pg_array(sort_array),
           result_jsonb: Sequel.pg_jsonb(new_result)
         )
       end
 
-      # rubocop:enable Layout/HashAlignment
       # Change the status of some results to locked == false
-      # @query = :wet_id, :grp_id, :route[, :per_id]
+      # (Hash query) -> (Integer) # Returns the number of records updated
       def self.unlock(query)
-        DB[:Results].returning(:per_id, :locked).where(query).update(locked: false)
+        DB[:Results].where(query).update(locked: false)
       end
 
-      # Change the status of some results to locked == true
-      # @query = :wet_id, :grp_id, :route
       # rubocop:disable Metrics/AbcSize
+      # Change the status of some results to locked == true
+      # (Hash query) -> (Integer) # Returns the number of records updated
       def self.lock(query)
-        dataset = DB[:Results].where(query)
-                              .select(:per_id)
-                              .select_append(Perseus::IFSCBoulderModus.ranker.as(:result_rank))
+        dataset = get_result(DB[:Results].where(query).select(:per_id))
 
         DB.transaction do
           DB.create_table!(:Ranks, temp: true, as: dataset)
@@ -69,23 +86,20 @@ module Perseus
 
       module_function
 
-      # delete :: ({:wet_id, :grp_id, :route[, :per_id]}) -> (1|0)
       # Delete the complete entry for a given UNLOCKED route | competitor
-      # returns 1|0 if successful|unsuccessful or if an error is thrown
+      # (Hash params) -> (Integer)
       def delete params
-        DB[:Results].where(QueryType.result[params].merge(locked: false))
-                    .delete
+        unlocked(QueryType.result[params])
+          .delete
       rescue StandardError
         0
       end
 
-      # reset :: (a) -> (1|0)
       # Reset the sort_values and result_jsonb fields to nil values for a given
-      # UNLOCKED route | competitor
-      # returns 1|0 if successful|unsuccessful or if an error is thrown
+      # (Hash params) -> (Integer)
       def reset params
-        DB[:Results].where(QueryType.result[params].merge(locked: false))
-                    .update(sort_values: nil, result_jsonb: nil, rank_this_heat: nil)
+        unlocked(QueryType.result[params])
+          .update(sort_values: nil, result_jsonb: nil, rank_this_heat: nil)
       rescue StandardError
         0
       end
@@ -93,7 +107,9 @@ module Perseus
       # Fetch an array of results
       # (Hash params) -> (Array[Hash])
       def fetch(params)
-        get_result(QueryType.result[params]).all
+        dataset = personalia(QueryType.result[params])
+
+        get_result(dataset).all
       rescue StandardError
         []
       end
@@ -105,16 +121,18 @@ module Perseus
       # }
       # TODO: Validation for :result_jsonb
       def update_single params
+        dataset = unlocked(QueryType.result[params])
         json    = params[:result_jsonb] || {}
-        dataset = DB[:Results].where(QueryType.result[params].merge(locked: false))
+
         dataset.all.empty? ? 0 : update_result(dataset, json)
       rescue StandardError
         0
       end
 
       # "Unsafe" updates - Stored sort_values and results are overwritten without checks
+      # (Hash params) -> (Integer) # Returns the number of records updated
       def update_single!(params)
-        dataset = DB[:Results].where(QueryType.result[params].merge(locked: false))
+        dataset = unlocked(QueryType.result[params])
 
         dataset.update(
           sort_values: Sequel.pg_array(params.fetch(:sort_values, [0, 0, 0, 0])),
@@ -122,9 +140,10 @@ module Perseus
         )
       end
 
-      # lock :: (a) -> (1|0)
-      # NOTE: Use QueryType to handle string vs. symbol hash issues
+      # Change the lock state for the results given by @params
+      # (Hash params) -> (Array[String])
       def lockstate(params)
+        # NOTE: Use QueryType to handle string vs. symbol hash issues
         query = QueryType.result[params].slice(:wet_id, :grp_id, :route)
         state = QueryType.result[params].fetch(:locked)
         resp  = state.eql?(true) ? lock(query) : unlock(query)
