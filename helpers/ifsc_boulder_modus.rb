@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Module  Perseus                 - The namespace for all application code
 # Module  LocalDBConnection       - Helper methods to access the LAN database
 # Module  IFSCBoulderModus        - IFSCBoulderModus methods
@@ -22,15 +24,13 @@ module Perseus
       array[1] += value
     end
 
-    module_function
-
     # NOTE: Updated 18-02-2018 to use the revised scoring system for 2018
     # Sequel helper function to calculate a rank-order value sorting a boulder result by
     # tops (descending), bonuses (descending), top attempts (ascending), bonus attempts
     # (ascending). The desc(nulls: :last) postfix ensures that results with a null value
     # are ranked lower than results with a value of 0 (i.e. competitors who havenot started
     # are always ranked below competitors who have started
-    def rank_generator
+    def self.rank_generator
       [
         Sequel.pg_array_op(:sort_values)[1].desc(nulls: :last),
         Sequel.pg_array_op(:sort_values)[3].desc,
@@ -38,6 +38,22 @@ module Perseus
         Sequel.pg_array_op(:sort_values)[4],
         :rank_prev_heat
       ]
+    end
+
+    module_function
+
+    # A rank method to calculate ranking within the round
+    # OPTIMIZE: THE RANK FUNCTION DOES NOT WORK IF ONLY A SINGLE CLIMBER'S RESULTS ARE
+    # RETRIEVED. WE'D NEED TO USE A POSTGRES VIEW TO PRESERVE RANKINGS...
+    # AND IF WE'RE COING TO USE A VIEW THEN WE MAY BE ABLE TO DISPENSE WITH SOME OF THIS
+    # ALSO WE NEED TO DEAL WITH THE GENERAL RESULT
+    # Sequel.function(:rank).over can be alternately expressed as rank.function.over
+    #
+    def ranker
+      Sequel.function(:rank).over(
+        partition: %i[wet_id grp_id route],
+        order: rank_generator
+      )
     end
 
     # Calculate the overall result for the competitor (i.e. 1t2 3b4), storing the result in

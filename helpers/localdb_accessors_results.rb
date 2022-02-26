@@ -16,20 +16,6 @@ require_relative 'query-types'
 module Perseus
   module LocalDBConnection
     module Results
-      # A rank method to calculate ranking within the round
-      # OPTIMIZE: THE RANK FUNCTION DOES NOT WORK IF ONLY A SINGLE CLIMBER'S RESULTS ARE
-      # RETRIEVED. WE'D NEED TO USE A POSTGRES VIEW TO PRESERVE RANKINGS...
-      # AND IF WE'RE COING TO USE A VIEW THEN WE MAY BE ABLE TO DISPENSE WITH SOME OF THIS
-      # ALSO WE NEED TO DEAL WITH THE GENERAL RESULT
-      # Sequel.function(:rank).over can be alternately expressed as rank.function.over
-      #
-      def self.rank
-        Sequel.function(:rank).over(
-          partition: %i[wet_id grp_id route],
-          order: Perseus::IFSCBoulderModus.rank_generator
-        ).as(:result_rank)
-      end
-
       # Return a sequel object to fetch either __single__ or __multiple__ results
       #
       def self.get_result params, order_by: 'result_rank'
@@ -38,7 +24,7 @@ module Perseus
           .where(params)
           .select(:per_id, :lastname, :firstname, :nation, :birthyear, :start_order,
                   :rank_prev_heat, :sort_values, :result_jsonb, :locked)
-          .select_append(&method(:rank))
+          .select_append(Perseus::IFSCBoulderModus.ranker.as(:result_rank))
           .order(order_by.to_sym)
       end
 
@@ -64,7 +50,10 @@ module Perseus
       # @query = :wet_id, :grp_id, :route
       # rubocop:disable Metrics/AbcSize
       def self.lock(query)
-        dataset = DB[:Results].select(:per_id).select_append(&method(:rank)).where(query)
+        dataset = DB[:Results].where(query)
+                              .select(:per_id)
+                              .select_append(Perseus::IFSCBoulderModus.ranker.as(:result_rank))
+
         DB.transaction do
           DB.create_table!(:Ranks, temp: true, as: dataset)
 
