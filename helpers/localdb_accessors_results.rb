@@ -10,7 +10,7 @@ require 'json'
 
 # Debugging
 require_relative 'localdb_accessors'
-require_relative 'ifsc_boulder_modus'
+require_relative 'ifsc_2024_modus'
 require_relative 'query-types'
 
 # Dataset operations
@@ -46,14 +46,14 @@ module Perseus
       # (Sequel::Dataset dataset, ?order_by: String) -> (Sequel::Dataset)
       def self.get_result(dataset, order_by: 'result_rank')
         dataset
-          .select_append(Perseus::IFSCBoulderModus.ranker.as(:result_rank))
+          .select_append(Perseus::IFSC2024Modus.ranker.as(:result_rank))
           .order(order_by.to_sym)
       end
 
       # (Sequel::Dataset dataset, Hash data) -> (Integer) # Returns the number of records updated
       def self.update_result(dataset, data)
         new_result = dataset.first&.fetch(:result_jsonb, {})&.merge(data) || data
-        sort_array = Perseus::IFSCBoulderModus.sort_values(new_result)
+        sort_array = Perseus::IFSC2024Modus.sort_values(new_result)
 
         dataset.update(
           sort_values: Sequel.pg_array(sort_array),
@@ -135,7 +135,7 @@ module Perseus
         dataset = unlocked(QueryType.result[params])
 
         dataset.update(
-          sort_values: Sequel.pg_array(params.fetch(:sort_values, [0, 0, 0, 0])),
+          sort_values: Sequel.pg_array(params.fetch(:sort_values, [0, 0])),
           result_jsonb: Sequel.pg_jsonb(params.fetch(:result_jsonb, {}))
         )
       end
@@ -154,3 +154,10 @@ module Perseus
     end
   end
 end
+
+=begin
+# Test Fetch
+Perseus::LocalDBConnection::Results
+  .fetch(wet_id: 8, route: 1, grp_id: 6)
+  .each { p _1.slice(:per_id, :sort_values, :rank_prev_heat) }
+=end
