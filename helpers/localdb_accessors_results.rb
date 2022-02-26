@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Module  Perseus                 - The namespace for all application code
 # Module  LocalDBConnection       - Helper methods to access the LAN database
 # Module  Competition             - Competition related methods
@@ -18,7 +20,7 @@ module Perseus
     module Results
       # Return a sequel object to fetch either __single__ or __multiple__ results
       #
-      def self.get_result params, order_by: 'result_rank'
+      def self.get_result(params, order_by: 'result_rank')
         DB[:Results]
           .join(:Climbers, [:per_id])
           .where(params)
@@ -38,8 +40,8 @@ module Perseus
           result_jsonb: Sequel.pg_jsonb(new_result)
         )
       end
-      # rubocop:enable Layout/HashAlignment
 
+      # rubocop:enable Layout/HashAlignment
       # Change the status of some results to locked == false
       # @query = :wet_id, :grp_id, :route[, :per_id]
       def self.unlock(query)
@@ -88,9 +90,9 @@ module Perseus
         0
       end
 
-      # fetch :: (a) -> ([b])
-      # Fetch an array of results <[b]> for a route <a>
-      def fetch params
+      # Fetch an array of results
+      # (Hash params) -> (Array[Hash])
+      def fetch(params)
         get_result(QueryType.result[params]).all
       rescue StandardError
         []
