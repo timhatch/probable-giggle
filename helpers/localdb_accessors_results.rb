@@ -16,9 +16,6 @@ require_relative 'query-types'
 module Perseus
   module LocalDBConnection
     module Results
-      # Default route parameters
-      @default_route = { wet_id: 0, grp_id: 0, route: 0 }
-
       # A rank method to calculate ranking within the round
       # OPTIMIZE: THE RANK FUNCTION DOES NOT WORK IF ONLY A SINGLE CLIMBER'S RESULTS ARE
       # RETRIEVED. WE'D NEED TO USE A POSTGRES VIEW TO PRESERVE RANKINGS...
