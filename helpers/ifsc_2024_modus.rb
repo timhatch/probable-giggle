@@ -9,12 +9,19 @@ require 'pg'
 
 module Perseus
   module IFSC2024Modus
+    # sig: (Hash hash) -> (Hash)
+    def self.deep_transform_keys(hash)
+      hash.reduce({}) { |m, (k, v)| m.merge(k.to_sym => v.transform_keys(&:to_sym)) }
+    end
+
     # NOTE: Multiply by 10 as sort values are required to be integers and
-    # the Paris2024 format scores in 0.1 increments
+    # NOTE: Use a simple hash key transformer
+    # the Paris2024 format scores in 0.1 increments. 
     # Assume points scores are stored under key :n
     #
     # sig: (Hash hash, Array[Symbol] keys) -> (Integer)
     def self.score(hash, keys)
+      data = deep_transform_keys(hash)
       10 * keys.reduce(0) { |memo, key| memo + data&.dig(key, :n).to_f }
     end
 
