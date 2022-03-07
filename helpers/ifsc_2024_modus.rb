@@ -16,7 +16,7 @@ module Perseus
 
     # NOTE: Multiply by 10 as sort values are required to be integers and
     # NOTE: Use a simple hash key transformer
-    # the Paris2024 format scores in 0.1 increments. 
+    # the Paris2024 format scores in 0.1 increments.
     # Assume points scores are stored under key :n
     #
     # sig: (Hash hash, Array[Symbol] keys) -> (Integer)
@@ -54,8 +54,8 @@ module Perseus
     #
     # sig: (Hash result_jsonb) -> (Array[Integer])
     def sort_values(result_jsonb)
-      b = score(result_jsonb, %i[p1 p2 p3 p4]).to_i
-      l = score(result_jsonb, %i[p5]).to_i
+      b = score(result_jsonb, %i[p1 p2 p3 p4]).round
+      l = score(result_jsonb, %i[p5]).round
 
       [b + l, [b, l].max]
     end
