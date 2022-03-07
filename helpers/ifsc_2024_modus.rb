@@ -20,7 +20,7 @@ module Perseus
     # Assume points scores are stored under key :n
     #
     # sig: (Hash hash, Array[Symbol] keys) -> (Integer)
-    def self.score(hash, keys)
+    def self.cumulative_score(hash, keys)
       data = deep_transform_keys(hash)
       10 * keys.reduce(0) { |memo, key| memo + data&.dig(key, :n).to_f }
     end
@@ -54,8 +54,8 @@ module Perseus
     #
     # sig: (Hash result_jsonb) -> (Array[Integer])
     def sort_values(result_jsonb)
-      b = score(result_jsonb, %i[p1 p2 p3 p4]).round
-      l = score(result_jsonb, %i[p5]).round
+      b = cumulative_score(result_jsonb, %i[p1 p2 p3 p4]).round
+      l = cumulative_score(result_jsonb, %i[p5]).round
 
       [b + l, [b, l].max]
     end
