@@ -50,9 +50,17 @@ module Perseus
           .order(order_by.to_sym)
       end
 
+      # Given some new results <data>, assumed to be a hash containing results for one or more
+      # boulders/routes:
+      # - Calculate and append the point scores for each buolder/route (append_scores)
+      # - Merge the new results into the corresponding "old" results for the relevant <dataset>
+      # - Calculate the updated sorting values used for rank calculations
+      # - Update the stored results
+      #
       # (Sequel::Dataset dataset, Hash data) -> (Integer) # Returns the number of records updated
       def self.update_result(dataset, data)
-        new_result = dataset.first&.fetch(:result_jsonb, {})&.merge(data) || data
+        with_score = Perseus::IFSC2024Modus.append_scores(data)
+        new_result = dataset.first&.fetch(:result_jsonb, {})&.merge(with_score) || with_score
         sort_array = Perseus::IFSC2024Modus.sort_values(new_result)
 
         dataset.update(

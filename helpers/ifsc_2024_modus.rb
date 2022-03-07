@@ -9,6 +9,9 @@ require 'pg'
 
 module Perseus
   module IFSC2024Modus
+    # NOTE: By default, keys in the `data` hash are strings
+    SCORES = { 't' => 25, 'Z' => 6, 'b' => 3 }.freeze
+
     # sig: (Hash hash) -> (Hash)
     def self.deep_transform_keys(hash)
       hash.reduce({}) { |m, (k, v)| m.merge(k.to_sym => v.transform_keys(&:to_sym)) }
@@ -34,7 +37,38 @@ module Perseus
       ]
     end
 
+    # Given some result hash, typically of the form:
+    # - ?a: Integer?    # Number of attempts | nil
+    # - ?b: Integer?    # Attempts to score the first Zone | nil
+    # - ?Z: Integer?    # Attempts to score the second Zone | nil
+    # - ?t: Integer?    # Attempts tp score the Top | nil
+    # - ?h: Float?      # Height gained on a route
+    # Calculate the corresponding points <n> for the result
+    #
+    # NOTE: By default, both Sequel and Sinatra store json/jsonb data with string-based keys
+    #
+    # sig: (Hash result) -> (Integer)
+    def self.points(result)
+      return result['h'] if result&.fetch('h', nil)
+
+      %w[t Z b].map do |key|
+        a = result&.fetch(key, 0) || 0
+        a.zero? ? 0 : SCORES[key] - (0.1 * (a - 1))
+      end.max
+    end
+
     module_function
+
+    # Given some results, e.g. { 'p1' => Hash, 'p2' => Hash, ...}
+    # Return a modified result, calculating and appending points scores for each individual
+    # results
+    #
+    # sig: (Hash results) -> (Hash)
+    def append_scores(results)
+      append = ->(r) { r.merge!('n' => points(r)) }
+
+      results.reduce({}) { |m, (k, v)| m.merge!(k => append[v]) }
+    end
 
     # A rank method to calculate ranking within the round
     # Sequel.function(:rank).over can be alternately expressed as rank.function.over
