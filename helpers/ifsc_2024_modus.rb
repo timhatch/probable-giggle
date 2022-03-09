@@ -12,11 +12,6 @@ module Perseus
     # NOTE: By default, keys in the `data` hash are strings
     SCORES = { 't' => 25, 'Z' => 6, 'b' => 3 }.freeze
 
-    # sig: (Hash hash) -> (Hash)
-    def self.deep_transform_keys(hash)
-      hash.reduce({}) { |m, (k, v)| m.merge(k.to_sym => v.transform_keys(&:to_sym)) }
-    end
-
     # the Paris2024 format scores in 0.1 increments. Multiply by 10 as sort values are required to
     # be integers
     # Assume points scores are stored under key 'n'
