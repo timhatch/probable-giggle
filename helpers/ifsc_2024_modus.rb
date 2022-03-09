@@ -17,15 +17,15 @@ module Perseus
       hash.reduce({}) { |m, (k, v)| m.merge(k.to_sym => v.transform_keys(&:to_sym)) }
     end
 
-    # NOTE: Multiply by 10 as sort values are required to be integers and
-    # NOTE: Use a simple hash key transformer
-    # the Paris2024 format scores in 0.1 increments.
-    # Assume points scores are stored under key :n
+    # the Paris2024 format scores in 0.1 increments. Multiply by 10 as sort values are required to
+    # be integers
+    # Assume points scores are stored under key 'n'
     #
-    # sig: (Hash hash, Array[Symbol] keys) -> (Integer)
+    # NOTE: By default, both Sequel and Sinatra store json/jsonb data with string-based keys
+    #
+    # sig: (Hash hash, Array[String] keys) -> (Integer)
     def self.cumulative_score(hash, keys)
-      data = deep_transform_keys(hash)
-      10 * keys.reduce(0) { |memo, key| memo + data&.dig(key, :n).to_f }
+      10 * keys.reduce(0) { |memo, key| memo + hash&.dig(key, 'n').to_f }
     end
 
     # sig: () -> Array[Sequel::SQL::OrderedExpression])
@@ -86,10 +86,12 @@ module Perseus
     # - the best rank on either boulder/lead
     # - the worst rank on either boulder/lead
     #
+    # NOTE: By default, both Sequel and Sinatra store json/jsonb data with string-based keys
+    #
     # sig: (Hash result_jsonb) -> (Array[Integer])
     def sort_values(result_jsonb)
-      b = cumulative_score(result_jsonb, %i[p1 p2 p3 p4]).round
-      l = cumulative_score(result_jsonb, %i[p5]).round
+      b = cumulative_score(result_jsonb, %w[p1 p2 p3 p4]).round
+      l = cumulative_score(result_jsonb, %w[p5]).round
 
       [b + l, [b, l].max]
     end
